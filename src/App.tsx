@@ -17,10 +17,37 @@ const getTodayDateString = (): string => {
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>(loadTasks());
+  const originalTitle = "Chrono Task"; // Store original title
 
   // Save tasks whenever they change
   useEffect(() => {
     saveTasks(tasks);
+  }, [tasks]);
+
+  // Update document title when tasks are running
+  useEffect(() => {
+    const runningTask = tasks.find(task => task.isRunning);
+
+    if (runningTask) {
+      const updateTitle = () => {
+        if (runningTask.startTime) {
+          const elapsed = Date.now() - runningTask.startTime + runningTask.totalTime;
+          const timeStr = new Date(elapsed).toISOString().substring(11, 19); // Format as HH:MM:SS
+          document.title = `${timeStr} - ${runningTask.name}`;
+        }
+      };
+
+      // Update immediately and then every second
+      updateTitle();
+      const intervalId = setInterval(updateTitle, 1000);
+
+      return () => {
+        clearInterval(intervalId);
+        document.title = originalTitle;
+      };
+    } else {
+      document.title = originalTitle;
+    }
   }, [tasks]);
 
   const handleAddTask = useCallback((name: string) => {
