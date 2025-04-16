@@ -115,6 +115,10 @@ const App: React.FC = () => {
     );
   }, []);
 
+  const handleDelete = useCallback((id: string) => {
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
+  }, []);
+
   const onDragEnd = useCallback(
     (result: DropResult) => {
       const { source, destination, draggableId } = result;
@@ -200,6 +204,7 @@ const App: React.FC = () => {
               tasks={tasksByDay[day]}
               onStartPause={handleStartPause}
               onStop={handleStop}
+              onDelete={handleDelete}
             />
           ))}
         </div>

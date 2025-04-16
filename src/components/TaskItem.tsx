@@ -1,6 +1,6 @@
 import { Draggable } from "@hello-pangea/dnd";
 import React, { useEffect, useState } from "react";
-import { FaGripVertical, FaPause, FaPlay, FaStop } from "react-icons/fa";
+import { FaGripVertical, FaPause, FaPlay, FaStop, FaTrash } from "react-icons/fa";
 import { Task } from "../types";
 import { formatTime } from "../utils/timeUtils";
 
@@ -9,9 +9,16 @@ interface TaskItemProps {
   index: number;
   onStartPause: (id: string) => void;
   onStop: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, index, onStartPause, onStop }) => {
+const TaskItem: React.FC<TaskItemProps> = ({
+  task,
+  index,
+  onStartPause,
+  onStop,
+  onDelete,
+}) => {
   const [displayTime, setDisplayTime] = useState<number>(task.totalTime);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -37,6 +44,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onStartPause, onStop }
 
   const handleStopClick = () => {
     if (!task.isCompleted) onStop(task.id);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to delete "${task.name}"?`)) {
+      onDelete(task.id);
+    }
   };
 
   const getProgressColor = () => {
@@ -171,6 +184,26 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onStartPause, onStop }
                   title="Stop task"
                 >
                   <FaStop />
+                </button>
+                <button
+                  onClick={handleDelete}
+                  style={{
+                    padding: "6px",
+                    minWidth: "32px",
+                    background: "#dc3545",
+                    border: "none",
+                    color: "#fff",
+                    borderRadius: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "opacity 0.2s ease",
+                  }}
+                  aria-label="Delete task"
+                  title="Delete task"
+                >
+                  <FaTrash />
                 </button>
               </>
             )}
