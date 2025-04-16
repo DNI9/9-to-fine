@@ -53,9 +53,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const getProgressColor = () => {
-    if (task.isCompleted) return "#28a745";
-    if (task.isRunning) return "#007bff";
-    return "#6c757d";
+    if (task.isCompleted) return "var(--success-color)";
+    if (task.isRunning) return "var(--primary-color)";
+    return "var(--text-muted)";
   };
 
   return (
@@ -74,12 +74,12 @@ const TaskItem: React.FC<TaskItemProps> = ({
             alignItems: "center",
             padding: "12px 16px",
             background: task.isCompleted
-              ? "#f8f9fa"
+              ? "var(--gray-50)"
               : task.isRunning
-              ? "#e3f2fd"
+              ? "var(--gray-100)"
               : snapshot.isDragging
-              ? "#f0f7ff"
-              : "#ffffff",
+              ? "var(--gray-100)"
+              : "var(--background-card)",
             borderLeft: `4px solid ${getProgressColor()}`,
             opacity: task.isCompleted ? 0.8 : 1,
             boxShadow: snapshot.isDragging
@@ -95,7 +95,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
           <div
             {...provided.dragHandleProps}
             style={{
-              color: "#adb5bd",
+              color: "var(--text-muted)",
               display: "flex",
               alignItems: "center",
               cursor: task.isCompleted ? "default" : "grab",
@@ -111,7 +111,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               fontSize: "0.95rem",
               fontWeight: 500,
               textDecoration: task.isCompleted ? "line-through" : "none",
-              color: task.isCompleted ? "#6c757d" : "#212529",
+              color: task.isCompleted ? "var(--text-muted)" : "var(--text-primary)",
             }}
           >
             {task.name}
@@ -122,7 +122,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
             style={{
               fontFamily: "monospace",
               fontSize: "0.9rem",
-              color: task.isRunning ? "#007bff" : "#495057",
+              color: task.isRunning ? "var(--primary-color)" : "var(--text-secondary)",
               fontWeight: task.isRunning ? 600 : 400,
             }}
           >
@@ -135,9 +135,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
               <span
                 style={{
                   fontSize: "0.85rem",
-                  color: "#28a745",
+                  color: "var(--success-color)",
                   padding: "4px 8px",
-                  background: "#e9f7ef",
+                  background: "var(--gray-100)",
                   borderRadius: "4px",
                   fontWeight: 500,
                 }}
@@ -151,9 +151,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   style={{
                     padding: "6px",
                     minWidth: "32px",
-                    background: task.isRunning ? "#ff4757" : "#4cd137",
+                    background: task.isRunning
+                      ? "var(--danger-color)"
+                      : "var(--success-color)",
                     border: "none",
-                    color: "#fff",
+                    color: "var(--white)",
                     borderRadius: "4px",
                     display: "flex",
                     alignItems: "center",
@@ -171,9 +173,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   style={{
                     padding: "6px",
                     minWidth: "32px",
-                    background: "#6c757d",
+                    background: "var(--text-muted)",
                     border: "none",
-                    color: "#fff",
+                    color: "var(--white)",
                     borderRadius: "4px",
                     display: "flex",
                     alignItems: "center",
@@ -190,9 +192,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   style={{
                     padding: "6px",
                     minWidth: "32px",
-                    background: "#dc3545",
+                    background: "var(--danger-color)",
                     border: "none",
-                    color: "#fff",
+                    color: "var(--white)",
                     borderRadius: "4px",
                     display: "flex",
                     alignItems: "center",

@@ -5,6 +5,7 @@
   --success-color: #2ecc71;
   --danger-color: #e74c3c;
   --warning-color: #f39c12;
+  --white: #ffffff;
 
   /* Neutrals */
   --gray-50: #f8f9fa;
@@ -18,9 +19,9 @@
   --gray-800: #343a40;
   --gray-900: #212529;
 
-  /* Semantic colors */
+  /* Semantic colors - Light Theme */
   --background-body: var(--gray-100);
-  --background-card: #ffffff;
+  --background-card: var(--white);
   --text-primary: var(--gray-900);
   --text-secondary: var(--gray-700);
   --text-muted: var(--gray-600);
@@ -47,6 +48,27 @@
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  --background-body: #1a1b1e;
+  --background-card: #2c2e33;
+  --text-primary: #ffffff;
+  --text-secondary: #e2e2e2;
+  --text-muted: #a1a1a1;
+  --border-color: #404040;
+  --white: #ffffff;
+
+  /* Override some component specific colors */
+  --gray-50: #2c2e33;
+  --gray-100: #323438;
+  --gray-200: #404040;
+
+  /* Adjust button colors for dark mode */
+  --success-color: #2ecc71;
+  --danger-color: #e74c3c;
+  --warning-color: #f39c12;
 }
 
 /* Base styles */
@@ -78,7 +100,7 @@ h1 {
 }
 
 .app-description {
-  color: #666;
+  color: var(--text-muted);
   margin: -30px 0 30px;
   font-size: 1.1em;
   text-align: center;
@@ -101,6 +123,12 @@ h1 {
   border-radius: var(--radius-md);
   font-size: 1rem;
   transition: var(--transition-fast);
+  background-color: var(--background-card);
+  color: var(--text-primary);
+}
+
+.task-input-container input[type="text"]::placeholder {
+  color: var(--text-muted);
 }
 
 .task-input-container input[type="text"]:focus {

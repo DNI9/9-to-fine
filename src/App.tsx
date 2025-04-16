@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import "./App.css"; // We'll create this later for basic styling
 import DaySection from "./components/DaySection";
 import TaskInput from "./components/TaskInput";
+import ThemeToggle from "./components/ThemeToggle";
 import { Task } from "./types";
 import { loadTasks, saveTasks } from "./utils/storageUtils";
 
@@ -18,7 +19,20 @@ const getTodayDateString = (): string => {
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>(loadTasks());
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return (
+      savedTheme === "dark" ||
+      (savedTheme === null && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    );
+  });
   const originalTitle = "9-to-Fine - Because tracking time is totally fine... right? 😅";
+
+  // Set theme on body when dark mode changes
+  useEffect(() => {
+    document.body.dataset.theme = isDarkMode ? "dark" : "light";
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
 
   // Save tasks whenever they change
   useEffect(() => {
@@ -189,6 +203,7 @@ const App: React.FC = () => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="app-container">
+        <ThemeToggle isDark={isDarkMode} onToggle={() => setIsDarkMode(prev => !prev)} />
         <h1>9-to-Fine</h1>
         <p className="app-description">
           A simple time tracking app to manage your daily tasks with drag-and-drop
