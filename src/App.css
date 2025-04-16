@@ -179,6 +179,33 @@ h1 {
   margin: var(--space-3) 0;
 }
 
+/* Day header */
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.day-header h2 {
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.day-total-time {
+  font-family: "SF Mono", "Roboto Mono", monospace;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  padding: 4px 8px;
+  background: var(--gray-100);
+  border-radius: var(--radius-sm);
+}
+
 /* Task items */
 .task-item {
   background: var(--background-card);
@@ -253,4 +280,16 @@ h1 {
 .day-section.drag-over {
   background-color: var(--gray-100);
   border-color: var(--primary-color);
+}
+
+/* Total time display */
+.total-time {
+  background-color: #f8f9fa;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: right;
+  font-size: 1.1em;
+  color: #2c3e50;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

@@ -11,7 +11,16 @@ interface DaySectionProps {
 }
 
 const DaySection: React.FC<DaySectionProps> = ({ date, tasks, onStartPause, onStop }) => {
-  // sectionStyle and titleStyle removed, using CSS classes now
+  // Calculate total time for the day
+  const getTotalTime = () => {
+    return tasks.reduce((total, task) => {
+      let taskTime = task.totalTime;
+      if (task.isRunning && task.startTime) {
+        taskTime += Date.now() - task.startTime;
+      }
+      return total + taskTime;
+    }, 0);
+  };
 
   // Format date for display (e.g., "April 17, 2025")
   const displayDate = new Date(date + "T00:00:00").toLocaleDateString(undefined, {
@@ -34,8 +43,12 @@ const DaySection: React.FC<DaySectionProps> = ({ date, tasks, onStartPause, onSt
   return (
     // Apply the day-section class here
     <div className="day-section">
-      {/* Remove inline style from h2 */}
-      <h2>{isToday ? "Today's Tasks" : displayDate}</h2>
+      <div className="day-header">
+        <h2>{isToday ? "Today's Tasks" : displayDate}</h2>
+        <span className="day-total-time">
+          {new Date(getTotalTime()).toISOString().substring(11, 19)}
+        </span>
+      </div>
       <Droppable droppableId={date}>
         {(provided, snapshot) => (
           <div
