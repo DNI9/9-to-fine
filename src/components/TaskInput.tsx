@@ -17,20 +17,22 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px", padding: "5px" }}>
-      <input
-        type="text"
-        value={taskName}
-        onChange={e => setTaskName(e.target.value)}
-        placeholder="Enter new task name and press Enter"
-        aria-label="New task name"
-        style={{
-          width: "100%",
-          padding: "15px",
-          boxSizing: "border-box",
-        }}
-      />
-    </form>
+    // Use a div with the class for styling, keep form for submission logic
+    <div className="task-input-container">
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexGrow: 1, gap: "10px" }}>
+        <input
+          type="text"
+          value={taskName}
+          onChange={e => setTaskName(e.target.value)}
+          placeholder="Enter new task name" // Updated placeholder
+          aria-label="New task name"
+          // Inline styles removed, handled by .task-input-container input in CSS
+        />
+        <button type="submit" disabled={!taskName.trim()}>
+          Add Task
+        </button>
+      </form>
+    </div>
   );
 };
 

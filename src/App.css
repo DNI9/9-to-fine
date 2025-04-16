@@ -1,63 +1,160 @@
+:root {
+  --primary-color: #4a90e2; /* A nice blue */
+  --secondary-color: #50e3c2; /* A teal/turquoise */
+  --background-light: #f8f9fa;
+  --background-container: #ffffff;
+  --text-dark: #343a40;
+  --text-light: #ffffff;
+  --border-color: #dee2e6;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --danger-color: #f15b6c; /* For delete buttons */
+}
+
 body {
-  font-family: sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Nicer font */
   margin: 0;
   padding: 20px;
-  background-color: #f4f7f6;
-  color: #333;
+  background-color: var(--background-light);
+  color: var(--text-dark);
 }
 
 .app-container {
   max-width: 800px;
-  margin: 0 auto;
-  background-color: #fff;
-  padding: 20px 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 20px auto; /* Added top margin */
+  background-color: var(--background-container);
+  padding: 25px 35px; /* Slightly increased padding */
+  border-radius: 12px; /* More rounded corners */
+  box-shadow: 0 4px 15px var(--shadow-color); /* Enhanced shadow */
+  border: 1px solid var(--border-color); /* Subtle border */
 }
 
 h1 {
   text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
+  color: var(--primary-color); /* Use primary color */
+  margin-bottom: 35px; /* Increased margin */
+  font-weight: 600; /* Slightly bolder */
 }
 
-/* Styling for TaskInput can be added here if needed,
-   but inline styles were used in the component */
+/* TaskInput specific styles */
+.task-input-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px; /* Add space below input */
+}
+
+.task-input-container input[type="text"] {
+  flex-grow: 1; /* Input takes available space */
+  padding: 10px 12px;
+}
+
+.task-input-container button {
+  padding: 10px 15px;
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+}
+.task-input-container button:hover:not(:disabled) {
+  background-color: #3a7bc8; /* Darker blue on hover */
+}
 
 .days-container {
   margin-top: 30px;
+  display: grid; /* Use grid for layout */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
+  gap: 25px; /* Space between day sections */
 }
 
-/* Styling for DaySection and TaskItem are mostly handled
-   via inline styles within their respective components for dynamic
-   background colors etc. We can add more global styles here if desired. */
+/* DaySection specific styles */
+.day-section {
+  background-color: var(--background-light); /* Light background for sections */
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
 
-/* Example: Add some spacing below the DaySection title */
-/* h2 in DaySection already has margin-bottom via inline style */
+.day-section h2 {
+  color: var(--primary-color);
+  margin-top: 0; /* Remove default top margin */
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color); /* Separator line */
+  padding-bottom: 10px;
+  font-size: 1.3em;
+}
 
-/* Example: Style the placeholder text in empty DaySections */
-/* p tag in DaySection already has inline styles */
+.day-section p {
+  /* Placeholder text */
+  font-style: italic;
+  color: #6c757d; /* Muted color */
+}
 
-/* General Button Styling (can override inline styles if needed) */
+/* TaskItem specific styles */
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: var(--background-container); /* White background for tasks */
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.2s ease;
+}
+
+.task-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.task-item span {
+  flex-grow: 1;
+  margin-right: 10px; /* Space between text and button */
+  word-break: break-word; /* Prevent long text overflow */
+}
+
+.task-item button {
+  /* Delete button */
+  padding: 5px 10px;
+  background-color: var(--danger-color);
+  color: var(--text-light);
+  border: none;
+  font-size: 0.9em;
+}
+.task-item button:hover:not(:disabled) {
+  background-color: #d94857; /* Darker red on hover */
+}
+
+/* General Button Styling (Base styles, specific styles override) */
 button {
   cursor: pointer;
-  border: 1px solid #ccc;
-  background-color: #eee;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  border: 1px solid var(--border-color);
+  background-color: #e9ecef; /* Lighter grey */
+  color: var(--text-dark);
+  border-radius: 5px; /* Slightly more rounded */
+  padding: 8px 12px; /* Default padding */
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  font-weight: 500;
 }
 
 button:hover:not(:disabled) {
-  background-color: #ddd;
+  background-color: #ced4da; /* Darker grey on hover */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 /* Input field basic styling */
 input[type="text"] {
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 8px 10px; /* Default padding */
+  font-size: 1em;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25); /* Focus indicator */
 }

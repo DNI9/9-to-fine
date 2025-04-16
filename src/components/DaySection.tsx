@@ -11,22 +11,7 @@ interface DaySectionProps {
 }
 
 const DaySection: React.FC<DaySectionProps> = ({ date, tasks, onStartPause, onStop }) => {
-  const sectionStyle: React.CSSProperties = {
-    border: "1px solid #eee",
-    borderRadius: "5px",
-    padding: "15px",
-    marginBottom: "20px",
-    backgroundColor: "#fafafa",
-    minHeight: "100px", // Ensure droppable area is visible even when empty
-  };
-
-  const titleStyle: React.CSSProperties = {
-    marginBottom: "15px",
-    borderBottom: "1px solid #ddd",
-    paddingBottom: "5px",
-    fontSize: "1.1em",
-    fontWeight: "bold",
-  };
+  // sectionStyle and titleStyle removed, using CSS classes now
 
   // Format date for display (e.g., "April 17, 2025")
   const displayDate = new Date(date + "T00:00:00").toLocaleDateString(undefined, {
@@ -47,8 +32,10 @@ const DaySection: React.FC<DaySectionProps> = ({ date, tasks, onStartPause, onSt
   const isToday = date === todayDateString;
 
   return (
-    <div style={sectionStyle}>
-      <h2 style={titleStyle}>{isToday ? "Today's Tasks" : displayDate}</h2>
+    // Apply the day-section class here
+    <div className="day-section">
+      {/* Remove inline style from h2 */}
+      <h2>{isToday ? "Today's Tasks" : displayDate}</h2>
       <Droppable droppableId={date}>
         {(provided, snapshot) => (
           <div
@@ -72,9 +59,8 @@ const DaySection: React.FC<DaySectionProps> = ({ date, tasks, onStartPause, onSt
                 />
               ))
             ) : (
-              <p style={{ color: "#888", textAlign: "center", fontStyle: "italic" }}>
-                No tasks for this day. Drag tasks here.
-              </p>
+              // Remove inline style from p tag
+              <p>No tasks for this day. Drag tasks here.</p>
             )}
             {provided.placeholder} {/* Placeholder for dragging items */}
           </div>

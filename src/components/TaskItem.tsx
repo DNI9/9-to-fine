@@ -1,5 +1,6 @@
-import { Draggable } from "@hello-pangea/dnd";
+import { Draggable, DraggableProvided, DraggableStateSnapshot } from "@hello-pangea/dnd"; // Re-add Draggable and add types
 import React, { useEffect, useState } from "react";
+import { FaPause, FaPlay, FaStop } from "react-icons/fa"; // Import icons
 import { Task } from "../types";
 import { formatTime } from "../utils/timeUtils";
 
@@ -50,61 +51,80 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onStartPause, onStop }
     }
   };
 
-  const itemStyle = {
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    padding: "10px 15px",
-    marginBottom: "8px",
-    backgroundColor: task.isCompleted ? "#f0f0f0" : task.isRunning ? "#e6f7ff" : "white",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    opacity: task.isCompleted ? 0.6 : 1,
-  };
+  // Define dynamic styles based on task state
+  const getDynamicStyle = (isDragging: boolean): React.CSSProperties => {
+    let backgroundColor = "var(--background-container)"; // Default from CSS .task-item
+    let opacity = 1;
 
-  const buttonStyle = {
-    marginLeft: "5px",
-    padding: "5px 10px",
-    cursor: "pointer",
+    if (isDragging) {
+      backgroundColor = "#d4eaff"; // Dragging feedback
+    } else if (task.isCompleted) {
+      backgroundColor = "#e9ecef"; // Completed background
+      opacity = 0.6;
+    } else if (task.isRunning) {
+      backgroundColor = "#e6f7ff"; // Running background (light blue)
+    }
+
+    // Only return dynamic parts, combine with provided styles later
+    return {
+      backgroundColor,
+      opacity,
+    };
   };
 
   return (
     <Draggable draggableId={task.id} index={index} isDragDisabled={task.isCompleted}>
-      {(provided, snapshot) => (
+      {(
+        provided: DraggableProvided,
+        snapshot: DraggableStateSnapshot // Add types here
+      ) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          className="task-item" // Apply the base class
+          // Combine dynamic styles and provided styles here
           style={{
-            ...itemStyle,
+            ...getDynamicStyle(snapshot.isDragging),
             ...provided.draggableProps.style,
-            // Optional: visual change while dragging
-            backgroundColor: snapshot.isDragging ? "#d4eaff" : itemStyle.backgroundColor,
           }}
         >
+          {/* Task Name */}
           <span>{task.name}</span>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <span style={{ marginRight: "15px", fontFamily: "monospace" }}>
+
+          {/* Controls Area */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {" "}
+            {/* Added gap */}
+            {/* Time Display */}
+            <span style={{ fontFamily: "monospace", whiteSpace: "nowrap" }}>
+              {" "}
+              {/* Prevent wrapping */}
               {formatTime(displayTime)}
             </span>
+            {/* Status/Buttons */}
             {task.isCompleted ? (
-              <span>Completed</span>
+              <span style={{ fontSize: "0.9em", color: "#6c757d" }}>Completed</span>
             ) : (
               <>
+                {/* Start/Pause Button */}
                 <button
                   onClick={() => onStartPause(task.id)}
-                  style={buttonStyle}
+                  // buttonStyle removed, uses general button style from App.css
                   aria-label={task.isRunning ? "Pause task" : "Start task"}
+                  title={task.isRunning ? "Pause task" : "Start task"} // Tooltip
                 >
-                  {task.isRunning ? "Pause" : "Start"}
+                  {task.isRunning ? <FaPause /> : <FaPlay />}
                 </button>
+                {/* Stop Button */}
                 <button
                   onClick={handleStopClick}
-                  style={buttonStyle}
+                  // buttonStyle removed, uses .task-item button style from App.css
                   disabled={task.isCompleted}
                   aria-label="Stop task"
+                  title="Stop task" // Tooltip
                 >
-                  Stop
+                  <FaStop />
                 </button>
               </>
             )}
