@@ -7,7 +7,7 @@ import TaskInput from "./components/TaskInput";
 import ThemeToggle from "./components/ThemeToggle";
 import { Task } from "./types";
 import { loadTasks, saveTasks } from "./utils/storageUtils";
-import { playRandomLofi, stopLofi } from "./utils/youtubePlayer"; // Import lofi functions
+import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer"; // Import lofi functions
 
 // Helper to get today's date in YYYY-MM-DD format based on local time
 const getTodayDateString = (): string => {
@@ -77,15 +77,26 @@ const App: React.FC = () => {
     const shouldPlay = tasks.some(task => task.isRunning);
 
     if (shouldPlay && !isLofiPlaying) {
-      console.log("Starting Lofi...");
-      playRandomLofi();
-      setIsLofiPlaying(true);
+      // If any task is running and lofi isn't marked as playing
+      console.log("Attempting to resume or start Lofi...");
+      // Try resuming first, in case it was just paused
+      resumeLofi().then(resumed => {
+        if (!resumed) {
+          // If resumeLofi returned false (didn't resume), then play a new random video
+          console.log("Resume failed or not applicable, starting new Lofi video.");
+          playRandomLofi();
+        } else {
+          console.log("Lofi resumed successfully.");
+        }
+      });
+      setIsLofiPlaying(true); // Mark as playing regardless of resume/start
     } else if (!shouldPlay && isLofiPlaying) {
-      console.log("Stopping Lofi...");
-      stopLofi();
+      // If no tasks are running and lofi is marked as playing
+      console.log("Pausing Lofi...");
+      pauseLofi(); // Pause instead of stopping
       setIsLofiPlaying(false);
     }
-    // No cleanup needed here as stopLofi handles stopping the player
+    // No cleanup needed here as pause/resume handle player state
   }, [tasks, isLofiPlaying]); // Depend on tasks and the playing state
 
   const handleAddTask = useCallback((name: string) => {
@@ -124,33 +135,44 @@ const App: React.FC = () => {
     );
   }, []);
 
-  const handleStop = useCallback((id: string) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task => {
-        if (task.id === id && !task.isCompleted) {
-          let finalTotalTime = task.totalTime;
-          if (task.isRunning && task.startTime) {
-            // Calculate final elapsed time if it was running
-            finalTotalTime += Date.now() - task.startTime;
+  const handleStop = useCallback(
+    (id: string) => {
+      setTasks(prevTasks =>
+        prevTasks.map(task => {
+          if (task.id === id && !task.isCompleted) {
+            let finalTotalTime = task.totalTime;
+            if (task.isRunning && task.startTime) {
+              // Calculate final elapsed time if it was running
+              finalTotalTime += Date.now() - task.startTime;
+            }
+            // Trigger confetti when completing a task
+            confetti({
+              particleCount: 100,
+              spread: 80,
+              origin: { y: 0.8 },
+            });
+            return {
+              ...task,
+              isRunning: false,
+              isCompleted: true,
+              startTime: null,
+              totalTime: finalTotalTime,
+            };
           }
-          // Trigger confetti when completing a task
-          confetti({
-            particleCount: 100,
-            spread: 80,
-            origin: { y: 0.8 },
-          });
-          return {
-            ...task,
-            isRunning: false,
-            isCompleted: true,
-            startTime: null,
-            totalTime: finalTotalTime,
-          };
-        }
-        return task;
-      })
-    );
-  }, []);
+          return task;
+        })
+      );
+
+      // Check if this was the last running task, if so, stop lofi completely
+      const anyOtherTaskRunning = tasks.some(task => task.id !== id && task.isRunning);
+      if (!anyOtherTaskRunning) {
+        console.log("Last task stopped, stopping Lofi completely.");
+        stopLofi(); // Stop music when task is completed
+        setIsLofiPlaying(false); // Update state as well
+      }
+    },
+    [tasks]
+  ); // Added tasks dependency because we check other tasks
 
   const handleDelete = useCallback((id: string) => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));

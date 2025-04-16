@@ -143,11 +143,56 @@ export async function playRandomLofi() {
   }
 }
 
+export async function pauseLofi() {
+  try {
+    // Check player state before pausing: Only pause if actually playing
+    if (
+      player &&
+      playerReady &&
+      typeof player.pauseVideo === "function" &&
+      player.getPlayerState() === YT.PlayerState.PLAYING
+    ) {
+      console.log("Pausing video.");
+      player.pauseVideo();
+    } else {
+      console.log(
+        "Player not ready, not playing, or pauseVideo not available, cannot pause."
+      );
+    }
+  } catch (error) {
+    console.error("Error pausing Lofi:", error);
+  }
+}
+
+export async function resumeLofi(): Promise<boolean> {
+  try {
+    // Check player state before resuming: Only resume if paused
+    if (
+      player &&
+      playerReady &&
+      typeof player.playVideo === "function" &&
+      player.getPlayerState() === YT.PlayerState.PAUSED
+    ) {
+      console.log("Resuming video.");
+      player.playVideo();
+      return true; // Indicate success
+    } else {
+      console.log(
+        "Player not ready, not paused, or playVideo not available, cannot resume."
+      );
+      return false; // Indicate failure/no action
+    }
+  } catch (error) {
+    console.error("Error resuming Lofi:", error);
+    return false; // Indicate failure
+  }
+}
+
 export async function stopLofi() {
   try {
     if (player && playerReady && typeof player.stopVideo === "function") {
       console.log("Stopping video.");
-      player.stopVideo();
+      player.stopVideo(); // Stop completely resets the video
     } else {
       console.log("Player not ready or stopVideo not available, cannot stop.");
     }
