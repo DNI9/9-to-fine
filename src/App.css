@@ -59,9 +59,11 @@ h1 {
 
 .days-container {
   margin-top: 30px;
-  display: grid; /* Use grid for layout */
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
-  gap: 25px; /* Space between day sections */
+  display: flex;
+  flex-direction: column; /* Stack sections vertically */
+  gap: 20px; /* Space between sections */
+  max-height: 400px; /* Limit height */
+  overflow-y: auto; /* Scroll if content overflows */
 }
 
 /* DaySection specific styles */
