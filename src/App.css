@@ -88,6 +88,16 @@ body {
   padding: var(--space-5) var(--space-6);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
+  position: relative; /* Needed for absolute positioning of controls */
+}
+
+/* Container for top-right controls */
+.top-controls {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  gap: var(--space-3); /* Space between buttons */
 }
 
 h1 {
@@ -101,7 +111,7 @@ h1 {
 
 .app-description {
   color: var(--text-muted);
-  margin: -30px 0 30px;
+  margin: -30px 0 5px;
   font-size: 1.1em;
   text-align: center;
 }

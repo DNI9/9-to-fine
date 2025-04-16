@@ -3,6 +3,7 @@ import confetti from "canvas-confetti";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css"; // We'll create this later for basic styling
 import DaySection from "./components/DaySection";
+import LofiToggle from "./components/LofiToggle"; // Import the new component
 import TaskInput from "./components/TaskInput";
 import ThemeToggle from "./components/ThemeToggle";
 import { Task } from "./types";
@@ -27,7 +28,12 @@ const App: React.FC = () => {
       (savedTheme === null && window.matchMedia("(prefers-color-scheme: dark)").matches)
     );
   });
-  // State to track if lofi should be playing
+  // State for Lofi toggle - load from localStorage or default to true
+  const [isLofiEnabled, setIsLofiEnabled] = useState(() => {
+    const savedLofiPref = localStorage.getItem("lofiEnabled");
+    return savedLofiPref !== null ? JSON.parse(savedLofiPref) : true; // Default to enabled
+  });
+  // State to track if lofi is *currently* playing (internal state)
   const [isLofiPlaying, setIsLofiPlaying] = useState(false);
   // Ref to store the original title, avoiding potential stale closures
   const originalTitleRef = useRef(
@@ -72,32 +78,58 @@ const App: React.FC = () => {
     }
   }, [tasks]);
 
-  // Effect to control Lofi playback based on running tasks
+  // Effect to control Lofi playback based on running tasks AND the toggle state
   useEffect(() => {
+    // --- Lofi Logic ---
+    if (!isLofiEnabled) {
+      // If Lofi is disabled, ensure it's stopped and exit early
+      if (isLofiPlaying) {
+        console.log("Lofi disabled, stopping playback.");
+        stopLofi();
+        setIsLofiPlaying(false);
+      }
+      return; // Don't proceed with playback logic if disabled
+    }
+
+    // Lofi is enabled, proceed with play/pause logic
     const shouldPlay = tasks.some(task => task.isRunning);
 
     if (shouldPlay && !isLofiPlaying) {
       // If any task is running and lofi isn't marked as playing
-      console.log("Attempting to resume or start Lofi...");
-      // Try resuming first, in case it was just paused
+      console.log("Attempting to resume or start Lofi (enabled)...");
       resumeLofi().then(resumed => {
         if (!resumed) {
-          // If resumeLofi returned false (didn't resume), then play a new random video
           console.log("Resume failed or not applicable, starting new Lofi video.");
           playRandomLofi();
         } else {
           console.log("Lofi resumed successfully.");
         }
       });
-      setIsLofiPlaying(true); // Mark as playing regardless of resume/start
+      setIsLofiPlaying(true);
     } else if (!shouldPlay && isLofiPlaying) {
       // If no tasks are running and lofi is marked as playing
-      console.log("Pausing Lofi...");
-      pauseLofi(); // Pause instead of stopping
+      console.log("Pausing Lofi (enabled)...");
+      pauseLofi();
       setIsLofiPlaying(false);
     }
-    // No cleanup needed here as pause/resume handle player state
-  }, [tasks, isLofiPlaying]); // Depend on tasks and the playing state
+    // --- End Lofi Logic ---
+  }, [tasks, isLofiPlaying, isLofiEnabled]); // Add isLofiEnabled dependency
+
+  // Handler for the Lofi toggle switch
+  const handleLofiToggle = useCallback(() => {
+    // Explicitly type prevEnabled as boolean
+    setIsLofiEnabled((prevEnabled: boolean) => {
+      const newState = !prevEnabled;
+      localStorage.setItem("lofiEnabled", JSON.stringify(newState));
+      // If turning Lofi off while it's playing, stop it immediately
+      if (!newState && isLofiPlaying) {
+        console.log("Toggled Lofi off, stopping playback.");
+        stopLofi();
+        setIsLofiPlaying(false); // Update internal playing state too
+      }
+      return newState;
+    });
+  }, [isLofiPlaying]); // Depend on isLofiPlaying to stop correctly
 
   const handleAddTask = useCallback((name: string) => {
     const newTask: Task = {
@@ -163,15 +195,19 @@ const App: React.FC = () => {
         })
       );
 
-      // Check if this was the last running task, if so, stop lofi completely
+      // Check if this was the last running task AND lofi is enabled
       const anyOtherTaskRunning = tasks.some(task => task.id !== id && task.isRunning);
-      if (!anyOtherTaskRunning) {
-        console.log("Last task stopped, stopping Lofi completely.");
-        stopLofi(); // Stop music when task is completed
-        setIsLofiPlaying(false); // Update state as well
+      if (!anyOtherTaskRunning && isLofiEnabled) {
+        console.log("Last task stopped, stopping Lofi completely (enabled).");
+        stopLofi();
+        setIsLofiPlaying(false);
+      } else if (!anyOtherTaskRunning && !isLofiEnabled) {
+        console.log("Last task stopped, Lofi already disabled.");
+        // Ensure internal state is correct even if lofi was disabled externally
+        if (isLofiPlaying) setIsLofiPlaying(false);
       }
     },
-    [tasks]
+    [tasks, isLofiEnabled, isLofiPlaying] // Add dependencies
   ); // Added tasks dependency because we check other tasks
 
   const handleDelete = useCallback((id: string) => {
@@ -248,12 +284,21 @@ const App: React.FC = () => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="app-container">
-        <ThemeToggle isDark={isDarkMode} onToggle={() => setIsDarkMode(prev => !prev)} />
+        <div className="top-controls">
+          {/* Theme toggle remains at the top */}
+          <ThemeToggle
+            isDark={isDarkMode}
+            onToggle={() => setIsDarkMode(prev => !prev)}
+          />
+          {/* Lofi toggle now back at the top */}
+          <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
+        </div>
         <h1>9-to-Fine</h1>
         <p className="app-description">
           A simple time tracking app to manage your daily tasks with drag-and-drop
           organization.
         </p>
+        {/* LofiToggle removed from here */}
         <TaskInput onAddTask={handleAddTask} />
 
         <div className="days-container">
