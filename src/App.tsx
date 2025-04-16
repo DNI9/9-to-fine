@@ -1,4 +1,5 @@
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
+import confetti from "canvas-confetti";
 import React, { useCallback, useEffect, useState } from "react";
 import "./App.css"; // We'll create this later for basic styling
 import DaySection from "./components/DaySection";
@@ -95,6 +96,12 @@ const App: React.FC = () => {
             // Calculate final elapsed time if it was running
             finalTotalTime += Date.now() - task.startTime;
           }
+          // Trigger confetti when completing a task
+          confetti({
+            particleCount: 100,
+            spread: 80,
+            origin: { y: 0.8 },
+          });
           return {
             ...task,
             isRunning: false,
