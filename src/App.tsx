@@ -1,12 +1,13 @@
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import confetti from "canvas-confetti";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css"; // We'll create this later for basic styling
 import DaySection from "./components/DaySection";
 import TaskInput from "./components/TaskInput";
 import ThemeToggle from "./components/ThemeToggle";
 import { Task } from "./types";
 import { loadTasks, saveTasks } from "./utils/storageUtils";
+import { playRandomLofi, stopLofi } from "./utils/youtubePlayer"; // Import lofi functions
 
 // Helper to get today's date in YYYY-MM-DD format based on local time
 const getTodayDateString = (): string => {
@@ -26,7 +27,12 @@ const App: React.FC = () => {
       (savedTheme === null && window.matchMedia("(prefers-color-scheme: dark)").matches)
     );
   });
-  const originalTitle = "9-to-Fine - Because tracking time is totally fine... right? 😅";
+  // State to track if lofi should be playing
+  const [isLofiPlaying, setIsLofiPlaying] = useState(false);
+  // Ref to store the original title, avoiding potential stale closures
+  const originalTitleRef = useRef(
+    "9-to-Fine - Because tracking time is totally fine... right? 😅"
+  );
 
   // Set theme on body when dark mode changes
   useEffect(() => {
@@ -42,6 +48,7 @@ const App: React.FC = () => {
   // Update document title when tasks are running
   useEffect(() => {
     const runningTask = tasks.find(task => task.isRunning);
+    const originalTitle = originalTitleRef.current; // Capture ref value here
 
     if (runningTask) {
       const updateTitle = () => {
@@ -58,12 +65,28 @@ const App: React.FC = () => {
 
       return () => {
         clearInterval(intervalId);
-        document.title = originalTitle;
+        document.title = originalTitle; // Use captured value in cleanup
       };
     } else {
-      document.title = originalTitle;
+      document.title = originalTitle; // Use captured value outside effect too
     }
   }, [tasks]);
+
+  // Effect to control Lofi playback based on running tasks
+  useEffect(() => {
+    const shouldPlay = tasks.some(task => task.isRunning);
+
+    if (shouldPlay && !isLofiPlaying) {
+      console.log("Starting Lofi...");
+      playRandomLofi();
+      setIsLofiPlaying(true);
+    } else if (!shouldPlay && isLofiPlaying) {
+      console.log("Stopping Lofi...");
+      stopLofi();
+      setIsLofiPlaying(false);
+    }
+    // No cleanup needed here as stopLofi handles stopping the player
+  }, [tasks, isLofiPlaying]); // Depend on tasks and the playing state
 
   const handleAddTask = useCallback((name: string) => {
     const newTask: Task = {
