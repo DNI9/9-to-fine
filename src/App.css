@@ -1,13 +1,17 @@
 :root {
-  --primary-color: #4a90e2; /* A nice blue */
-  --secondary-color: #50e3c2; /* A teal/turquoise */
+  --primary-color: #007bff;
+  --success-color: #28a745;
+  --danger-color: #ff4757;
+  --warning-color: #ffa502;
+  --gray-color: #6c757d;
+  --light-gray: #adb5bd;
   --background-light: #f8f9fa;
   --background-container: #ffffff;
-  --text-dark: #343a40;
-  --text-light: #ffffff;
+  --text-dark: #212529;
+  --text-gray: #495057;
   --border-color: #dee2e6;
   --shadow-color: rgba(0, 0, 0, 0.1);
-  --danger-color: #f15b6c; /* For delete buttons */
+  --hover-shadow: rgba(0, 0, 0, 0.15);
 }
 
 body {
@@ -103,6 +107,10 @@ h1 {
   transition: box-shadow 0.2s ease;
 }
 
+.task-item:last-child {
+  margin-bottom: 0;
+}
+
 .task-item:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -111,6 +119,7 @@ h1 {
   flex-grow: 1;
   margin-right: 10px; /* Space between text and button */
   word-break: break-word; /* Prevent long text overflow */
+  transition: all 0.2s ease;
 }
 
 .task-item button {
@@ -120,9 +129,22 @@ h1 {
   color: var(--text-light);
   border: none;
   font-size: 0.9em;
+  transition: transform 0.1s ease, background-color 0.2s ease;
 }
 .task-item button:hover:not(:disabled) {
+  transform: scale(1.05);
   background-color: #d94857; /* Darker red on hover */
+}
+
+.task-item button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Smooth transitions for all interactive elements */
+.task-item,
+.task-item button,
+.task-item span {
+  transition: all 0.2s ease;
 }
 
 /* General Button Styling (Base styles, specific styles override) */

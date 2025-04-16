@@ -1,54 +1,104 @@
-# React + TypeScript + Vite
+# ChronoTask
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ChronoTask is a modern React-based task management application that combines daily task organization with time tracking functionality.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Task Management
 
-## Expanding the ESLint configuration
+- Create and organize daily tasks
+- Drag-and-drop interface for moving tasks between days
+- Mark tasks as complete
+- Automatic organization by date
+- Today's section always visible for quick access
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Time Tracking
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- Start, pause, and stop time tracking for each task
+- Accurate time tracking persists across browser sessions
+- Real-time timer display in HH:MM:SS format
+- Total time automatically calculated and saved
+
+### Data Persistence
+
+- Tasks automatically saved to localStorage
+- Maintains task state and timing data between sessions
+- Robust error handling for storage operations
+
+## Technical Stack
+
+- **Frontend Framework**: React 19 with TypeScript
+- **State Management**: React Hooks (useState, useCallback, useEffect)
+- **Drag and Drop**: @hello-pangea/dnd
+- **Icons**: react-icons
+- **Build Tool**: Vite
+- **Development Tools**: ESLint, TypeScript
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── DaySection.tsx   # Day-wise task container
+│   ├── TaskInput.tsx    # New task creation form
+│   └── TaskItem.tsx     # Individual task component
+├── types/
+│   └── index.ts         # TypeScript interfaces
+├── utils/
+│   ├── storageUtils.ts  # localStorage management
+│   └── timeUtils.ts     # Time formatting utilities
+├── App.tsx              # Main application component
+└── App.css             # Application styling
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Task Model
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```typescript
+interface Task {
+  id: string; // Unique identifier
+  name: string; // Task name
+  totalTime: number; // Total time in milliseconds
+  startTime: number | null; // Timestamp when timer started
+  isRunning: boolean; // Current timer status
+  isCompleted: boolean; // Task completion status
+  currentDay: string; // Associated date (YYYY-MM-DD)
+}
 ```
+
+## Development
+
+### Prerequisites
+
+- Node.js (Latest LTS version recommended)
+- npm or yarn
+
+### Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start development server:
+   ```bash
+   npm run dev
+   ```
+
+### Available Scripts
+
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm run lint`: Run ESLint
+- `npm run preview`: Preview production build
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.

@@ -1,128 +1,171 @@
-import { Draggable, DraggableProvided, DraggableStateSnapshot } from "@hello-pangea/dnd"; // Re-add Draggable and add types
+import { Draggable } from "@hello-pangea/dnd";
 import React, { useEffect, useState } from "react";
-import { FaPause, FaPlay, FaStop } from "react-icons/fa"; // Import icons
+import { FaGripVertical, FaPause, FaPlay, FaStop } from "react-icons/fa";
 import { Task } from "../types";
 import { formatTime } from "../utils/timeUtils";
 
 interface TaskItemProps {
   task: Task;
-  index: number; // Required by react-beautiful-dnd
+  index: number;
   onStartPause: (id: string) => void;
   onStop: (id: string) => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, index, onStartPause, onStop }) => {
-  // State to hold the time displayed, updated by the interval if running
   const [displayTime, setDisplayTime] = useState<number>(task.totalTime);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     let intervalId: number | null = null;
 
     if (task.isRunning && task.startTime) {
-      // Calculate initial display time immediately when starting/resuming
-      const elapsedSinceStart = Date.now() - task.startTime;
-      setDisplayTime(task.totalTime + elapsedSinceStart);
+      const updateTime = () => {
+        const elapsed = Date.now() - task.startTime!;
+        setDisplayTime(task.totalTime + elapsed);
+      };
 
-      // Update the display time every second
-      intervalId = window.setInterval(() => {
-        // Ensure startTime is still valid before calculating
-        if (task.startTime) {
-          const elapsed = Date.now() - task.startTime;
-          setDisplayTime(task.totalTime + elapsed);
-        }
-      }, 1000);
+      updateTime();
+      intervalId = window.setInterval(updateTime, 1000);
     } else {
-      // If paused or stopped, ensure display shows the final accumulated time
       setDisplayTime(task.totalTime);
     }
 
-    // Cleanup function to clear the interval when the component unmounts
-    // or when the task stops running
     return () => {
-      if (intervalId) {
-        window.clearInterval(intervalId);
-      }
+      if (intervalId) window.clearInterval(intervalId);
     };
-  }, [task.isRunning, task.startTime, task.totalTime]); // Re-run effect if these change
+  }, [task.isRunning, task.startTime, task.totalTime]);
 
   const handleStopClick = () => {
-    if (!task.isCompleted) {
-      onStop(task.id);
-    }
+    if (!task.isCompleted) onStop(task.id);
   };
 
-  // Define dynamic styles based on task state
-  const getDynamicStyle = (isDragging: boolean): React.CSSProperties => {
-    let backgroundColor = "var(--background-container)"; // Default from CSS .task-item
-    let opacity = 1;
-
-    if (isDragging) {
-      backgroundColor = "#d4eaff"; // Dragging feedback
-    } else if (task.isCompleted) {
-      backgroundColor = "#e9ecef"; // Completed background
-      opacity = 0.6;
-    } else if (task.isRunning) {
-      backgroundColor = "#e6f7ff"; // Running background (light blue)
-    }
-
-    // Only return dynamic parts, combine with provided styles later
-    return {
-      backgroundColor,
-      opacity,
-    };
+  const getProgressColor = () => {
+    if (task.isCompleted) return "#28a745";
+    if (task.isRunning) return "#007bff";
+    return "#6c757d";
   };
 
   return (
     <Draggable draggableId={task.id} index={index} isDragDisabled={task.isCompleted}>
-      {(
-        provided: DraggableProvided,
-        snapshot: DraggableStateSnapshot // Add types here
-      ) => (
+      {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          className="task-item" // Apply the base class
-          // Combine dynamic styles and provided styles here
+          className="task-item"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           style={{
-            ...getDynamicStyle(snapshot.isDragging),
+            display: "grid",
+            gridTemplateColumns: "auto 1fr auto auto",
+            gap: "12px",
+            alignItems: "center",
+            padding: "12px 16px",
+            background: task.isCompleted
+              ? "#f8f9fa"
+              : task.isRunning
+              ? "#e3f2fd"
+              : snapshot.isDragging
+              ? "#f0f7ff"
+              : "#ffffff",
+            borderLeft: `4px solid ${getProgressColor()}`,
+            opacity: task.isCompleted ? 0.8 : 1,
+            boxShadow: snapshot.isDragging
+              ? "0 4px 12px rgba(0, 0, 0, 0.15)"
+              : isHovered
+              ? "0 2px 8px rgba(0, 0, 0, 0.1)"
+              : "none",
+            transition: "all 0.2s ease",
             ...provided.draggableProps.style,
           }}
         >
-          {/* Task Name */}
-          <span>{task.name}</span>
+          {/* Drag Handle */}
+          <div
+            {...provided.dragHandleProps}
+            style={{
+              color: "#adb5bd",
+              display: "flex",
+              alignItems: "center",
+              cursor: task.isCompleted ? "default" : "grab",
+              opacity: task.isCompleted ? 0.5 : isHovered ? 1 : 0.6,
+            }}
+          >
+            <FaGripVertical />
+          </div>
 
-          {/* Controls Area */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {" "}
-            {/* Added gap */}
-            {/* Time Display */}
-            <span style={{ fontFamily: "monospace", whiteSpace: "nowrap" }}>
-              {" "}
-              {/* Prevent wrapping */}
-              {formatTime(displayTime)}
-            </span>
-            {/* Status/Buttons */}
+          {/* Task Name */}
+          <span
+            style={{
+              fontSize: "0.95rem",
+              fontWeight: 500,
+              textDecoration: task.isCompleted ? "line-through" : "none",
+              color: task.isCompleted ? "#6c757d" : "#212529",
+            }}
+          >
+            {task.name}
+          </span>
+
+          {/* Time Display */}
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontSize: "0.9rem",
+              color: task.isRunning ? "#007bff" : "#495057",
+              fontWeight: task.isRunning ? 600 : 400,
+            }}
+          >
+            {formatTime(displayTime)}
+          </span>
+
+          {/* Controls */}
+          <div style={{ display: "flex", gap: "8px" }}>
             {task.isCompleted ? (
-              <span style={{ fontSize: "0.9em", color: "#6c757d" }}>Completed</span>
+              <span
+                style={{
+                  fontSize: "0.85rem",
+                  color: "#28a745",
+                  padding: "4px 8px",
+                  background: "#e9f7ef",
+                  borderRadius: "4px",
+                  fontWeight: 500,
+                }}
+              >
+                Completed
+              </span>
             ) : (
               <>
-                {/* Start/Pause Button */}
                 <button
                   onClick={() => onStartPause(task.id)}
-                  // buttonStyle removed, uses general button style from App.css
+                  style={{
+                    padding: "6px",
+                    minWidth: "32px",
+                    background: task.isRunning ? "#ff4757" : "#4cd137",
+                    border: "none",
+                    color: "#fff",
+                    borderRadius: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                   aria-label={task.isRunning ? "Pause task" : "Start task"}
-                  title={task.isRunning ? "Pause task" : "Start task"} // Tooltip
+                  title={task.isRunning ? "Pause task" : "Start task"}
                 >
                   {task.isRunning ? <FaPause /> : <FaPlay />}
                 </button>
-                {/* Stop Button */}
                 <button
                   onClick={handleStopClick}
-                  // buttonStyle removed, uses .task-item button style from App.css
-                  disabled={task.isCompleted}
+                  style={{
+                    padding: "6px",
+                    minWidth: "32px",
+                    background: "#6c757d",
+                    border: "none",
+                    color: "#fff",
+                    borderRadius: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                   aria-label="Stop task"
-                  title="Stop task" // Tooltip
+                  title="Stop task"
                 >
                   <FaStop />
                 </button>
