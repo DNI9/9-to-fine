@@ -145,6 +145,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onStartPause, onStop }
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "background-color 0.5s ease",
                   }}
                   aria-label={task.isRunning ? "Pause task" : "Start task"}
                   title={task.isRunning ? "Pause task" : "Start task"}
@@ -163,6 +165,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, index, onStartPause, onStop }
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    cursor: "pointer",
                   }}
                   aria-label="Stop task"
                   title="Stop task"
