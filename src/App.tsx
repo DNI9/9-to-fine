@@ -18,7 +18,7 @@ const getTodayDateString = (): string => {
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>(loadTasks());
-  const originalTitle = "Chrono Task"; // Store original title
+  const originalTitle = "9-to-Fine - Because tracking time is totally fine... right? 😅";
 
   // Save tasks whenever they change
   useEffect(() => {
@@ -185,7 +185,11 @@ const App: React.FC = () => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="app-container">
-        <h1>Chrono Task</h1>
+        <h1>9-to-Fine</h1>
+        <p className="app-description">
+          A simple time tracking app to manage your daily tasks with drag-and-drop
+          organization.
+        </p>
         <TaskInput onAddTask={handleAddTask} />
 
         <div className="days-container">
