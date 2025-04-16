@@ -24,13 +24,9 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask }) => {
           type="text"
           value={taskName}
           onChange={e => setTaskName(e.target.value)}
-          placeholder="Enter new task name" // Updated placeholder
+          placeholder="Enter new task name"
           aria-label="New task name"
-          // Inline styles removed, handled by .task-input-container input in CSS
         />
-        <button type="submit" disabled={!taskName.trim()}>
-          Add Task
-        </button>
       </form>
     </div>
   );

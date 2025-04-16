@@ -151,7 +151,7 @@ const App: React.FC = () => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="app-container">
-        <h1>ChronoTask</h1>
+        <h1>Chrono Task</h1>
         <TaskInput onAddTask={handleAddTask} />
 
         <div className="days-container">
