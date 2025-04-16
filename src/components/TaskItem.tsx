@@ -152,7 +152,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                     padding: "6px",
                     minWidth: "32px",
                     background: task.isRunning
-                      ? "var(--danger-color)"
+                      ? "var(--warning-color)"
                       : "var(--success-color)",
                     border: "none",
                     color: "var(--white)",

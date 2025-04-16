@@ -24,7 +24,7 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask }) => {
           type="text"
           value={taskName}
           onChange={e => setTaskName(e.target.value)}
-          placeholder="Enter new task name"
+          placeholder="Enter new task name and hit enter"
           aria-label="New task name"
         />
       </form>
