@@ -1,6 +1,6 @@
-# ChronoTask
+# 9-to-Fine
 
-ChronoTask is a modern React-based task management application that combines daily task organization with time tracking functionality.
+Welcome to **9-to-Fine**, where productivity meets style! This isn't just another task management app—it's your personal assistant for conquering the day with flair. Organize your tasks, track your time, and vibe to some lofi beats while you're at it. Whether you're a night owl or an early bird, 9-to-Fine has got your back.
 
 ## Features
 
@@ -25,6 +25,13 @@ ChronoTask is a modern React-based task management application that combines dai
 - Maintains task state and timing data between sessions
 - Robust error handling for storage operations
 
+### User Experience
+
+- Toggle lofi background music for a focused work environment
+- Integrated YouTube player for seamless playback
+- Switch between light and dark themes
+- Persistent theme settings saved in localStorage
+
 ## Technical Stack
 
 - **Frontend Framework**: React 19 with TypeScript
@@ -40,13 +47,16 @@ ChronoTask is a modern React-based task management application that combines dai
 src/
 ├── components/
 │   ├── DaySection.tsx   # Day-wise task container
+│   ├── LofiToggle.tsx   # Lofi mode toggle component
 │   ├── TaskInput.tsx    # New task creation form
-│   └── TaskItem.tsx     # Individual task component
+│   ├── TaskItem.tsx     # Individual task component
+│   └── ThemeToggle.tsx  # Theme toggle component
 ├── types/
 │   └── index.ts         # TypeScript interfaces
 ├── utils/
 │   ├── storageUtils.ts  # localStorage management
-│   └── timeUtils.ts     # Time formatting utilities
+│   ├── timeUtils.ts     # Time formatting utilities
+│   └── youtubePlayer.ts # YouTube player utilities
 ├── App.tsx              # Main application component
 └── App.css             # Application styling
 ```

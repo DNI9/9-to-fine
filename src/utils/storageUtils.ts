@@ -1,6 +1,6 @@
 import { Task } from "../types";
 
-const STORAGE_KEY = "chronotaskTasks";
+const STORAGE_KEY = "9tofineTasks";
 
 /**
  * Loads tasks from localStorage.
