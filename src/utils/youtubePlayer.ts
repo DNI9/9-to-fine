@@ -1,10 +1,6 @@
 // src/utils/youtubePlayer.ts
 
-const LOFI_VIDEOS = [
-  "n61ULEU7CO0", // Lofi Girl
-  "lTRiuFIWV54", // Chill lofi focus beats
-  "wAPCSnAhhC8",
-];
+import { LOFI_VIDEOS } from "./lofiVideos";
 
 // Add reference to the YouTube types
 /// <reference types="@types/youtube" />
@@ -97,7 +93,7 @@ function createPlayer(): Promise<YT.Player> {
               if (event.data === YT.PlayerState.ENDED) {
                 console.log("Lofi video ended.");
                 // Optionally, automatically play another random video
-                // playRandomLofi();
+                playRandomLofi();
               }
             },
           },
