@@ -86,8 +86,7 @@ const DaySection: React.FC<DaySectionProps> = ({
                 />
               ))
             ) : (
-              // Remove inline style from p tag
-              <p>No tasks for this day. Drag tasks here.</p>
+              <p>No tasks for this day. Start by adding new task.</p>
             )}
             {provided.placeholder} {/* Placeholder for dragging items */}
           </div>
