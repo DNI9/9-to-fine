@@ -301,10 +301,9 @@ const App: React.FC = () => {
           />
           <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
         </div>
-        <h1>9-to-Fine</h1>
+        <h1 className="app-title">Track. Focus. Celebrate.</h1>
         <p className="app-description">
-          A simple time tracking app to manage your daily tasks with drag-and-drop
-          organization.
+          Effortless daily task tracking with focus and fun.
         </p>
         <div className="input-container">
           <TaskInput onAddTask={handleAddTask} />
