@@ -85,7 +85,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
           {/* Controls */}
           <div className="controls">
             {task.isCompleted ? (
-              <span className="completed-badge">Completed</span>
+              <>
+                <span className="completed-badge">Completed</span>
+              </>
             ) : (
               <>
                 <button
@@ -104,16 +106,16 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 >
                   <FaCheck />
                 </button>
-                <button
-                  onClick={handleDelete}
-                  className="button-delete"
-                  aria-label="Delete task"
-                  title="Delete task"
-                >
-                  <FaTrash />
-                </button>
               </>
             )}
+            <button
+              onClick={handleDelete}
+              className="button-delete"
+              aria-label="Delete task"
+              title="Delete task"
+            >
+              <FaTrash />
+            </button>
           </div>
         </div>
       )}
