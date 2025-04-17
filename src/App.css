@@ -319,8 +319,9 @@ h1 {
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   border: 1px solid var(--border-color);
-  /* Add subtle shadow */
   box-shadow: var(--shadow-sm);
+  max-height: 400px; /* Limit height for overflow */
+  overflow-y: auto; /* Enable scrolling if content overflows */
 }
 
 .day-section h2 {
