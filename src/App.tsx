@@ -28,10 +28,9 @@ const App: React.FC = () => {
       (savedTheme === null && window.matchMedia("(prefers-color-scheme: dark)").matches)
     );
   });
-  // State for Lofi toggle - load from localStorage or default to true
   const [isLofiEnabled, setIsLofiEnabled] = useState(() => {
     const savedLofiPref = localStorage.getItem("lofiEnabled");
-    return savedLofiPref !== null ? JSON.parse(savedLofiPref) : true; // Default to enabled
+    return savedLofiPref !== null ? JSON.parse(savedLofiPref) : false;
   });
   // State to track if lofi is *currently* playing (internal state)
   const [isLofiPlaying, setIsLofiPlaying] = useState(false);
