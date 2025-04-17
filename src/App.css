@@ -113,7 +113,7 @@ body {
   top: var(--space-4);
   right: var(--space-4);
   display: flex;
-  gap: var(--space-3); /* Space between buttons */
+  gap: var(--space-1); /* Space between buttons */
   align-items: center; /* Align items vertically */
 }
 

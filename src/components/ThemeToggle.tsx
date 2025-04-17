@@ -1,5 +1,6 @@
 import React from "react";
-import { FaMoon, FaSun } from "react-icons/fa";
+import { FaSun } from "react-icons/fa";
+import { HiMiniMoon } from "react-icons/hi2";
 
 interface ThemeToggleProps {
   isDark: boolean;
@@ -15,7 +16,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ isDark, onToggle }) => {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {isDark ? <FaSun size={20} /> : <FaMoon size={20} />}
+      {isDark ? <FaSun size={20} /> : <HiMiniMoon size={20} />}
     </button>
   );
 };
