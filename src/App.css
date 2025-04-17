@@ -490,7 +490,7 @@ h1 {
   transform: translateX(0);
 }
 
-.task-item.task-item--running .button-stop,
+.task-item.task-item--running .button-complete,
 .task-item.task-item--running .button-delete {
   opacity: 0;
   visibility: hidden;
@@ -512,14 +512,19 @@ h1 {
   background-color: var(--primary-hover);
 }
 
-.task-item .button-stop {
-  background-color: var(--warning-color); /* Use M3 Danger/Error */
+.task-item .button-complete {
+  background-color: var(--success-color); /* Use success color for completion */
 }
-.task-item .button-stop:hover {
+.task-item .button-complete:hover {
   opacity: 0.9;
 }
 
-/* Style for the new delete button */
+/* Dark theme adjustments for complete button */
+[data-theme="dark"] .task-item .button-complete {
+  background-color: var(--success-color);
+  color: var(--gray-900);
+}
+
 .task-item .button-delete {
   background-color: var(--gray-500);
   color: var(--gray-400);
@@ -535,8 +540,8 @@ h1 {
   color: var(--gray-900); /* Dark text on light buttons in dark mode */
 }
 /* Ensure dark theme stop button also uses danger color */
-[data-theme="dark"] .task-item .button-stop {
-  background-color: var(--danger-color); /* Use dark theme danger color */
+[data-theme="dark"] .task-item .button-complete {
+  background-color: var(--success-color); /* Use dark theme success color */
   color: var(--gray-900); /* Keep dark text */
 }
 

@@ -1,6 +1,6 @@
 import { Draggable } from "@hello-pangea/dnd";
 import React, { useEffect, useState } from "react";
-import { FaGripVertical, FaPause, FaPlay, FaStop, FaTrash } from "react-icons/fa";
+import { FaCheck, FaGripVertical, FaPause, FaPlay, FaTrash } from "react-icons/fa";
 import { Task } from "../types";
 import { formatTime } from "../utils/timeUtils";
 
@@ -8,7 +8,7 @@ interface TaskItemProps {
   task: Task;
   index: number;
   onStartPause: (id: string) => void;
-  onStop: (id: string) => void;
+  onComplete: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -16,11 +16,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
   task,
   index,
   onStartPause,
-  onStop,
+  onComplete,
   onDelete,
 }) => {
   const [displayTime, setDisplayTime] = useState<number>(task.totalTime);
-  // isHovered state is no longer needed as we'll use CSS :hover
 
   useEffect(() => {
     let intervalId: number | null = null;
@@ -42,8 +41,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
     };
   }, [task.isRunning, task.startTime, task.totalTime]);
 
-  const handleStopClick = () => {
-    if (!task.isCompleted) onStop(task.id);
+  const handleCompleteClick = () => {
+    if (!task.isCompleted) onComplete(task.id);
   };
 
   const handleDelete = () => {
@@ -51,8 +50,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
       onDelete(task.id);
     }
   };
-
-  // getProgressColor is no longer needed, handled by CSS classes
 
   return (
     <Draggable draggableId={task.id} index={index} isDragDisabled={task.isCompleted}>
@@ -80,30 +77,17 @@ const TaskItem: React.FC<TaskItemProps> = ({
           </div>
 
           {/* Task Name */}
-          <span className="task-name">
-            {" "}
-            {/* Completed style handled by parent modifier */}
-            {task.name}
-          </span>
+          <span className="task-name">{task.name}</span>
 
           {/* Time Display */}
-          <span className="time-display">
-            {" "}
-            {/* Running style handled by parent modifier */}
-            {formatTime(displayTime)}
-          </span>
+          <span className="time-display">{formatTime(displayTime)}</span>
 
           {/* Controls */}
           <div className="controls">
             {task.isCompleted ? (
-              <span className="completed-badge">
-                {" "}
-                {/* Use existing class */}
-                Completed
-              </span>
+              <span className="completed-badge">Completed</span>
             ) : (
               <>
-                {/* Use button-play or button-pause based on state */}
                 <button
                   onClick={() => onStartPause(task.id)}
                   className={task.isRunning ? "button-pause" : "button-play"}
@@ -112,16 +96,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 >
                   {task.isRunning ? <FaPause /> : <FaPlay />}
                 </button>
-                {/* Use button-stop class */}
                 <button
-                  onClick={handleStopClick}
-                  className="button-stop"
-                  aria-label="Stop task"
-                  title="Stop task"
+                  onClick={handleCompleteClick}
+                  className="button-complete"
+                  aria-label="Complete task"
+                  title="Complete task"
                 >
-                  <FaStop />
+                  <FaCheck />
                 </button>
-                {/* Add a button-delete class */}
                 <button
                   onClick={handleDelete}
                   className="button-delete"

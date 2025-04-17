@@ -166,7 +166,7 @@ const App: React.FC = () => {
     );
   }, []);
 
-  const handleStop = useCallback(
+  const handleComplete = useCallback(
     (id: string) => {
       setTasks(prevTasks =>
         prevTasks.map(task => {
@@ -206,8 +206,8 @@ const App: React.FC = () => {
         if (isLofiPlaying) setIsLofiPlaying(false);
       }
     },
-    [tasks, isLofiEnabled, isLofiPlaying] // Add dependencies
-  ); // Added tasks dependency because we check other tasks
+    [tasks, isLofiEnabled, isLofiPlaying]
+  );
 
   const handleDelete = useCallback((id: string) => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
@@ -307,7 +307,7 @@ const App: React.FC = () => {
               date={day}
               tasks={tasksByDay[day]}
               onStartPause={handleStartPause}
-              onStop={handleStop}
+              onComplete={handleComplete}
               onDelete={handleDelete}
             />
           ))}
