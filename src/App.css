@@ -388,6 +388,7 @@ h1 {
   display: flex; /* Use flexbox for alignment */
   align-items: center; /* Align items vertically */
   gap: var(--space-3); /* Add gap between elements */
+  overflow: hidden; /* Ensure sliding content stays within bounds */
 }
 
 .task-item:hover {
@@ -426,24 +427,48 @@ h1 {
   font-family: "SF Mono", "Roboto Mono", monospace;
   color: var(--text-secondary);
   font-size: 0.9rem;
+  transition: transform var(--transition-fast);
+  transform: translateX(0);
 }
 
 .task-item .controls {
+  position: relative; /* For absolute positioning of buttons */
+  min-width: 108px; /* Preserve space for all buttons */
+  overflow: hidden; /* Hide buttons when they slide out */
   display: flex;
   gap: var(--space-2);
-  /* margin-left: auto; Removed */
   flex-shrink: 0; /* Prevent controls from shrinking */
 }
 
-/* Style control buttons like small contained buttons */
+.task-item.task-item--running .time-display {
+  transform: translateX(72px); /* Slide right by the width of hidden buttons */
+}
+
+.task-item.task-item--running .button-play,
+.task-item.task-item--running .button-pause {
+  transform: translateX(72px); /* Match the time display slide */
+}
+
 .task-item .controls button {
   border: none;
   border-radius: var(--radius-sm);
   padding: var(--space-2); /* Adjust padding for small buttons */
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: opacity var(--transition-fast), visibility var(--transition-fast),
+    transform var(--transition-fast), background-color var(--transition-fast);
   color: var(--white); /* Default text color for buttons */
   line-height: 0; /* Helps center icons if used */
+  opacity: 1;
+  visibility: visible;
+  position: relative; /* For transform */
+  transform: translateX(0);
+}
+
+.task-item.task-item--running .button-stop,
+.task-item.task-item--running .button-delete {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(100%);
 }
 
 .task-item .button-play {

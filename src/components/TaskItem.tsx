@@ -60,15 +60,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          // Combine base class with conditional modifiers
           className={`
             task-item
-            ${task.isCompleted ? "task-item--completed" : ""}
+            ${task.isCompleted ? "completed" : ""}
             ${task.isRunning ? "task-item--running" : ""}
-            ${snapshot.isDragging ? "task-item--dragging" : ""}
+            ${snapshot.isDragging ? "dragging" : ""}
           `}
-          // Remove inline styles except for dnd required ones
-          style={provided.draggableProps.style} // Keep dnd styles
+          style={provided.draggableProps.style}
         >
           {/* Drag Handle */}
           <div
