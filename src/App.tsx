@@ -24,8 +24,8 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     return (
-      savedTheme === "dark" ||
-      (savedTheme === null && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      savedTheme === "dark"
+      // || (savedTheme === null && window.matchMedia("(prefers-color-scheme: dark)").matches)
     );
   });
   const [isLofiEnabled, setIsLofiEnabled] = useState(() => {
