@@ -1,6 +1,6 @@
 // src/components/LofiToggle.tsx
 import React from "react";
-import "./LofiToggle.css";
+// Removed import for LofiToggle.css
 
 interface LofiToggleProps {
   isEnabled: boolean;

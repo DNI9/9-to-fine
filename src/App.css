@@ -1,38 +1,38 @@
 :root {
-  /* Core colors */
-  --primary-color: #4361ee;
-  --primary-hover: #3b56d9;
-  --success-color: #2ecc71;
-  --danger-color: #e74c3c;
-  --warning-color: #f39c12;
+  /* Core colors - Material You Inspired (Purple Base) */
+  --primary-color: #6750a4; /* M3 Primary */
+  --primary-hover: #4f378b; /* Darker shade for hover */
+  --success-color: #6db154; /* M3 Success-like Green */
+  --danger-color: #b3261e; /* M3 Error */
+  --warning-color: #e6a500; /* M3 Warning-like Yellow */
   --white: #ffffff;
 
-  /* Neutrals */
-  --gray-50: #f8f9fa;
-  --gray-100: #f1f3f5;
-  --gray-200: #e9ecef;
-  --gray-300: #dee2e6;
-  --gray-400: #ced4da;
-  --gray-500: #adb5bd;
-  --gray-600: #868e96;
-  --gray-700: #495057;
-  --gray-800: #343a40;
-  --gray-900: #212529;
+  /* Neutrals - Light Theme (Slightly warmer/softer) */
+  --gray-50: #fdf8fd; /* Surface */
+  --gray-100: #f3edf7; /* Surface Variant */
+  --gray-200: #eaddff; /* Outline Variant */
+  --gray-300: #cac4d0; /* Outline */
+  --gray-400: #a9a2b0;
+  --gray-500: #8e8599;
+  --gray-600: #746b80;
+  --gray-700: #5b5366;
+  --gray-800: #433c4f;
+  --gray-900: #1d192b; /* On Surface */
 
   /* Semantic colors - Light Theme */
-  --background-body: var(--gray-100);
-  --background-card: var(--white);
-  --text-primary: var(--gray-900);
-  --text-secondary: var(--gray-700);
+  --background-body: #f3ecff; /* M3 Background */
+  --background-card: var(--gray-50); /* M3 Surface */
+  --text-primary: var(--gray-900); /* M3 On Surface */
+  --text-secondary: var(--gray-700); /* M3 On Surface Variant (approx) */
   --text-muted: var(--gray-600);
-  --border-color: var(--gray-200);
+  --border-color: var(--gray-300); /* M3 Outline */
 
-  /* Effects */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  /* Effects - Softer Shadows (M3 Elevation Levels 1, 2, 3 approx) */
+  --shadow-sm: 0px 1px 2px 0px rgba(0, 0, 0, 0.15); /* Level 1 */
+  --shadow-md: 0px 2px 4px 0px rgba(0, 0, 0, 0.15); /* Level 2 */
+  --shadow-lg: 0px 4px 8px 0px rgba(0, 0, 0, 0.15); /* Level 3 */
 
-  /* Spacing */
+  /* Spacing - Keep existing, seems reasonable */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -41,39 +41,55 @@
   --space-6: 32px;
 
   /* Border radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-sm: 8px; /* Increased rounding */
+  --radius-md: 12px; /* Increased rounding */
+  --radius-lg: 16px; /* Increased rounding */
 
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
 }
 
-/* Dark theme variables */
+/* Dark theme variables - Material You Inspired */
 [data-theme="dark"] {
-  --background-body: #1a1b1e;
-  --background-card: #2c2e33;
-  --text-primary: #ffffff;
-  --text-secondary: #e2e2e2;
-  --text-muted: #a1a1a1;
-  --border-color: #404040;
-  --white: #ffffff;
+  /* Core colors remain the same, semantic colors change */
+  --primary-color: #d0bcff; /* M3 Primary Dark */
+  --primary-hover: #b9a2e8; /* Lighter shade for hover */
+  --success-color: #b3e0a0; /* M3 Success-like Green Dark */
+  --danger-color: #f2b8b5; /* M3 Error Dark */
+  --warning-color: #ffdda6; /* M3 Warning-like Yellow Dark */
+  --white: #ffffff; /* White remains white */
 
-  /* Override some component specific colors */
-  --gray-50: #2c2e33;
-  --gray-100: #323438;
-  --gray-200: #404040;
+  /* Neutrals - Dark Theme */
+  --gray-50: #4a4458; /* Surface */
+  --gray-100: #4a4458; /* Surface Variant (can be same as surface) */
+  --gray-200: #49454f; /* Outline Variant */
+  --gray-300: #938f99; /* Outline */
+  --gray-400: #aeaaae;
+  --gray-500: #cac4cf;
+  --gray-600: #e6e0e9;
+  --gray-700: #f5eff7;
+  --gray-800: #fefbff;
+  --gray-900: #e6e1e5; /* On Surface */
 
-  /* Adjust button colors for dark mode */
-  --success-color: #2ecc71;
-  --danger-color: #e74c3c;
-  --warning-color: #f39c12;
+  /* Semantic colors - Dark Theme */
+  --background-body: #1c1b1f; /* M3 Background Dark */
+  --background-card: var(--gray-50); /* M3 Surface Dark */
+  --text-primary: var(--gray-900); /* M3 On Surface Dark */
+  --text-secondary: var(--gray-500); /* M3 On Surface Variant Dark (approx) */
+  --text-muted: var(--gray-400);
+  --border-color: var(--gray-300); /* M3 Outline Dark */
+
+  /* Override specific component colors if needed, but try to rely on semantic */
+  /* --gray-50, --gray-100, --gray-200 overrides removed, use semantic */
+
+  /* Button colors already adjusted via core color redefinition */
 }
 
 /* Base styles */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Prioritize Roboto, include fallbacks */
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
   padding: var(--space-4);
   background-color: var(--background-body);
@@ -84,9 +100,9 @@ body {
 .app-container {
   max-width: 800px;
   margin: var(--space-5) auto;
-  background-color: var(--background-card);
+  background-color: var(--background-card); /* Ensure correct variable */
   padding: var(--space-5) var(--space-6);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg); /* Already updated via variable */
   box-shadow: var(--shadow-md);
   position: relative; /* Needed for absolute positioning of controls */
 }
@@ -98,6 +114,96 @@ body {
   right: var(--space-4);
   display: flex;
   gap: var(--space-3); /* Space between buttons */
+  align-items: center; /* Align items vertically */
+}
+
+/* Style for ThemeToggle button */
+.top-controls .theme-toggle-button {
+  padding: var(--space-2); /* Adjust padding */
+  border-radius: 50%; /* Circular */
+  border: none;
+  background: transparent; /* Transparent background */
+  color: var(--text-secondary); /* Use secondary text color */
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  display: flex; /* Ensure icon is centered */
+  align-items: center;
+  justify-content: center;
+}
+
+.top-controls .theme-toggle-button:hover {
+  background-color: var(--gray-100); /* Subtle background on hover */
+  color: var(--text-primary); /* Darker color on hover */
+}
+
+/* Dark theme adjustments for theme toggle */
+[data-theme="dark"] .top-controls .theme-toggle-button {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .top-controls .theme-toggle-button:hover {
+  background-color: var(--gray-200); /* Use dark theme surface variant */
+  color: var(--text-primary);
+}
+
+/* Style for LofiToggle button */
+.top-controls .lofi-toggle-button {
+  padding: var(--space-2); /* Match theme toggle padding */
+  border-radius: 50%; /* Circular */
+  border: none;
+  background: transparent;
+  color: var(--text-secondary); /* Default icon color */
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  display: flex; /* Ensure icon is centered */
+  align-items: center;
+  justify-content: center;
+  width: 36px; /* Explicit size */
+  height: 36px;
+  outline: none;
+}
+
+.top-controls .lofi-toggle-button:hover {
+  background-color: var(--gray-100); /* Subtle background on hover */
+}
+
+.top-controls .lofi-toggle-button.enabled {
+  background-color: var(--primary-color); /* Use primary color when enabled */
+  color: var(--white); /* White icon when enabled */
+}
+
+.top-controls .lofi-toggle-button.enabled:hover {
+  background-color: var(--primary-hover); /* Darker primary on hover */
+}
+
+/* Dark theme adjustments for lofi toggle */
+[data-theme="dark"] .top-controls .lofi-toggle-button {
+  background-color: var(--gray-200); /* Use dark theme neutral */
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .top-controls .lofi-toggle-button:hover {
+  background-color: var(--gray-300);
+}
+
+[data-theme="dark"] .top-controls .lofi-toggle-button.enabled {
+  background-color: var(--primary-color); /* Use dark theme primary */
+  color: var(--gray-900); /* Dark icon on light primary */
+}
+
+[data-theme="dark"] .top-controls .lofi-toggle-button.enabled:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Focus styles */
+.top-controls .lofi-toggle-button:focus-visible {
+  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
+  opacity: 0.8; /* Slight opacity for focus ring */
+}
+
+/* Ensure SVG scales well */
+.top-controls .lofi-toggle-button svg {
+  display: block; /* Remove extra space below SVG */
 }
 
 h1 {
@@ -129,7 +235,7 @@ h1 {
 .task-input-container textarea {
   flex-grow: 1;
   padding: var(--space-3) var(--space-4);
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color); /* M3 uses 1px border */
   border-radius: var(--radius-md);
   font-size: 1rem;
   transition: var(--transition-fast);
@@ -138,6 +244,7 @@ h1 {
   resize: none;
   min-height: 30px;
   max-height: 50px;
+  border-width: 2px;
 }
 
 .task-input-container textarea::placeholder {
@@ -147,13 +254,12 @@ h1 {
 .task-input-container textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
 }
 
 .task-input-container button {
   padding: var(--space-3) var(--space-5);
   background-color: var(--primary-color);
-  color: white;
+  color: var(--white); /* Use variable for light text */
   border: none;
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -163,12 +269,24 @@ h1 {
 
 .task-input-container button:hover:not(:disabled) {
   background-color: var(--primary-hover);
-  transform: translateY(-1px);
+  /* transform removed */
 }
 
 .task-input-container button:disabled {
-  background-color: var(--gray-400);
+  background-color: var(--gray-200); /* Use a lighter gray for disabled */
+  color: var(--gray-500); /* Muted text for disabled */
   cursor: not-allowed;
+  opacity: 0.7; /* Add opacity for disabled state */
+}
+
+/* Specific dark mode adjustment for button text */
+[data-theme="dark"] .task-input-container button {
+  color: var(--gray-900); /* Dark text on light primary button */
+}
+
+[data-theme="dark"] .task-input-container button:disabled {
+  background-color: var(--gray-200); /* Use dark theme neutral */
+  color: var(--gray-600); /* Muted text for dark disabled */
 }
 
 /* Days container */
@@ -197,13 +315,17 @@ h1 {
 
 /* Day section */
 .day-section {
-  background-color: var(--gray-50);
+  background-color: var(--background-card); /* Use card background */
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   border: 1px solid var(--border-color);
+  /* Add subtle shadow */
+  box-shadow: var(--shadow-sm);
 }
 
 .day-section h2 {
+  /* This style seems redundant if day-header h2 is styled */
+  /* Consider removing or merging if only used in header */
   color: var(--text-primary);
   font-size: 1.25rem;
   margin: 0 0 var(--space-4) 0;
@@ -212,12 +334,14 @@ h1 {
 }
 
 .day-section p {
+  /* Style for "No tasks" message */
   color: var(--text-muted);
   text-align: center;
   padding: var(--space-4);
-  background: var(--gray-100);
+  background: transparent; /* Remove background */
   border-radius: var(--radius-md);
   margin: var(--space-3) 0;
+  font-style: italic;
 }
 
 /* Day header */
@@ -227,24 +351,30 @@ h1 {
   align-items: center;
   margin-bottom: var(--space-4);
   padding-bottom: var(--space-3);
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color); /* Thinner border */
 }
 
 .day-header h2 {
   margin: 0;
   padding: 0;
   color: var(--text-primary);
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.1rem; /* Slightly smaller header */
+  font-weight: 500; /* Medium weight */
 }
 
 .day-total-time {
-  font-family: "SF Mono", "Roboto Mono", monospace;
+  font-family: "Roboto Mono", monospace; /* Use Roboto Mono */
   color: var(--text-secondary);
-  font-size: 1.1rem;
-  padding: 4px 8px;
-  background: var(--gray-100);
+  font-size: 0.9rem; /* Slightly smaller */
+  padding: var(--space-1) var(--space-2); /* Adjust padding */
+  background: var(--gray-100); /* Use surface variant */
   border-radius: var(--radius-sm);
+}
+
+/* Dark theme adjustments for day total time */
+[data-theme="dark"] .day-total-time {
+  background: var(--gray-200); /* Use darker surface variant */
+  color: var(--text-secondary);
 }
 
 /* Task items */
@@ -254,17 +384,27 @@ h1 {
   padding: var(--space-3) var(--space-4);
   margin-bottom: var(--space-2);
   border: 1px solid var(--border-color);
-  transition: var(--transition-normal);
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast); /* Adjusted transition */
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Align items vertically */
+  gap: var(--space-3); /* Add gap between elements */
 }
 
 .task-item:hover {
-  transform: translateY(-1px);
+  /* transform removed */
   box-shadow: var(--shadow-sm);
+  /* Optional: Add a subtle background change on hover */
+  /* background-color: var(--gray-100); */
 }
 
 .task-item.completed {
-  background-color: var(--gray-50);
-  opacity: 0.8;
+  background-color: var(--gray-100); /* Use a slightly different surface for completed */
+  opacity: 0.7; /* Slightly more muted */
+}
+
+.task-item.completed .task-name {
+  text-decoration: line-through; /* Add line-through for completed */
+  color: var(--text-muted);
 }
 
 .task-item .drag-handle {
@@ -277,7 +417,9 @@ h1 {
 .task-item .task-name {
   color: var(--text-primary);
   font-weight: 500;
-  margin-right: var(--space-3);
+  /* margin-right: auto; Removed */
+  flex-grow: 1; /* Allow name to take available space */
+  margin-right: var(--space-3); /* Add some space before time */
 }
 
 .task-item .time-display {
@@ -289,27 +431,87 @@ h1 {
 .task-item .controls {
   display: flex;
   gap: var(--space-2);
+  /* margin-left: auto; Removed */
+  flex-shrink: 0; /* Prevent controls from shrinking */
+}
+
+/* Style control buttons like small contained buttons */
+.task-item .controls button {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2); /* Adjust padding for small buttons */
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  color: var(--white); /* Default text color for buttons */
+  line-height: 0; /* Helps center icons if used */
 }
 
 .task-item .button-play {
-  background-color: var(--success-color);
+  background-color: var(--primary-color); /* Use M3 Success */
+}
+.task-item .button-play:hover {
+  opacity: 0.9;
 }
 
 .task-item .button-pause {
-  background-color: var(--warning-color);
+  background-color: var(--primary-color); /* Use M3 Warning */
+}
+.task-item .button-pause:hover {
+  opacity: 0.9;
+  background-color: var(--primary-hover);
 }
 
 .task-item .button-stop {
-  background-color: var(--gray-600);
+  background-color: var(--warning-color); /* Use M3 Danger/Error */
+}
+.task-item .button-stop:hover {
+  opacity: 0.9;
+}
+
+/* Style for the new delete button */
+.task-item .button-delete {
+  background-color: var(--gray-500);
+  color: var(--gray-400);
+}
+.task-item .button-delete:hover {
+  background-color: var(--danger-color); /* Danger color on hover */
+  color: var(--white); /* White icon on hover */
+  opacity: 1; /* Ensure full opacity on hover */
+}
+
+/* Adjust button text color for dark theme */
+[data-theme="dark"] .task-item .controls button {
+  color: var(--gray-900); /* Dark text on light buttons in dark mode */
+}
+/* Ensure dark theme stop button also uses danger color */
+[data-theme="dark"] .task-item .button-stop {
+  background-color: var(--danger-color); /* Use dark theme danger color */
+  color: var(--gray-900); /* Keep dark text */
+}
+
+/* Dark theme delete button */
+[data-theme="dark"] .task-item .button-delete {
+  background-color: transparent; /* Muted background */
+  color: var(--gray-400); /* Muted icon color for dark */
+}
+[data-theme="dark"] .task-item .button-delete:hover {
+  background-color: var(--danger-color); /* Use dark theme danger color */
+  color: var(--gray-900); /* Dark text on hover */
 }
 
 .task-item .completed-badge {
-  background-color: var(--success-color);
-  color: white;
+  color: var(--success-color);
+  background-color: hsla(104, 34%, 48%, 0.2);
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
   font-weight: 500;
+  margin-left: auto; /* Push badge to the right if controls aren't present */
+}
+
+/* Adjust badge text color for dark theme */
+[data-theme="dark"] .task-item .completed-badge {
+  color: var(--gray-900); /* Dark text on light badge in dark mode */
 }
 
 /* Dragging states */

@@ -20,7 +20,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   onDelete,
 }) => {
   const [displayTime, setDisplayTime] = useState<number>(task.totalTime);
-  const [isHovered, setIsHovered] = useState(false);
+  // isHovered state is no longer needed as we'll use CSS :hover
 
   useEffect(() => {
     let intervalId: number | null = null;
@@ -52,11 +52,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
     }
   };
 
-  const getProgressColor = () => {
-    if (task.isCompleted) return "var(--success-color)";
-    if (task.isRunning) return "var(--primary-color)";
-    return "var(--text-muted)";
-  };
+  // getProgressColor is no longer needed, handled by CSS classes
 
   return (
     <Draggable draggableId={task.id} index={index} isDragDisabled={task.isCompleted}>
@@ -64,144 +60,73 @@ const TaskItem: React.FC<TaskItemProps> = ({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="task-item"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 1fr auto auto",
-            gap: "12px",
-            alignItems: "center",
-            padding: "12px 16px",
-            background: task.isCompleted
-              ? "var(--gray-50)"
-              : task.isRunning
-              ? "var(--gray-100)"
-              : snapshot.isDragging
-              ? "var(--gray-100)"
-              : "var(--background-card)",
-            borderLeft: `4px solid ${getProgressColor()}`,
-            opacity: task.isCompleted ? 0.8 : 1,
-            boxShadow: snapshot.isDragging
-              ? "0 4px 12px rgba(0, 0, 0, 0.15)"
-              : isHovered
-              ? "0 2px 8px rgba(0, 0, 0, 0.1)"
-              : "none",
-            transition: "all 0.2s ease",
-            ...provided.draggableProps.style,
-          }}
+          // Combine base class with conditional modifiers
+          className={`
+            task-item
+            ${task.isCompleted ? "task-item--completed" : ""}
+            ${task.isRunning ? "task-item--running" : ""}
+            ${snapshot.isDragging ? "task-item--dragging" : ""}
+          `}
+          // Remove inline styles except for dnd required ones
+          style={provided.draggableProps.style} // Keep dnd styles
         >
           {/* Drag Handle */}
           <div
             {...provided.dragHandleProps}
-            style={{
-              color: "var(--text-muted)",
-              display: "flex",
-              alignItems: "center",
-              cursor: task.isCompleted ? "default" : "grab",
-              opacity: task.isCompleted ? 0.5 : isHovered ? 1 : 0.6,
-            }}
+            className={`
+              drag-handle
+              ${task.isCompleted ? "drag-handle--completed" : ""}
+            `}
           >
             <FaGripVertical />
           </div>
 
           {/* Task Name */}
-          <span
-            style={{
-              fontSize: "0.95rem",
-              fontWeight: 500,
-              textDecoration: task.isCompleted ? "line-through" : "none",
-              color: task.isCompleted ? "var(--text-muted)" : "var(--text-primary)",
-            }}
-          >
+          <span className="task-name">
+            {" "}
+            {/* Completed style handled by parent modifier */}
             {task.name}
           </span>
 
           {/* Time Display */}
-          <span
-            style={{
-              fontFamily: "monospace",
-              fontSize: "0.9rem",
-              color: task.isRunning ? "var(--primary-color)" : "var(--text-secondary)",
-              fontWeight: task.isRunning ? 600 : 400,
-            }}
-          >
+          <span className="time-display">
+            {" "}
+            {/* Running style handled by parent modifier */}
             {formatTime(displayTime)}
           </span>
 
           {/* Controls */}
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div className="controls">
             {task.isCompleted ? (
-              <span
-                style={{
-                  fontSize: "0.85rem",
-                  color: "var(--success-color)",
-                  padding: "4px 8px",
-                  background: "var(--gray-100)",
-                  borderRadius: "4px",
-                  fontWeight: 500,
-                }}
-              >
+              <span className="completed-badge">
+                {" "}
+                {/* Use existing class */}
                 Completed
               </span>
             ) : (
               <>
+                {/* Use button-play or button-pause based on state */}
                 <button
                   onClick={() => onStartPause(task.id)}
-                  style={{
-                    padding: "6px",
-                    minWidth: "32px",
-                    background: task.isRunning
-                      ? "var(--warning-color)"
-                      : "var(--success-color)",
-                    border: "none",
-                    color: "var(--white)",
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    transition: "background-color 0.5s ease",
-                  }}
+                  className={task.isRunning ? "button-pause" : "button-play"}
                   aria-label={task.isRunning ? "Pause task" : "Start task"}
                   title={task.isRunning ? "Pause task" : "Start task"}
                 >
                   {task.isRunning ? <FaPause /> : <FaPlay />}
                 </button>
+                {/* Use button-stop class */}
                 <button
                   onClick={handleStopClick}
-                  style={{
-                    padding: "6px",
-                    minWidth: "32px",
-                    background: "var(--text-muted)",
-                    border: "none",
-                    color: "var(--white)",
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
+                  className="button-stop"
                   aria-label="Stop task"
                   title="Stop task"
                 >
                   <FaStop />
                 </button>
+                {/* Add a button-delete class */}
                 <button
                   onClick={handleDelete}
-                  style={{
-                    padding: "6px",
-                    minWidth: "32px",
-                    background: "var(--danger-color)",
-                    border: "none",
-                    color: "var(--white)",
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    transition: "opacity 0.2s ease",
-                  }}
+                  className="button-delete"
                   aria-label="Delete task"
                   title="Delete task"
                 >
