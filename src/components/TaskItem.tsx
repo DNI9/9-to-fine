@@ -1,6 +1,12 @@
 import { Draggable } from "@hello-pangea/dnd";
 import React, { useEffect, useState } from "react";
-import { FaCheck, FaGripVertical, FaPause, FaPlay, FaTrash } from "react-icons/fa";
+import { FaGripVertical } from "react-icons/fa";
+import {
+  IoIosCheckmarkCircle,
+  IoIosPause,
+  IoIosPlayCircle,
+  IoIosRemoveCircle,
+} from "react-icons/io";
 import { Task } from "../types";
 import { formatTime } from "../utils/timeUtils";
 
@@ -11,6 +17,8 @@ interface TaskItemProps {
   onComplete: (id: string) => void;
   onDelete: (id: string) => void;
 }
+
+const ICON_SIZE = 18;
 
 const TaskItem: React.FC<TaskItemProps> = ({
   task,
@@ -96,7 +104,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   aria-label={task.isRunning ? "Pause task" : "Start task"}
                   title={task.isRunning ? "Pause task" : "Start task"}
                 >
-                  {task.isRunning ? <FaPause /> : <FaPlay />}
+                  {task.isRunning ? (
+                    <IoIosPause size={ICON_SIZE} />
+                  ) : (
+                    <IoIosPlayCircle size={ICON_SIZE} />
+                  )}
                 </button>
                 <button
                   onClick={handleCompleteClick}
@@ -104,7 +116,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   aria-label="Complete task"
                   title="Complete task"
                 >
-                  <FaCheck />
+                  <IoIosCheckmarkCircle size={ICON_SIZE} />
                 </button>
               </>
             )}
@@ -114,7 +126,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               aria-label="Delete task"
               title="Delete task"
             >
-              <FaTrash />
+              <IoIosRemoveCircle size={ICON_SIZE} />
             </button>
           </div>
         </div>
