@@ -226,6 +226,19 @@ h1 {
   margin: -30px 0 15px;
   font-size: 1.1em;
   text-align: center;
+  margin-bottom: var(--space-5);
+}
+
+/* Input container for task input and date filter */
+.input-container {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.input-container .task-input-container {
+  flex-grow: 1;
+  margin-bottom: 0;
 }
 
 /* TaskInput styles */
@@ -293,6 +306,97 @@ h1 {
 [data-theme="dark"] .task-input-container button:disabled {
   background-color: var(--gray-200); /* Use dark theme neutral */
   color: var(--gray-600); /* Muted text for dark disabled */
+}
+
+/* Date Filter Styles */
+.date-filter-container {
+  position: relative;
+}
+
+.date-filter-button {
+  height: 100%;
+  padding: var(--space-2);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+.date-filter-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+}
+
+.date-filter-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: var(--background-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  padding: var(--space-3);
+}
+
+/* DayPicker custom styles */
+.date-filter-popover .rdp {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: var(--primary-color);
+  --rdp-background-color: var(--gray-100);
+  margin: 0;
+}
+
+.date-filter-popover .rdp-month {
+  background: var(--background-card);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+}
+
+.date-filter-popover .rdp-day_selected {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.date-filter-popover .rdp-day_range_start,
+.date-filter-popover .rdp-day_range_end {
+  background-color: var(--primary-color) !important;
+  color: var(--white) !important;
+}
+
+.date-filter-popover .rdp-day_range_middle {
+  background-color: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.date-filter-popover .clear-filter {
+  width: 100%;
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--gray-200);
+  color: var(--text-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.date-filter-popover .clear-filter:hover {
+  background-color: var(--gray-300);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .date-filter-button {
+  color: var(--gray-900);
+}
+
+[data-theme="dark"] .date-filter-popover .rdp {
+  --rdp-background-color: var(--gray-200);
 }
 
 /* Days container */

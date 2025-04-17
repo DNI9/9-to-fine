@@ -1,7 +1,10 @@
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import confetti from "canvas-confetti";
+import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { DateRange } from "react-day-picker";
 import "./App.css"; // We'll create this later for basic styling
+import DateFilter from "./components/DateFilter";
 import DaySection from "./components/DaySection";
 import LofiToggle from "./components/LofiToggle"; // Import the new component
 import TaskInput from "./components/TaskInput";
@@ -32,6 +35,7 @@ const App: React.FC = () => {
     const savedLofiPref = localStorage.getItem("lofiEnabled");
     return savedLofiPref !== null ? JSON.parse(savedLofiPref) : false;
   });
+  const [dateFilter, setDateFilter] = useState<DateRange | undefined>(undefined);
   // State to track if lofi is *currently* playing (internal state)
   const [isLofiPlaying, setIsLofiPlaying] = useState(false);
   // Ref to store the original title, avoiding potential stale closures
@@ -255,41 +259,46 @@ const App: React.FC = () => {
     [tasks]
   ); // Dependency on tasks is important here
 
-  // Group tasks by day for rendering
-  const tasksByDay = tasks.reduce((acc, task) => {
+  // Filter tasks based on date range or show only today's tasks if no filter
+  const filterTasks = (tasks: Task[]) => {
+    if (dateFilter?.from) {
+      const start = startOfDay(dateFilter.from);
+      const end = dateFilter.to ? endOfDay(dateFilter.to) : endOfDay(dateFilter.from);
+
+      return tasks.filter(task => {
+        const taskDate = parseISO(task.currentDay);
+        return isWithinInterval(taskDate, { start, end });
+      });
+    } else {
+      // When no filter is active, only show today's tasks
+      return tasks.filter(task => task.currentDay === getTodayDateString());
+    }
+  };
+
+  // Filtered tasks before grouping by day
+  const filteredTasks = filterTasks(tasks);
+
+  // Group tasks by day (using filtered tasks)
+  const tasksByDay = filteredTasks.reduce((acc, task) => {
     const day = task.currentDay;
     if (!acc[day]) {
       acc[day] = [];
     }
     acc[day].push(task);
-    // Optional: Sort tasks within a day if needed, e.g., by creation time or name
     return acc;
   }, {} as Record<string, Task[]>);
 
-  // Sort days chronologically for display
+  // Sort days chronologically
   const sortedDays = Object.keys(tasksByDay).sort();
-
-  // Ensure today's section is always visible, even if empty
-  const todayStr = getTodayDateString();
-  if (!tasksByDay[todayStr]) {
-    tasksByDay[todayStr] = [];
-    if (!sortedDays.includes(todayStr)) {
-      // Add today and re-sort if it wasn't present
-      sortedDays.push(todayStr);
-      sortedDays.sort();
-    }
-  }
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="app-container">
         <div className="top-controls">
-          {/* Theme toggle remains at the top */}
           <ThemeToggle
             isDark={isDarkMode}
             onToggle={() => setIsDarkMode(prev => !prev)}
           />
-          {/* Lofi toggle now back at the top */}
           <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
         </div>
         <h1>9-to-Fine</h1>
@@ -297,8 +306,10 @@ const App: React.FC = () => {
           A simple time tracking app to manage your daily tasks with drag-and-drop
           organization.
         </p>
-        {/* LofiToggle removed from here */}
-        <TaskInput onAddTask={handleAddTask} />
+        <div className="input-container">
+          <TaskInput onAddTask={handleAddTask} />
+          <DateFilter selected={dateFilter} onSelect={setDateFilter} />
+        </div>
 
         <div className="days-container">
           {sortedDays.map(day => (
@@ -311,6 +322,13 @@ const App: React.FC = () => {
               onDelete={handleDelete}
             />
           ))}
+          {filteredTasks.length === 0 && (
+            <p className="no-tasks-message">
+              {dateFilter?.from
+                ? "No tasks found for the selected date range"
+                : "No tasks for today. Add some tasks to get started!"}
+            </p>
+          )}
         </div>
       </div>
     </DragDropContext>
