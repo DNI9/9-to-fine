@@ -384,7 +384,8 @@ h1 {
   padding: var(--space-3) var(--space-4);
   margin-bottom: var(--space-2);
   border: 1px solid var(--border-color);
-  transition: background-color var(--transition-fast), box-shadow var(--transition-fast); /* Adjusted transition */
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast),
+    transform var(--transition-fast);
   display: flex; /* Use flexbox for alignment */
   align-items: center; /* Align items vertically */
   gap: var(--space-3); /* Add gap between elements */
@@ -438,6 +439,31 @@ h1 {
   display: flex;
   gap: var(--space-2);
   flex-shrink: 0; /* Prevent controls from shrinking */
+}
+
+.task-item.task-item--running {
+  background-color: var(--primary-color);
+  color: var(--white);
+  box-shadow: 0 0 15px rgba(103, 80, 164, 0.3);
+  transform: scale(1.02);
+  border-color: transparent;
+}
+
+.task-item.task-item--running .task-name,
+.task-item.task-item--running .time-display {
+  color: var(--white);
+}
+
+/* Dark theme adjustments for running task */
+[data-theme="dark"] .task-item.task-item--running {
+  background-color: var(--primary-color);
+  color: var(--gray-900);
+  box-shadow: 0 0 15px rgba(208, 188, 255, 0.2);
+}
+
+[data-theme="dark"] .task-item.task-item--running .task-name,
+[data-theme="dark"] .task-item.task-item--running .time-display {
+  color: var(--gray-900);
 }
 
 .task-item.task-item--running .time-display {
