@@ -47,6 +47,12 @@ const DaySection: React.FC<DaySectionProps> = ({
   // Check if the section's date is today
   const isToday = date === todayDateString;
 
+  // Sort tasks with completed ones at the bottom
+  const sortedTasks = [...tasks].sort((a, b) => {
+    if (a.isCompleted === b.isCompleted) return 0;
+    return a.isCompleted ? 1 : -1;
+  });
+
   return (
     // Apply the day-section class here
     <div className="day-section">
@@ -68,8 +74,8 @@ const DaySection: React.FC<DaySectionProps> = ({
               paddingBottom: "1px", // Prevent margin collapse
             }}
           >
-            {tasks.length > 0 ? (
-              tasks.map((task, index) => (
+            {sortedTasks.length > 0 ? (
+              sortedTasks.map((task, index) => (
                 <TaskItem
                   key={task.id}
                   task={task}
