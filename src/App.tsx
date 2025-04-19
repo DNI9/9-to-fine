@@ -217,6 +217,20 @@ const App: React.FC = () => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
   }, []);
 
+  const handlePostponeTask = useCallback((id: string) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task => {
+        if (task.id === id) {
+          return {
+            ...task,
+            currentDay: getTodayDateString(),
+          };
+        }
+        return task;
+      })
+    );
+  }, []);
+
   const onDragEnd = useCallback(
     (result: DropResult) => {
       const { source, destination, draggableId } = result;
@@ -319,6 +333,7 @@ const App: React.FC = () => {
               onStartPause={handleStartPause}
               onComplete={handleComplete}
               onDelete={handleDelete}
+              onPostpone={handlePostponeTask}
             />
           ))}
           {filteredTasks.length === 0 && (

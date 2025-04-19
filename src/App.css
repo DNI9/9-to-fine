@@ -669,6 +669,26 @@ h1 {
   color: var(--gray-900); /* Dark text on hover */
 }
 
+.task-item .button-postpone {
+  background-color: var(--button-play);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  cursor: pointer;
+  transition: opacity var(--transition-fast), background-color var(--transition-fast);
+  line-height: 0;
+}
+
+.task-item .button-postpone:hover {
+  opacity: 0.9;
+  background-color: var(--primary-hover);
+}
+
+[data-theme="dark"] .task-item .button-postpone {
+  color: var(--gray-900);
+}
+
 .task-item .completed-badge {
   color: var(--success-color);
   background-color: rgba(30, 239, 169, 0.1);

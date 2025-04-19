@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { FaGripVertical } from "react-icons/fa";
 import {
   IoIosCheckmarkCircle,
+  IoIosClock,
   IoIosPause,
   IoIosPlayCircle,
   IoIosRemoveCircle,
@@ -16,6 +17,8 @@ interface TaskItemProps {
   onStartPause: (id: string) => void;
   onComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  onPostpone?: (id: string) => void;
+  isOldTask?: boolean;
 }
 
 const ICON_SIZE = 18;
@@ -26,6 +29,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
   onStartPause,
   onComplete,
   onDelete,
+  onPostpone,
+  isOldTask,
 }) => {
   const [displayTime, setDisplayTime] = useState<number>(task.totalTime);
 
@@ -56,6 +61,12 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete "${task.name}"?`)) {
       onDelete(task.id);
+    }
+  };
+
+  const handlePostpone = () => {
+    if (onPostpone) {
+      onPostpone(task.id);
     }
   };
 
@@ -98,18 +109,29 @@ const TaskItem: React.FC<TaskItemProps> = ({
               </>
             ) : (
               <>
-                <button
-                  onClick={() => onStartPause(task.id)}
-                  className={task.isRunning ? "button-pause" : "button-play"}
-                  aria-label={task.isRunning ? "Pause task" : "Start task"}
-                  title={task.isRunning ? "Pause task" : "Start task"}
-                >
-                  {task.isRunning ? (
-                    <IoIosPause size={ICON_SIZE} />
-                  ) : (
-                    <IoIosPlayCircle size={ICON_SIZE} />
-                  )}
-                </button>
+                {isOldTask ? (
+                  <button
+                    onClick={handlePostpone}
+                    className="button-postpone"
+                    aria-label="Postpone to today"
+                    title="Postpone to today"
+                  >
+                    <IoIosClock size={ICON_SIZE} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => onStartPause(task.id)}
+                    className={task.isRunning ? "button-pause" : "button-play"}
+                    aria-label={task.isRunning ? "Pause task" : "Start task"}
+                    title={task.isRunning ? "Pause task" : "Start task"}
+                  >
+                    {task.isRunning ? (
+                      <IoIosPause size={ICON_SIZE} />
+                    ) : (
+                      <IoIosPlayCircle size={ICON_SIZE} />
+                    )}
+                  </button>
+                )}
                 <button
                   onClick={handleCompleteClick}
                   className="button-complete"

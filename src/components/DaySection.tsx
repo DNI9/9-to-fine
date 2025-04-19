@@ -9,6 +9,7 @@ interface DaySectionProps {
   onStartPause: (id: string) => void;
   onComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  onPostpone?: (id: string) => void;
 }
 
 const DaySection: React.FC<DaySectionProps> = ({
@@ -17,6 +18,7 @@ const DaySection: React.FC<DaySectionProps> = ({
   onStartPause,
   onComplete,
   onDelete,
+  onPostpone,
 }) => {
   // Calculate total time for the day
   const getTotalTime = () => {
@@ -83,6 +85,8 @@ const DaySection: React.FC<DaySectionProps> = ({
                   onStartPause={onStartPause}
                   onComplete={onComplete}
                   onDelete={onDelete}
+                  onPostpone={onPostpone}
+                  isOldTask={!isToday}
                 />
               ))
             ) : (
