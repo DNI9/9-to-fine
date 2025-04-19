@@ -352,6 +352,27 @@ h1 {
   margin: 0;
 }
 
+/* Task dot indicator styles */
+.rdp-day_withTasks {
+  position: relative;
+}
+
+.rdp-day_withTasks::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+}
+
+[data-theme="dark"] .rdp-day_withTasks::after {
+  background-color: var(--primary-color);
+}
+
 .date-filter-popover .rdp-month {
   background: var(--background-card);
   border-radius: var(--radius-sm);

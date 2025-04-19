@@ -321,7 +321,7 @@ const App: React.FC = () => {
         </p>
         <div className="input-container">
           <TaskInput onAddTask={handleAddTask} />
-          <DateFilter selected={dateFilter} onSelect={setDateFilter} />
+          <DateFilter selected={dateFilter} onSelect={setDateFilter} tasks={tasks} />
         </div>
 
         <div className="days-container">
