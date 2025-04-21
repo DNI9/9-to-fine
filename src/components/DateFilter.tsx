@@ -15,9 +15,9 @@ const DateFilter: React.FC<DateFilterProps> = ({ selected, onSelect, tasks }) =>
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  // Create a map of dates with incomplete tasks
+  // Create a map of dates with incomplete tasks (excluding postponed tasks)
   const datesWithIncompleteTasks = tasks.reduce((acc, task) => {
-    if (!task.isCompleted) {
+    if (!task.isCompleted && !task.postponedTo) {
       acc[task.currentDay] = true;
     }
     return acc;
