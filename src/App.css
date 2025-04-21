@@ -212,6 +212,35 @@ body {
   display: block; /* Remove extra space below SVG */
 }
 
+/* Style for NotificationToggle button */
+.notification-toggle-button {
+  background: none;
+  border: none;
+  padding: var(--space-2);
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.notification-toggle-button:hover {
+  background-color: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.notification-toggle-button.enabled {
+  color: var(--primary-color);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .notification-toggle-button:hover {
+  background-color: var(--gray-800);
+}
+
+[data-theme="dark"] .notification-toggle-button.enabled {
+  color: var(--primary-hover);
+}
+
 h1 {
   text-align: center;
   color: var(--text-primary);

@@ -7,6 +7,7 @@ import "./App.css"; // We'll create this later for basic styling
 import DateFilter from "./components/DateFilter";
 import DaySection from "./components/DaySection";
 import LofiToggle from "./components/LofiToggle"; // Import the new component
+import NotificationToggle from "./components/NotificationToggle";
 import TaskInput from "./components/TaskInput";
 import ThemeToggle from "./components/ThemeToggle";
 import { Task } from "./types";
@@ -22,6 +23,9 @@ const getTodayDateString = (): string => {
   return `${year}-${month}-${day}`;
 };
 
+// Add this constant at the top with other constants
+const NOTIFICATION_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>(loadTasks());
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -35,6 +39,10 @@ const App: React.FC = () => {
     const savedLofiPref = localStorage.getItem("lofiEnabled");
     return savedLofiPref !== null ? JSON.parse(savedLofiPref) : false;
   });
+  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(() => {
+    const savedPref = localStorage.getItem("notificationsEnabled");
+    return savedPref !== null ? JSON.parse(savedPref) : false;
+  });
   const [dateFilter, setDateFilter] = useState<DateRange | undefined>(undefined);
   // State to track if lofi is *currently* playing (internal state)
   const [isLofiPlaying, setIsLofiPlaying] = useState(false);
@@ -42,6 +50,7 @@ const App: React.FC = () => {
   const originalTitleRef = useRef(
     "9-to-Fine - Because tracking time is totally fine... right? 😅"
   );
+  const taskNotificationsRef = useRef<Record<string, number>>({});
 
   // Set theme on body when dark mode changes
   useEffect(() => {
@@ -118,6 +127,40 @@ const App: React.FC = () => {
     // --- End Lofi Logic ---
   }, [tasks, isLofiPlaying, isLofiEnabled]); // Add isLofiEnabled dependency
 
+  // Add new effect for notifications
+  useEffect(() => {
+    const checkLongRunningTasks = () => {
+      if (!isNotificationsEnabled) return; // Skip if notifications are disabled
+
+      tasks.forEach(task => {
+        if (task.isRunning && task.startTime) {
+          const runningTime = Date.now() - task.startTime + task.totalTime;
+          const notificationCount = Math.floor(runningTime / NOTIFICATION_INTERVAL);
+          const lastNotified = taskNotificationsRef.current[task.id] || 0;
+
+          if (notificationCount > lastNotified && Notification.permission === "granted") {
+            new Notification(
+              `Task "${task.name}" has been running for ${
+                notificationCount * 30
+              } minutes`,
+              {
+                body: "Take a moment to check your progress!",
+                icon: "/favicon.ico",
+              }
+            );
+            taskNotificationsRef.current[task.id] = notificationCount;
+          }
+        } else {
+          // Reset notification count when task is paused
+          delete taskNotificationsRef.current[task.id];
+        }
+      });
+    };
+
+    const intervalId = setInterval(checkLongRunningTasks, 60000); // Check every minute
+    return () => clearInterval(intervalId);
+  }, [tasks, isNotificationsEnabled]);
+
   // Handler for the Lofi toggle switch
   const handleLofiToggle = useCallback(() => {
     // Explicitly type prevEnabled as boolean
@@ -133,6 +176,38 @@ const App: React.FC = () => {
       return newState;
     });
   }, [isLofiPlaying]); // Depend on isLofiPlaying to stop correctly
+
+  const handleNotificationToggle = useCallback(() => {
+    setIsNotificationsEnabled((prevEnabled: boolean) => {
+      const newState = !prevEnabled;
+
+      if (newState) {
+        // When enabling notifications, check/request permission
+        if (Notification.permission === "granted") {
+          localStorage.setItem("notificationsEnabled", JSON.stringify(true));
+          return true;
+        } else if (Notification.permission === "denied") {
+          alert(
+            "Notification permission was denied. Please enable notifications in your browser settings to use this feature."
+          );
+          localStorage.setItem("notificationsEnabled", JSON.stringify(false));
+          return false;
+        } else {
+          // Permission is "default", need to request it
+          Notification.requestPermission().then(permission => {
+            const isGranted = permission === "granted";
+            localStorage.setItem("notificationsEnabled", JSON.stringify(isGranted));
+            setIsNotificationsEnabled(isGranted);
+          });
+          return false; // Initially set to false until permission is granted
+        }
+      }
+
+      // When disabling notifications
+      localStorage.setItem("notificationsEnabled", JSON.stringify(false));
+      return false;
+    });
+  }, []);
 
   const handleAddTask = useCallback((name: string) => {
     const newTask: Task = {
@@ -327,6 +402,10 @@ const App: React.FC = () => {
           <ThemeToggle
             isDark={isDarkMode}
             onToggle={() => setIsDarkMode(prev => !prev)}
+          />
+          <NotificationToggle
+            isEnabled={isNotificationsEnabled}
+            onToggle={handleNotificationToggle}
           />
           <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
         </div>
