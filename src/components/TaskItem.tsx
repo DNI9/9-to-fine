@@ -71,7 +71,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   return (
-    <Draggable draggableId={task.id} index={index} isDragDisabled={task.isCompleted}>
+    <Draggable
+      draggableId={task.id}
+      index={index}
+      isDragDisabled={task.isCompleted || task.postponedTo !== undefined}
+    >
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
@@ -103,10 +107,17 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
           {/* Controls */}
           <div className="controls">
-            {task.isCompleted ? (
-              <>
-                <span className="completed-badge">Completed</span>
-              </>
+            {task.postponedTo ? (
+              <span
+                className="postponed-badge"
+                title={`Postponed to ${new Date(
+                  task.postponedTo + "T00:00:00"
+                ).toLocaleDateString()}`}
+              >
+                Postponed
+              </span>
+            ) : task.isCompleted ? (
+              <span className="completed-badge">Completed</span>
             ) : (
               <>
                 {isOldTask ? (

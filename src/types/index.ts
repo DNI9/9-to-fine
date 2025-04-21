@@ -6,4 +6,5 @@ export interface Task {
   isRunning: boolean;
   isCompleted: boolean;
   currentDay: string; // Format: 'YYYY-MM-DD'
+  postponedTo?: string; // Format: 'YYYY-MM-DD', optional field to track when a task is postponed to
 }

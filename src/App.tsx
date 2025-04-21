@@ -218,17 +218,32 @@ const App: React.FC = () => {
   }, []);
 
   const handlePostponeTask = useCallback((id: string) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task => {
-        if (task.id === id) {
-          return {
-            ...task,
-            currentDay: getTodayDateString(),
-          };
-        }
-        return task;
-      })
-    );
+    setTasks(prevTasks => {
+      // Find the task to copy
+      const taskToCopy = prevTasks.find(task => task.id === id);
+      if (!taskToCopy) return prevTasks;
+
+      const today = getTodayDateString();
+
+      // Create a new task with reset time values
+      const newTask: Task = {
+        ...taskToCopy,
+        id: crypto.randomUUID(),
+        totalTime: 0,
+        startTime: null,
+        isRunning: false,
+        isCompleted: false,
+        currentDay: today,
+      };
+
+      // Update the original task with postponedTo field
+      const updatedTasks = prevTasks.map(task =>
+        task.id === id ? { ...task, postponedTo: today } : task
+      );
+
+      // Return all existing tasks plus the new one
+      return [...updatedTasks, newTask];
+    });
   }, []);
 
   const onDragEnd = useCallback(

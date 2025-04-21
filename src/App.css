@@ -725,6 +725,23 @@ h1 {
   color: var(--gray-900); /* Dark text on light badge in dark mode */
 }
 
+.task-item .postponed-badge {
+  color: var(--gray-600);
+  background-color: var(--gray-200);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-left: auto; /* Push badge to the right if controls aren't present */
+  cursor: help; /* Show pointer to indicate hover will show more info */
+}
+
+/* Adjust badge text color for dark theme */
+[data-theme="dark"] .task-item .postponed-badge {
+  color: var(--gray-900);
+  background-color: var(--gray-300);
+}
+
 /* Dragging states */
 .task-item.dragging {
   background: white;
