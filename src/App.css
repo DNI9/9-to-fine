@@ -847,3 +847,128 @@ h1 {
   margin: var(--space-3) 0;
   font-style: italic;
 }
+
+/* Login component styles - Material You Inspired */
+.login-container {
+  max-width: 450px; /* Slightly wider */
+  margin: var(--space-6) auto; /* Use theme spacing */
+  padding: var(--space-6); /* Use theme spacing */
+  border-radius: var(--radius-lg); /* Use theme radius */
+  box-shadow: var(--shadow-md); /* Use theme shadow */
+  background-color: var(--background-card); /* Use card background */
+  display: flex; /* Use flex for centering content */
+  flex-direction: column;
+  align-items: center; /* Center form elements */
+}
+
+/* New Login Heading Styles */
+.login-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--space-5); /* Use theme spacing */
+  line-height: 1.2; /* Adjust line height for stacked text */
+}
+
+.login-heading-small {
+  font-size: 1rem; /* Smaller text */
+  color: var(--text-secondary); /* Secondary color */
+  font-weight: 400; /* Normal weight */
+  margin-bottom: var(--space-1); /* Small space between lines */
+}
+
+.login-heading-large {
+  font-size: 2.25rem; /* Larger text */
+  color: var(--primary-color); /* Use primary color */
+  font-weight: 700; /* Bold weight */
+  letter-spacing: -0.5px;
+}
+
+.login-container form {
+  width: 100%; /* Ensure form takes full width */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4); /* Space between form elements */
+}
+
+.form-group {
+  margin-bottom: 0; /* Remove default margin, use gap in form */
+  width: 100%; /* Ensure group takes full width */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--space-2); /* Use theme spacing */
+  color: var(--text-secondary); /* Use secondary text color */
+  font-weight: 500; /* Medium weight */
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  width: 100%;
+  padding: var(--space-3) var(--space-4); /* Use theme spacing */
+  border: 1px solid var(--border-color); /* Use theme border color */
+  border-radius: var(--radius-md); /* Use theme radius */
+  background-color: var(--background-body); /* Use body background for slight contrast */
+  color: var(--text-primary); /* Use theme text color */
+  font-size: 1rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted); /* Use muted text for placeholder */
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color); /* Highlight with primary color */
+  box-shadow: 0 0 0 2px var(--primary-color); /* Add focus ring */
+  opacity: 0.8;
+}
+
+.login-container button {
+  width: 100%;
+  padding: var(--space-3) var(--space-4); /* Use theme spacing */
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-hover)
+  ); /* Gradient background */
+  color: var(--white); /* Use white text for light theme */
+  border: none;
+  border-radius: var(--radius-md); /* Use theme radius */
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600; /* Bolder text */
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  margin-top: var(--space-3); /* Add some space above button */
+}
+
+.login-container button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); /* Use primary color shadow */
+}
+
+.login-container button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring */
+  opacity: 0.8;
+}
+
+.login-container button:disabled {
+  background: var(--gray-300); /* Use neutral for disabled */
+  color: var(--gray-600);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Dark theme adjustments for login button text */
+[data-theme="dark"] .login-container button {
+  color: var(--gray-900); /* Dark text on light primary button */
+}
+
+[data-theme="dark"] .login-container button:disabled {
+  background: var(--gray-600); /* Darker neutral for disabled */
+  color: var(--gray-400);
+}

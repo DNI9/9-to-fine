@@ -3,16 +3,18 @@ import confetti from "canvas-confetti";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
-import "./App.css"; // We'll create this later for basic styling
+import { Navigate, Route, Routes } from "react-router";
+import "./App.css";
 import DateFilter from "./components/DateFilter";
 import DaySection from "./components/DaySection";
-import LofiToggle from "./components/LofiToggle"; // Import the new component
+import LofiToggle from "./components/LofiToggle";
+import Login from "./components/Login";
 import NotificationToggle from "./components/NotificationToggle";
 import TaskInput from "./components/TaskInput";
 import ThemeToggle from "./components/ThemeToggle";
 import { Task } from "./types";
 import { loadTasks, saveTasks } from "./utils/storageUtils";
-import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer"; // Import lofi functions
+import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer";
 
 // Helper to get today's date in YYYY-MM-DD format based on local time
 const getTodayDateString = (): string => {
@@ -26,14 +28,11 @@ const getTodayDateString = (): string => {
 // Add this constant at the top with other constants
 const NOTIFICATION_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-const App: React.FC = () => {
+const MainContent: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>(loadTasks());
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
-    return (
-      savedTheme === "dark"
-      // || (savedTheme === null && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    );
+    return savedTheme === "dark";
   });
   const [isLofiEnabled, setIsLofiEnabled] = useState(() => {
     const savedLofiPref = localStorage.getItem("lofiEnabled");
@@ -440,6 +439,27 @@ const App: React.FC = () => {
         </div>
       </div>
     </DragDropContext>
+  );
+};
+
+const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/"
+        element={isAuthenticated ? <MainContent /> : <Navigate to="/login" />}
+      />
+    </Routes>
   );
 };
 
