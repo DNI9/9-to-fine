@@ -125,31 +125,44 @@ body {
 
 /* Style for ThemeToggle button */
 .top-controls .theme-toggle-button {
-  padding: var(--space-2); /* Adjust padding */
+  padding: var(--space-2); /* Match theme toggle padding */
   border-radius: 50%; /* Circular */
   border: none;
-  background: transparent; /* Transparent background */
-  color: var(--text-secondary); /* Use secondary text color */
+  background: transparent;
+  color: var(--text-secondary); /* Default icon color */
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
   display: flex; /* Ensure icon is centered */
   align-items: center;
   justify-content: center;
+  width: 36px; /* Explicit size */
+  height: 36px;
+  outline: none;
 }
 
 .top-controls .theme-toggle-button:hover {
   background-color: var(--gray-100); /* Subtle background on hover */
-  color: var(--text-primary); /* Darker color on hover */
 }
 
-/* Dark theme adjustments for theme toggle */
+/* Dark theme adjustments for lofi toggle */
 [data-theme="dark"] .top-controls .theme-toggle-button {
+  background-color: var(--gray-200); /* Use dark theme neutral */
   color: var(--text-secondary);
 }
 
 [data-theme="dark"] .top-controls .theme-toggle-button:hover {
-  background-color: var(--gray-200); /* Use dark theme surface variant */
-  color: var(--text-primary);
+  background-color: var(--gray-300);
+}
+
+/* Focus styles */
+.top-controls .theme-toggle-button:focus-visible {
+  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
+  opacity: 0.8; /* Slight opacity for focus ring */
+}
+
+/* Ensure SVG scales well */
+.top-controls .theme-toggle-button svg {
+  display: block; /* Remove extra space below SVG */
 }
 
 /* Style for LofiToggle button */
@@ -213,32 +226,63 @@ body {
 }
 
 /* Style for NotificationToggle button */
-.notification-toggle-button {
-  background: none;
+.top-controls .notification-toggle-button {
+  padding: var(--space-2); /* Match theme toggle padding */
+  border-radius: 50%; /* Circular */
   border: none;
-  padding: var(--space-2);
+  background: transparent;
+  color: var(--text-secondary); /* Default icon color */
   cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  display: flex; /* Ensure icon is centered */
+  align-items: center;
+  justify-content: center;
+  width: 36px; /* Explicit size */
+  height: 36px;
+  outline: none;
+}
+
+.top-controls .notification-toggle-button:hover {
+  background-color: var(--gray-100); /* Subtle background on hover */
+}
+
+.top-controls .notification-toggle-button.enabled {
+  background-color: var(--primary-color); /* Use primary color when enabled */
+  color: var(--white); /* White icon when enabled */
+}
+
+.top-controls .notification-toggle-button.enabled:hover {
+  background-color: var(--primary-hover); /* Darker primary on hover */
+}
+
+/* Dark theme adjustments for lofi toggle */
+[data-theme="dark"] .top-controls .notification-toggle-button {
+  background-color: var(--gray-200); /* Use dark theme neutral */
   color: var(--text-secondary);
-  border-radius: var(--radius-md);
-  transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
-.notification-toggle-button:hover {
-  background-color: var(--gray-100);
-  color: var(--text-primary);
+[data-theme="dark"] .top-controls .notification-toggle-button:hover {
+  background-color: var(--gray-300);
 }
 
-.notification-toggle-button.enabled {
-  color: var(--primary-color);
+[data-theme="dark"] .top-controls .notification-toggle-button.enabled {
+  background-color: var(--primary-color); /* Use dark theme primary */
+  color: var(--gray-900); /* Dark icon on light primary */
 }
 
-/* Dark theme adjustments */
-[data-theme="dark"] .notification-toggle-button:hover {
-  background-color: var(--gray-800);
+[data-theme="dark"] .top-controls .notification-toggle-button.enabled:hover {
+  background-color: var(--primary-hover);
 }
 
-[data-theme="dark"] .notification-toggle-button.enabled {
-  color: var(--primary-hover);
+/* Focus styles */
+.top-controls .notification-toggle-button:focus-visible {
+  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
+  opacity: 0.8; /* Slight opacity for focus ring */
+}
+
+/* Ensure SVG scales well */
+.top-controls .notification-toggle-button svg {
+  display: block; /* Remove extra space below SVG */
 }
 
 h1 {

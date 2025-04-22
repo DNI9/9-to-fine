@@ -17,7 +17,7 @@ const NotificationToggle: React.FC<NotificationToggleProps> = ({
       aria-pressed={isEnabled}
       title={isEnabled ? "Disable Notifications" : "Enable Notifications"}
     >
-      {isEnabled ? <IoNotifications size={25} /> : <IoNotificationsOff size={25} />}
+      {isEnabled ? <IoNotifications size={20} /> : <IoNotificationsOff size={20} />}
     </button>
   );
 };
