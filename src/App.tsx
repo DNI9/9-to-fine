@@ -3,6 +3,7 @@ import confetti from "canvas-confetti";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
+import { IoLogOut } from "react-icons/io5";
 import { Navigate, Route, Routes } from "react-router";
 import "./App.css";
 import DateFilter from "./components/DateFilter";
@@ -15,6 +16,7 @@ import ThemeToggle from "./components/ThemeToggle";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Task } from "./types";
 import { loadTasks, saveTasks } from "./utils/storageUtils";
+import { supabase } from "./utils/supabase"; // Import supabase client
 import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer";
 
 // Helper to get today's date in YYYY-MM-DD format based on local time
@@ -51,6 +53,14 @@ const MainContent: React.FC = () => {
     "9-to-Fine - Because tracking time is totally fine... right? 😅"
   );
   const taskNotificationsRef = useRef<Record<string, number>>({});
+
+  const handleLogout = async () => {
+    if (!confirm("Are you sure you want to log out?")) return;
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
   // Set theme on body when dark mode changes
   useEffect(() => {
@@ -408,6 +418,10 @@ const MainContent: React.FC = () => {
             onToggle={handleNotificationToggle}
           />
           <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
+          {/* Add Logout Button */}
+          <button onClick={handleLogout} className="logout-button" title="Logout">
+            <IoLogOut size={20} />
+          </button>
         </div>
         <h1 className="app-title">Track. Focus. Celebrate.</h1>
         <p className="app-description">

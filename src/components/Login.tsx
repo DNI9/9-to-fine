@@ -14,14 +14,12 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const { error, data } = await supabase.auth.signInWithOtp({
+      const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
           shouldCreateUser: true,
         },
       });
-
-      console.log(data);
 
       if (error) throw error;
 
