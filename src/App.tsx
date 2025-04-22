@@ -15,8 +15,9 @@ import TaskInput from "./components/TaskInput";
 import ThemeToggle from "./components/ThemeToggle";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Task } from "./types";
-import { loadTasks, saveTasks } from "./utils/storageUtils";
+// Removed loadTasks, saveTasks imports
 import { supabase } from "./utils/supabase"; // Import supabase client
+import { addTask, deleteTask, getTasks, updateTask } from "./utils/taskUtils"; // Import Supabase task functions
 import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer";
 
 // Helper to get today's date in YYYY-MM-DD format based on local time
@@ -32,7 +33,9 @@ const getTodayDateString = (): string => {
 const NOTIFICATION_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 const MainContent: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>(loadTasks());
+  const { session } = useAuth(); // Get session which contains user info
+  const [tasks, setTasks] = useState<Task[]>([]); // Initialize with empty array
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true); // Add loading state
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
@@ -62,27 +65,53 @@ const MainContent: React.FC = () => {
     }
   };
 
+  // Fetch tasks from Supabase when component mounts and user is logged in
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (session?.user?.id) {
+        setIsLoadingTasks(true);
+        try {
+          const fetchedTasks = await getTasks(session.user.id);
+          setTasks(fetchedTasks);
+        } catch (error) {
+          console.error("Failed to fetch tasks:", error);
+          // Handle error appropriately, maybe show a message to the user
+        } finally {
+          setIsLoadingTasks(false);
+        }
+      } else {
+        setTasks([]); // Clear tasks if no user
+        setIsLoadingTasks(false);
+      }
+    };
+
+    fetchTasks();
+    // Depend on user ID instead of the whole session object
+  }, [session?.user?.id]); // Re-fetch only if user ID changes
+
   // Set theme on body when dark mode changes
   useEffect(() => {
     document.body.dataset.theme = isDarkMode ? "dark" : "light";
     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
   }, [isDarkMode]);
 
-  // Save tasks whenever they change
-  useEffect(() => {
-    saveTasks(tasks);
-  }, [tasks]);
-
   // Update document title when tasks are running
   useEffect(() => {
-    const runningTask = tasks.find(task => task.isRunning);
+    // Use snake_case property
+    const runningTask = tasks.find(task => task.is_running);
     const originalTitle = originalTitleRef.current; // Capture ref value here
 
     if (runningTask) {
       const updateTitle = () => {
-        if (runningTask.startTime) {
-          const elapsed = Date.now() - runningTask.startTime + runningTask.totalTime;
-          const timeStr = new Date(elapsed).toISOString().substring(11, 19); // Format as HH:MM:SS
+        // Use snake_case property, convert string timestamp to number for calculation
+        const startTimeNumber = runningTask.start_time
+          ? Number(runningTask.start_time)
+          : null;
+        if (startTimeNumber) {
+          // Use total_time (already in seconds)
+          const elapsedMillis =
+            Date.now() - startTimeNumber + runningTask.total_time * 1000;
+          const timeStr = new Date(elapsedMillis).toISOString().substring(11, 19); // Format as HH:MM:SS
           document.title = `${timeStr} - ${runningTask.name}`;
         }
       };
@@ -114,7 +143,8 @@ const MainContent: React.FC = () => {
     }
 
     // Lofi is enabled, proceed with play/pause logic
-    const shouldPlay = tasks.some(task => task.isRunning);
+    // Use snake_case property
+    const shouldPlay = tasks.some(task => task.is_running);
 
     if (shouldPlay && !isLofiPlaying) {
       // If any task is running and lofi isn't marked as playing
@@ -134,19 +164,19 @@ const MainContent: React.FC = () => {
       pauseLofi();
       setIsLofiPlaying(false);
     }
-    // --- End Lofi Logic ---
   }, [tasks, isLofiPlaying, isLofiEnabled]); // Add isLofiEnabled dependency
 
-  // Add new effect for notifications
   useEffect(() => {
     const checkLongRunningTasks = () => {
       if (!isNotificationsEnabled) return; // Skip if notifications are disabled
 
       tasks.forEach(task => {
-        if (task.isRunning && task.startTime) {
-          const runningTime = Date.now() - task.startTime + task.totalTime;
-          const notificationCount = Math.floor(runningTime / NOTIFICATION_INTERVAL);
-          const lastNotified = taskNotificationsRef.current[task.id] || 0;
+        const taskIdStr = String(task.id); // Use string for ref key
+        const startTimeNumber = task.start_time ? Number(task.start_time) : null;
+        if (task.is_running && startTimeNumber) {
+          const runningMillis = Date.now() - startTimeNumber + task.total_time * 1000;
+          const notificationCount = Math.floor(runningMillis / NOTIFICATION_INTERVAL);
+          const lastNotified = taskNotificationsRef.current[taskIdStr] || 0;
 
           if (notificationCount > lastNotified && Notification.permission === "granted") {
             new Notification(
@@ -158,11 +188,10 @@ const MainContent: React.FC = () => {
                 icon: "/favicon.ico",
               }
             );
-            taskNotificationsRef.current[task.id] = notificationCount;
+            taskNotificationsRef.current[taskIdStr] = notificationCount;
           }
         } else {
-          // Reset notification count when task is paused
-          delete taskNotificationsRef.current[task.id];
+          delete taskNotificationsRef.current[taskIdStr];
         }
       });
     };
@@ -173,7 +202,6 @@ const MainContent: React.FC = () => {
 
   // Handler for the Lofi toggle switch
   const handleLofiToggle = useCallback(() => {
-    // Explicitly type prevEnabled as boolean
     setIsLofiEnabled((prevEnabled: boolean) => {
       const newState = !prevEnabled;
       localStorage.setItem("lofiEnabled", JSON.stringify(newState));
@@ -219,117 +247,200 @@ const MainContent: React.FC = () => {
     });
   }, []);
 
-  const handleAddTask = useCallback((name: string) => {
-    const newTask: Task = {
-      id: crypto.randomUUID(), // Modern way to generate unique IDs
-      name,
-      totalTime: 0,
-      startTime: null,
-      isRunning: false,
-      isCompleted: false,
-      currentDay: getTodayDateString(),
-    };
-    setTasks(prevTasks => [...prevTasks, newTask]);
-  }, []);
+  const handleAddTask = useCallback(
+    async (name: string) => {
+      if (!session?.user?.id) {
+        console.error("Cannot add task: User not logged in.");
+        return; // Or show an error message
+      }
+      const userId = session.user.id;
 
-  const handleStartPause = useCallback((id: string) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task => {
-        if (task.id === id && !task.isCompleted) {
-          if (task.isRunning) {
-            // Pausing
-            const elapsed = task.startTime ? Date.now() - task.startTime : 0;
-            return {
-              ...task,
-              isRunning: false,
-              startTime: null,
-              totalTime: task.totalTime + elapsed,
-            };
-          } else {
-            // Starting / Resuming
-            return { ...task, isRunning: true, startTime: Date.now() };
-          }
-        }
-        return task;
-      })
-    );
-  }, []);
+      // Prepare data using snake_case for the unified Task type
+      const newTaskData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at"> = {
+        name,
+        total_time: 0, // Use snake_case
+        start_time: null, // Use snake_case (will be handled by addTask)
+        is_running: false, // Use snake_case
+        is_completed: false, // Use snake_case
+        current_day: getTodayDateString(), // Use snake_case
+        postponed_to: null, // Use snake_case
+      };
 
-  const handleComplete = useCallback(
-    (id: string) => {
-      setTasks(prevTasks =>
-        prevTasks.map(task => {
-          if (task.id === id && !task.isCompleted) {
-            let finalTotalTime = task.totalTime;
-            if (task.isRunning && task.startTime) {
-              // Calculate final elapsed time if it was running
-              finalTotalTime += Date.now() - task.startTime;
-            }
-            // Trigger confetti when completing a task
-            confetti({
-              particleCount: 100,
-              spread: 80,
-              origin: { y: 0.8 },
-            });
-            return {
-              ...task,
-              isRunning: false,
-              isCompleted: true,
-              startTime: null,
-              totalTime: finalTotalTime,
-            };
-          }
-          return task;
-        })
-      );
-
-      // Check if this was the last running task AND lofi is enabled
-      const anyOtherTaskRunning = tasks.some(task => task.id !== id && task.isRunning);
-      if (!anyOtherTaskRunning && isLofiEnabled) {
-        console.log("Last task stopped, stopping Lofi completely (enabled).");
-        stopLofi();
-        setIsLofiPlaying(false);
-      } else if (!anyOtherTaskRunning && !isLofiEnabled) {
-        console.log("Last task stopped, Lofi already disabled.");
-        // Ensure internal state is correct even if lofi was disabled externally
-        if (isLofiPlaying) setIsLofiPlaying(false);
+      try {
+        // addTask now expects snake_case data (start_time conversion handled inside)
+        const addedTask = await addTask(newTaskData, userId);
+        setTasks(prevTasks => [...prevTasks, addedTask]); // Add the task returned by Supabase (with ID)
+      } catch (error) {
+        console.error("Failed to add task:", error);
+        // Handle error (e.g., show notification)
       }
     },
-    [tasks, isLofiEnabled, isLofiPlaying]
+    [session]
+  ); // Depend on session
+
+  const handleStartPause = useCallback(
+    async (id: number) => {
+      const taskToUpdate = tasks.find(task => task.id === id);
+      if (!taskToUpdate || taskToUpdate.is_completed) return;
+
+      let updates: Partial<Omit<Task, "id" | "user_id" | "created_at" | "updated_at">>;
+      const startTimeNumber = taskToUpdate.start_time
+        ? Number(taskToUpdate.start_time)
+        : null;
+
+      if (taskToUpdate.is_running) {
+        // Pausing
+        const elapsedMillis = startTimeNumber ? Date.now() - startTimeNumber : 0;
+        const elapsedSeconds = Math.round(elapsedMillis / 1000); // Convert to seconds
+        updates = {
+          is_running: false,
+          start_time: null, // Pass null, updateTask handles conversion if needed
+          total_time: taskToUpdate.total_time + elapsedSeconds, // Use snake_case
+        };
+      } else {
+        // Starting / Resuming
+        // Pass Date.now() converted to string. updateTask expects string | null for start_time.
+        updates = { is_running: true, start_time: String(Date.now()) };
+      }
+
+      try {
+        const updatedTaskResult = await updateTask(id, updates);
+        setTasks(prevTasks =>
+          prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
+        );
+      } catch (error) {
+        console.error("Failed to update task (start/pause):", error);
+      }
+    },
+    [tasks]
+  ); // Depend on tasks to find the task to update
+
+  const handleComplete = useCallback(
+    async (id: number) => {
+      const taskToComplete = tasks.find(task => task.id === id);
+      if (!taskToComplete || taskToComplete.is_completed) return;
+
+      let finalTotalTimeSeconds = taskToComplete.total_time;
+      const startTimeNumber = taskToComplete.start_time
+        ? Number(taskToComplete.start_time)
+        : null;
+      if (taskToComplete.is_running && startTimeNumber) {
+        const elapsedMillis = Date.now() - startTimeNumber;
+        finalTotalTimeSeconds += Math.round(elapsedMillis / 1000); // Add elapsed seconds
+      }
+
+      // Use snake_case properties for updates
+      const updates: Partial<Omit<Task, "id" | "user_id" | "created_at" | "updated_at">> =
+        {
+          is_running: false,
+          is_completed: true,
+          start_time: null, // Pass null, updateTask handles conversion if needed
+          total_time: finalTotalTimeSeconds,
+        };
+
+      try {
+        // updateTask now expects snake_case updates (start_time conversion handled inside)
+        const updatedTaskResult = await updateTask(id, updates);
+        setTasks(prevTasks =>
+          prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
+        );
+        // Trigger confetti when completing a task
+        confetti({
+          particleCount: 100,
+          spread: 80,
+          origin: { y: 0.8 },
+        });
+
+        // Check if this was the last running task AND lofi is enabled
+        // Use snake_case property
+        const anyOtherTaskRunning = tasks.some(task => task.id !== id && task.is_running);
+        if (!anyOtherTaskRunning && isLofiEnabled) {
+          console.log("Last task stopped, stopping Lofi completely (enabled).");
+          stopLofi();
+          setIsLofiPlaying(false);
+        } else if (!anyOtherTaskRunning && !isLofiEnabled) {
+          console.log("Last task stopped, Lofi already disabled.");
+          // Ensure internal state is correct even if lofi was disabled externally
+          if (isLofiPlaying) setIsLofiPlaying(false);
+        }
+      } catch (error) {
+        console.error("Failed to complete task:", error);
+      }
+    },
+    [tasks, isLofiEnabled, isLofiPlaying] // Keep dependencies
   );
 
-  const handleDelete = useCallback((id: string) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
-  }, []);
+  const handleDelete = useCallback(
+    async (id: number) => {
+      // Optimistic UI update
+      const originalTasks = tasks;
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
 
-  const handlePostponeTask = useCallback((id: string) => {
-    setTasks(prevTasks => {
-      // Find the task to copy
-      const taskToCopy = prevTasks.find(task => task.id === id);
-      if (!taskToCopy) return prevTasks;
+      try {
+        await deleteTask(id);
+      } catch (error) {
+        console.error("Failed to delete task:", error);
+        // Revert UI update on failure
+        setTasks(originalTasks);
+        // Handle error (e.g., show notification)
+      }
+    },
+    [tasks]
+  ); // Depend on tasks for optimistic update
+
+  const handlePostponeTask = useCallback(
+    async (id: number) => {
+      // ID is now number
+      if (!session?.user?.id) {
+        console.error("Cannot postpone task: User not logged in.");
+        return;
+      }
+      const userId = session.user.id;
+      const taskToCopy = tasks.find(task => task.id === id);
+      if (!taskToCopy) return;
 
       const today = getTodayDateString();
 
-      // Create a new task with reset time values
-      const newTask: Task = {
-        ...taskToCopy,
-        id: crypto.randomUUID(),
-        totalTime: 0,
-        startTime: null,
-        isRunning: false,
-        isCompleted: false,
-        currentDay: today,
+      // 1. Prepare update for the original task using snake_case
+      const originalTaskUpdate: Partial<
+        Omit<Task, "id" | "user_id" | "created_at" | "updated_at">
+      > = {
+        postponed_to: today,
+        // Optionally stop timer if it was running? Depends on desired behavior.
+        // is_running: false,
+        // start_time: null,
+        // total_time: calculate final time if needed
       };
 
-      // Update the original task with postponedTo field
-      const updatedTasks = prevTasks.map(task =>
-        task.id === id ? { ...task, postponedTo: today } : task
-      );
+      // 2. Prepare data for the new task using snake_case
+      const newTaskData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at"> = {
+        name: taskToCopy.name, // Copy name
+        total_time: 0, // Reset time, use snake_case
+        start_time: null, // Use snake_case
+        is_running: false, // Use snake_case
+        is_completed: false, // Use snake_case
+        current_day: today, // Use snake_case
+        postponed_to: null, // Use snake_case
+      };
 
-      // Return all existing tasks plus the new one
-      return [...updatedTasks, newTask];
-    });
-  }, []);
+      try {
+        // Update original task first (expects snake_case)
+        const updatedOriginalTask = await updateTask(id, originalTaskUpdate);
+        // Then add the new task (expects snake_case)
+        const addedNewTask = await addTask(newTaskData, userId);
+
+        // Update state with both results
+        setTasks(prevTasks => [
+          ...prevTasks.map(task => (task.id === id ? updatedOriginalTask : task)),
+          addedNewTask,
+        ]);
+      } catch (error) {
+        console.error("Failed to postpone task:", error);
+        // Handle error (potentially revert state if needed, though complex)
+      }
+    },
+    [tasks, session]
+  ); // Depend on tasks and session
 
   const onDragEnd = useCallback(
     (result: DropResult) => {
@@ -348,29 +459,37 @@ const MainContent: React.FC = () => {
         return;
       }
 
-      // Find the task being dragged
-      const taskToMove = tasks.find(task => task.id === draggableId);
-      if (!taskToMove) return; // Should not happen
+      // Find the task being dragged (ID is now number)
+      const taskId = parseInt(draggableId, 10); // draggableId is string
+      const taskToMove = tasks.find(task => task.id === taskId);
+      if (!taskToMove) return;
 
-      // Update the task's day
-      const updatedTask = { ...taskToMove, currentDay: destination.droppableId };
+      // Update the task's day optimistically for smooth UI
+      // const updatedTask = { ...taskToMove, currentDay: destination.droppableId }; // Removed unused variable
 
-      // Reorder tasks
-      setTasks(prevTasks => {
-        const otherTasks = prevTasks.filter(task => task.id !== draggableId);
-        const tasksInDestinationDay = otherTasks.filter(
-          task => task.currentDay === destination.droppableId
-        );
-        tasksInDestinationDay.splice(destination.index, 0, updatedTask); // Insert at new position
+      // Reorder tasks in the state
+      // const reorderedTasks = [...tasks]; // Removed unused variable
+      // const [movedTask] = reorderedTasks.splice(source.index, 1); // Removed unused variable
+      // Find the correct index in the potentially filtered/sorted list for the destination
+      // This is tricky if the visual list doesn't match the raw `tasks` state order.
+      // A simpler optimistic update: just update the task's day in the main state.
+      // The grouping/sorting logic later will handle the visual placement.
 
-        // Combine tasks from other days with the updated destination day tasks
-        const tasksNotInDestination = otherTasks.filter(
-          task => task.currentDay !== destination.droppableId
-        );
-        return [...tasksNotInDestination, ...tasksInDestinationDay];
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          // Use snake_case property
+          task.id === taskId ? { ...task, current_day: destination.droppableId } : task
+        )
+      );
+
+      // Update the task in Supabase in the background (expects snake_case)
+      updateTask(taskId, { current_day: destination.droppableId }).catch(error => {
+        console.error("Failed to update task day after drag:", error);
+        // Optionally revert state or notify user on failure
+        // For simplicity, we won't revert here, but log the error.
       });
     },
-    [tasks]
+    [tasks] // Keep dependency
   ); // Dependency on tasks is important here
 
   // Filter tasks based on date range or show only today's tasks if no filter
@@ -380,12 +499,14 @@ const MainContent: React.FC = () => {
       const end = dateFilter.to ? endOfDay(dateFilter.to) : endOfDay(dateFilter.from);
 
       return tasks.filter(task => {
-        const taskDate = parseISO(task.currentDay);
+        // Use snake_case property
+        const taskDate = parseISO(task.current_day);
         return isWithinInterval(taskDate, { start, end });
       });
     } else {
       // When no filter is active, only show today's tasks
-      return tasks.filter(task => task.currentDay === getTodayDateString());
+      // Use snake_case property
+      return tasks.filter(task => task.current_day === getTodayDateString());
     }
   };
 
@@ -394,7 +515,8 @@ const MainContent: React.FC = () => {
 
   // Group tasks by day (using filtered tasks)
   const tasksByDay = filteredTasks.reduce((acc, task) => {
-    const day = task.currentDay;
+    // Use snake_case property
+    const day = task.current_day;
     if (!acc[day]) {
       acc[day] = [];
     }
@@ -433,18 +555,22 @@ const MainContent: React.FC = () => {
         </div>
 
         <div className="days-container">
-          {sortedDays.map(day => (
-            <DaySection
-              key={day}
-              date={day}
-              tasks={tasksByDay[day]}
-              onStartPause={handleStartPause}
-              onComplete={handleComplete}
-              onDelete={handleDelete}
-              onPostpone={handlePostponeTask}
-            />
-          ))}
-          {filteredTasks.length === 0 && (
+          {isLoadingTasks ? (
+            <div className="loading">Loading tasks...</div>
+          ) : sortedDays.length > 0 ? (
+            sortedDays.map(day => (
+              <DaySection
+                key={day}
+                date={day}
+                tasks={tasksByDay[day]}
+                onStartPause={handleStartPause}
+                onComplete={handleComplete}
+                onDelete={handleDelete}
+                onPostpone={handlePostponeTask}
+              />
+            ))
+          ) : (
+            // Show message if not loading and no tasks match filter/day
             <p className="no-tasks-message">
               {dateFilter?.from
                 ? "No tasks found for the selected date range"

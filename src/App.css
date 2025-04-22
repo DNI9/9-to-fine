@@ -1054,7 +1054,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 20vh;
   color: var(--primary-color);
   font-size: 1.2rem;
   background-color: var(--background-body);
