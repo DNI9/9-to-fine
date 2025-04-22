@@ -12,6 +12,7 @@ import Login from "./components/Login";
 import NotificationToggle from "./components/NotificationToggle";
 import TaskInput from "./components/TaskInput";
 import ThemeToggle from "./components/ThemeToggle";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Task } from "./types";
 import { loadTasks, saveTasks } from "./utils/storageUtils";
 import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer";
@@ -443,22 +444,24 @@ const MainContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
+  );
+};
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
+const AuthenticatedApp: React.FC = () => {
+  const { session, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div className="loading">Loading...</div>;
+  }
 
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/" />}
-      />
-      <Route
-        path="/"
-        element={isAuthenticated ? <MainContent /> : <Navigate to="/login" />}
-      />
+      <Route path="/login" element={!session ? <Login /> : <Navigate to="/" />} />
+      <Route path="/" element={session ? <MainContent /> : <Navigate to="/login" />} />
     </Routes>
   );
 };

@@ -972,3 +972,46 @@ h1 {
   background: var(--gray-600); /* Darker neutral for disabled */
   color: var(--gray-400);
 }
+
+/* Error message styling */
+.error-message {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  font-size: 0.9rem;
+  text-align: center;
+  width: 100%;
+}
+
+[data-theme="dark"] .error-message {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Info message styling */
+.info-message {
+  color: var(--success-color);
+  background-color: rgba(30, 239, 169, 0.1);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  border: 1px solid rgb(var(--success-color));
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  background-color: var(--background-body);
+}
