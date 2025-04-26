@@ -381,56 +381,87 @@ const MainContent: React.FC = () => {
   ); // Depend on tasks
 
   const handleComplete = useCallback(
-    async (id: number) => {
-      const taskToComplete = tasks.find(task => task.id === id);
-      if (!taskToComplete || taskToComplete.is_completed) return;
+    (id: number) => {
+      // Removed async
+      const taskIndex = tasks.findIndex(task => task.id === id);
+      if (taskIndex === -1) return; // Task not found
 
+      const taskToComplete = tasks[taskIndex];
+      if (taskToComplete.is_completed) return; // Already completed
+
+      const originalTasks = [...tasks]; // Store original state for potential revert
+      const now = Date.now();
       let finalTotalTimeSeconds = taskToComplete.total_time;
       const startTimeNumber = taskToComplete.start_time
         ? Number(taskToComplete.start_time)
         : null;
+
+      // Calculate final time if task was running
       if (taskToComplete.is_running && startTimeNumber) {
-        const elapsedMillis = Date.now() - startTimeNumber;
-        finalTotalTimeSeconds += Math.round(elapsedMillis / 1000); // Add elapsed seconds
+        const elapsedMillis = now - startTimeNumber;
+        finalTotalTimeSeconds += Math.round(elapsedMillis / 1000);
       }
 
-      // Use snake_case properties for updates
-      const updates: Partial<Omit<Task, "id" | "user_id" | "created_at" | "updated_at">> =
-        {
-          is_running: false,
-          is_completed: true,
-          start_time: null, // Pass null, updateTask handles conversion if needed
-          total_time: finalTotalTimeSeconds,
-        };
+      // Create optimistic task state
+      const optimisticTask: Task = {
+        ...taskToComplete,
+        is_running: false,
+        is_completed: true,
+        start_time: null,
+        total_time: finalTotalTimeSeconds,
+        updated_at: new Date(now).toISOString(), // Optimistically update timestamp
+      };
 
-      try {
-        // updateTask now expects snake_case updates (start_time conversion handled inside)
-        const updatedTaskResult = await updateTask(id, updates);
-        setTasks(prevTasks =>
-          prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
-        );
-        // Trigger confetti when completing a task
-        confetti({
-          particleCount: 100,
-          spread: 80,
-          origin: { y: 0.8 },
+      // Prepare updates for the backend
+      const updatesForBackend: Partial<
+        Omit<Task, "id" | "user_id" | "created_at" | "updated_at">
+      > = {
+        is_running: false,
+        is_completed: true,
+        start_time: null,
+        total_time: finalTotalTimeSeconds,
+      };
+
+      // --- Optimistic UI Updates ---
+      // 1. Update tasks state
+      const optimisticTasks = originalTasks.map(task =>
+        task.id === id ? optimisticTask : task
+      );
+      setTasks(optimisticTasks);
+
+      // 3. Check Lofi state based on optimistic tasks
+      const anyOtherTaskRunning = optimisticTasks.some(
+        task => task.id !== id && task.is_running
+      );
+      if (!anyOtherTaskRunning && isLofiEnabled) {
+        console.log("Optimistic: Last task stopped, stopping Lofi completely (enabled).");
+        stopLofi();
+        setIsLofiPlaying(false);
+      } else if (!anyOtherTaskRunning && !isLofiEnabled) {
+        console.log("Optimistic: Last task stopped, Lofi already disabled.");
+        if (isLofiPlaying) setIsLofiPlaying(false); // Ensure internal state is correct
+      }
+      // --- End Optimistic UI Updates ---
+
+      // Call backend update
+      updateTask(id, updatesForBackend)
+        .then(updatedTaskResult => {
+          setTasks(prevTasks =>
+            prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
+          );
+          confetti({
+            particleCount: 100,
+            spread: 80,
+            origin: { y: 0.8 },
+          });
+        })
+        .catch(error => {
+          console.error("Failed to complete task:", error);
+          // Revert UI on failure (except confetti)
+          setTasks(originalTasks);
+          // Re-evaluate Lofi state based on original tasks if needed (complex, might skip for simplicity)
+          // Handle error (e.g., show notification)
         });
-
-        // Check if this was the last running task AND lofi is enabled
-        // Use snake_case property
-        const anyOtherTaskRunning = tasks.some(task => task.id !== id && task.is_running);
-        if (!anyOtherTaskRunning && isLofiEnabled) {
-          console.log("Last task stopped, stopping Lofi completely (enabled).");
-          stopLofi();
-          setIsLofiPlaying(false);
-        } else if (!anyOtherTaskRunning && !isLofiEnabled) {
-          console.log("Last task stopped, Lofi already disabled.");
-          // Ensure internal state is correct even if lofi was disabled externally
-          if (isLofiPlaying) setIsLofiPlaying(false);
-        }
-      } catch (error) {
-        console.error("Failed to complete task:", error);
-      }
     },
     [tasks, isLofiEnabled, isLofiPlaying] // Keep dependencies
   );
