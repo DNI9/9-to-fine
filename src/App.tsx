@@ -248,32 +248,59 @@ const MainContent: React.FC = () => {
   }, []);
 
   const handleAddTask = useCallback(
-    async (name: string) => {
+    (name: string) => {
+      // Removed async
       if (!session?.user?.id) {
         console.error("Cannot add task: User not logged in.");
         return; // Or show an error message
       }
       const userId = session.user.id;
+      const tempId = Date.now(); // Generate temporary ID
+      const now = new Date().toISOString();
 
-      // Prepare data using snake_case for the unified Task type
-      const newTaskData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at"> = {
+      // Create the optimistic task object
+      const optimisticTask: Task = {
+        id: tempId, // Use temporary ID
+        user_id: userId,
         name,
-        total_time: 0, // Use snake_case
-        start_time: null, // Use snake_case (will be handled by addTask)
-        is_running: false, // Use snake_case
-        is_completed: false, // Use snake_case
-        current_day: getTodayDateString(), // Use snake_case
-        postponed_to: null, // Use snake_case
+        total_time: 0,
+        start_time: null,
+        is_running: false,
+        is_completed: false,
+        current_day: getTodayDateString(),
+        postponed_to: null,
+        created_at: now, // Add timestamp
+        updated_at: now, // Add timestamp
       };
 
-      try {
-        // addTask now expects snake_case data (start_time conversion handled inside)
-        const addedTask = await addTask(newTaskData, userId);
-        setTasks(prevTasks => [...prevTasks, addedTask]); // Add the task returned by Supabase (with ID)
-      } catch (error) {
-        console.error("Failed to add task:", error);
-        // Handle error (e.g., show notification)
-      }
+      // Optimistically update the UI
+      setTasks(prevTasks => [...prevTasks, optimisticTask]);
+
+      // Prepare data for the backend (without temporary fields)
+      const newTaskData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at"> = {
+        name,
+        total_time: 0,
+        start_time: null,
+        is_running: false,
+        is_completed: false,
+        current_day: getTodayDateString(),
+        postponed_to: null,
+      };
+
+      // Call the backend function without awaiting here
+      addTask(newTaskData, userId)
+        .then(addedTask => {
+          // Replace the temporary task with the real one from the backend
+          setTasks(prevTasks =>
+            prevTasks.map(task => (task.id === tempId ? addedTask : task))
+          );
+        })
+        .catch(error => {
+          console.error("Failed to add task:", error);
+          // Revert the optimistic update on failure
+          setTasks(prevTasks => prevTasks.filter(task => task.id !== tempId));
+          // Handle error (e.g., show notification)
+        });
     },
     [session]
   ); // Depend on session
