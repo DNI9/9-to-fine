@@ -306,41 +306,79 @@ const MainContent: React.FC = () => {
   ); // Depend on session
 
   const handleStartPause = useCallback(
-    async (id: number) => {
-      const taskToUpdate = tasks.find(task => task.id === id);
-      if (!taskToUpdate || taskToUpdate.is_completed) return;
+    (id: number) => {
+      // Removed async
+      const taskIndex = tasks.findIndex(task => task.id === id);
+      if (taskIndex === -1) return; // Task not found
 
-      let updates: Partial<Omit<Task, "id" | "user_id" | "created_at" | "updated_at">>;
+      const taskToUpdate = tasks[taskIndex];
+      if (taskToUpdate.is_completed) return; // Cannot start/pause completed task
+
+      const originalTasks = [...tasks]; // Store original state for potential revert
+      let optimisticTask: Task;
+      let updatesForBackend: Partial<
+        Omit<Task, "id" | "user_id" | "created_at" | "updated_at">
+      >;
+      const now = Date.now();
       const startTimeNumber = taskToUpdate.start_time
         ? Number(taskToUpdate.start_time)
         : null;
 
       if (taskToUpdate.is_running) {
         // Pausing
-        const elapsedMillis = startTimeNumber ? Date.now() - startTimeNumber : 0;
-        const elapsedSeconds = Math.round(elapsedMillis / 1000); // Convert to seconds
-        updates = {
+        const elapsedMillis = startTimeNumber ? now - startTimeNumber : 0;
+        const elapsedSeconds = Math.round(elapsedMillis / 1000);
+        const newTotalTime = taskToUpdate.total_time + elapsedSeconds;
+
+        optimisticTask = {
+          ...taskToUpdate,
           is_running: false,
-          start_time: null, // Pass null, updateTask handles conversion if needed
-          total_time: taskToUpdate.total_time + elapsedSeconds, // Use snake_case
+          start_time: null,
+          total_time: newTotalTime,
+          updated_at: new Date(now).toISOString(), // Optimistically update timestamp
+        };
+        updatesForBackend = {
+          is_running: false,
+          start_time: null,
+          total_time: newTotalTime,
         };
       } else {
         // Starting / Resuming
-        // Pass Date.now() converted to string. updateTask expects string | null for start_time.
-        updates = { is_running: true, start_time: String(Date.now()) };
+        optimisticTask = {
+          ...taskToUpdate,
+          is_running: true,
+          start_time: String(now), // Store as string for consistency? Or keep as number? Let's use string like before.
+          updated_at: new Date(now).toISOString(), // Optimistically update timestamp
+        };
+        updatesForBackend = {
+          is_running: true,
+          start_time: String(now),
+        };
       }
 
-      try {
-        const updatedTaskResult = await updateTask(id, updates);
-        setTasks(prevTasks =>
-          prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
-        );
-      } catch (error) {
-        console.error("Failed to update task (start/pause):", error);
-      }
+      // Optimistically update UI
+      setTasks(prevTasks =>
+        prevTasks.map(task => (task.id === id ? optimisticTask : task))
+      );
+
+      // Call backend update
+      updateTask(id, updatesForBackend)
+        .then(updatedTaskResult => {
+          // Optional: Update state again with the exact result from backend
+          // This ensures consistency if backend modifies data (e.g., precise updated_at)
+          setTasks(prevTasks =>
+            prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
+          );
+        })
+        .catch(error => {
+          console.error("Failed to update task (start/pause):", error);
+          // Revert UI on failure
+          setTasks(originalTasks);
+          // Handle error (e.g., show notification)
+        });
     },
     [tasks]
-  ); // Depend on tasks to find the task to update
+  ); // Depend on tasks
 
   const handleComplete = useCallback(
     async (id: number) => {
