@@ -228,7 +228,7 @@ const ReportPage: React.FC = () => {
                 />
                 {/* Updated Tooltip formatter */}
                 <Tooltip
-                  formatter={(value: number, name, props) => [
+                  formatter={(value: number, _name, props) => [
                     `${value.toFixed(2)} hr${value !== 1 ? "s" : ""}${
                       props.payload.incomplete ? " (Incomplete)" : ""
                     }`,
