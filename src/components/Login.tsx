@@ -18,6 +18,7 @@ const Login: React.FC = () => {
         email,
         options: {
           shouldCreateUser: true,
+          emailRedirectTo: `${window.location.origin}`, // Redirect URL after email verification
         },
       });
 
