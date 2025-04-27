@@ -3,8 +3,8 @@ import confetti from "canvas-confetti";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
-import { IoLogOut } from "react-icons/io5";
-import { Navigate, Route, Routes } from "react-router";
+import { IoBarChart, IoLogOut } from "react-icons/io5";
+import { Navigate, Route, Routes, useNavigate } from "react-router"; // Add useNavigate
 import "./App.css";
 import DateFilter from "./components/DateFilter";
 import DaySection from "./components/DaySection";
@@ -16,6 +16,7 @@ import ThemeToggle from "./components/ThemeToggle";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { Task } from "./types";
 // Removed loadTasks, saveTasks imports
+import ReportPage from "./components/ReportPage";
 import { supabase } from "./utils/supabase"; // Import supabase client
 import { addTask, deleteTask, getTasks, updateTask } from "./utils/taskUtils"; // Import Supabase task functions
 import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer";
@@ -34,6 +35,7 @@ const NOTIFICATION_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 const MainContent: React.FC = () => {
   const { session } = useAuth(); // Get session which contains user info
+  const navigate = useNavigate(); // Get navigate function
   const [tasks, setTasks] = useState<Task[]>([]); // Initialize with empty array
   const [isLoadingTasks, setIsLoadingTasks] = useState(true); // Add loading state
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -701,6 +703,14 @@ const MainContent: React.FC = () => {
             onToggle={handleNotificationToggle}
           />
           <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
+          {/* Add Report Button */}
+          <button
+            onClick={() => navigate("/reports")}
+            className="report-button"
+            title="Reports"
+          >
+            <IoBarChart size={20} />
+          </button>
           {/* Add Logout Button */}
           <button onClick={handleLogout} className="logout-button" title="Logout">
             <IoLogOut size={20} />
@@ -764,6 +774,10 @@ const AuthenticatedApp: React.FC = () => {
     <Routes>
       <Route path="/login" element={!session ? <Login /> : <Navigate to="/" />} />
       <Route path="/" element={session ? <MainContent /> : <Navigate to="/login" />} />
+      <Route
+        path="/reports"
+        element={session ? <ReportPage /> : <Navigate to="/login" />}
+      />
     </Routes>
   );
 };

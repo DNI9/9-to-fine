@@ -328,6 +328,49 @@ body {
 .top-controls .logout-button svg {
   display: block; /* Remove extra space below SVG */
 }
+/* Style for Report button */
+.top-controls .report-button {
+  padding: var(--space-2); /* Match other toggle padding */
+  border-radius: 50%; /* Circular */
+  border: none;
+  background: transparent;
+  color: var(--text-secondary); /* Default icon color */
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  display: flex; /* Ensure icon is centered */
+  align-items: center;
+  justify-content: center;
+  width: 36px; /* Explicit size */
+  height: 36px;
+  outline: none;
+}
+
+.top-controls .report-button:hover {
+  background-color: var(--gray-100); /* Subtle background on hover */
+  color: var(--primary-color); /* Change icon color to primary on hover */
+}
+
+/* Dark theme adjustments for report button */
+[data-theme="dark"] .top-controls .report-button {
+  background-color: var(--gray-200); /* Use dark theme neutral */
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .top-controls .report-button:hover {
+  background-color: var(--gray-300);
+  color: var(--primary-color); /* Use dark theme primary color on hover */
+}
+
+/* Focus styles */
+.top-controls .report-button:focus-visible {
+  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
+  opacity: 0.8; /* Slight opacity for focus ring */
+}
+
+/* Ensure SVG scales well */
+.top-controls .report-button svg {
+  display: block; /* Remove extra space below SVG */
+}
 
 h1 {
   text-align: center;
