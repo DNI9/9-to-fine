@@ -34,50 +34,64 @@ export const getTasks = async (userId: string): Promise<Task[]> => {
 };
 
 /**
- * Adds a new task to the Supabase 'tasks' table using the unified Task type.
- * @param taskData - An object containing the new task details (matching Task type, excluding id, user_id, created_at, updated_at).
- * @param userId - The UUID of the user adding the task.
- * @returns A promise that resolves to the newly created Task object (matching Task type).
+ * Adds one or more tasks to the Supabase 'tasks' table using the unified Task type.
+ * @param tasksData - An array of objects containing the new task details (matching Task type, excluding id, user_id, created_at, updated_at).
+ * @param userId - The UUID of the user adding the tasks.
+ * @returns A promise that resolves to an array of the newly created Task objects (matching Task type).
  */
 export const addTask = async (
   // Input data should match the Task schema (snake_case)
-  taskData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at">,
+  tasksData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at">[],
   userId: string
-): Promise<Task> => {
+): Promise<Task[]> => {
   if (!userId) {
     throw new Error("addTask: userId is required");
   }
-
-  // Prepare data for insertion, ensuring user_id is included
-  // Handle start_time conversion: number timestamp (if provided) to bigint string
-  const dataToInsert = {
-    ...taskData,
-    user_id: userId,
-    // Convert start_time (number | null) from input to bigint string for DB
-    start_time: taskData.start_time ? BigInt(taskData.start_time).toString() : null,
-  };
-
-  // Ensure required fields for insert are present
-  if (
-    !dataToInsert.name ||
-    dataToInsert.total_time === undefined || // Check snake_case field
-    dataToInsert.current_day === undefined // Check snake_case field
-  ) {
-    throw new Error("addTask: Missing required fields (name, total_time, current_day)");
+  if (!tasksData || tasksData.length === 0) {
+    console.warn("addTask: No tasks provided to add.");
+    return []; // Return empty array if no tasks are given
   }
 
-  const { data, error }: PostgrestSingleResponse<Task> = await supabase
+  // Prepare data for bulk insertion
+  const dataToInsert = tasksData.map(taskData => {
+    // Ensure required fields for each task are present
+    if (
+      !taskData.name ||
+      taskData.total_time === undefined || // Check snake_case field
+      taskData.current_day === undefined // Check snake_case field
+    ) {
+      throw new Error(
+        `addTask: Missing required fields (name, total_time, current_day) for task: ${
+          taskData.name || "Unnamed Task"
+        }`
+      );
+    }
+
+    return {
+      ...taskData,
+      user_id: userId,
+      // Convert start_time (number | null) from input to bigint string for DB
+      start_time: taskData.start_time ? BigInt(taskData.start_time).toString() : null,
+    };
+  });
+
+  // Perform bulk insert
+  const { data, error }: PostgrestSingleResponse<Task[]> = await supabase
     .from("tasks")
-    .insert(dataToInsert) // Insert the prepared data
-    .select() // Return the inserted row
-    .single(); // Expecting a single row back
+    .insert(dataToInsert) // Insert the array of prepared data
+    .select(); // Return the inserted rows
 
   if (error) {
-    console.error("Error adding task:", error);
+    console.error("Error adding tasks:", error);
     throw error;
   }
   if (!data) {
-    throw new Error("addTask: No data returned after insert");
+    // This case might be less likely with bulk inserts unless the entire operation fails silently,
+    // but good to keep for robustness. Supabase might return an empty array on success with no rows inserted (though we check input length).
+    console.warn(
+      "addTask: No data returned after bulk insert, though no error was thrown."
+    );
+    return [];
   }
 
   // No mapping needed, return data directly

@@ -248,57 +248,81 @@ const MainContent: React.FC = () => {
   }, []);
 
   const handleAddTask = useCallback(
-    (name: string) => {
-      // Removed async
+    (names: string[]) => {
+      // Now accepts an array of names
       if (!session?.user?.id) {
-        console.error("Cannot add task: User not logged in.");
-        return; // Or show an error message
+        console.error("Cannot add tasks: User not logged in.");
+        return;
       }
+      if (!names || names.length === 0) {
+        console.warn("handleAddTask: No task names provided.");
+        return;
+      }
+
       const userId = session.user.id;
-      const tempId = Date.now(); // Generate temporary ID
-      const now = new Date().toISOString();
+      const now = new Date();
+      const optimisticTasks: Task[] = [];
+      const newTasksData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at">[] =
+        [];
+      const tempIds: number[] = []; // Keep track of temporary IDs
 
-      // Create the optimistic task object
-      const optimisticTask: Task = {
-        id: tempId, // Use temporary ID
-        user_id: userId,
-        name,
-        total_time: 0,
-        start_time: null,
-        is_running: false,
-        is_completed: false,
-        current_day: getTodayDateString(),
-        postponed_to: null,
-        created_at: now, // Add timestamp
-        updated_at: now, // Add timestamp
-      };
+      names.forEach((name, index) => {
+        const trimmedName = name.trim();
+        if (!trimmedName) return; // Skip empty/whitespace-only names
 
-      // Optimistically update the UI
-      setTasks(prevTasks => [...prevTasks, optimisticTask]);
+        const tempId = now.getTime() + index; // Generate unique temporary IDs
+        tempIds.push(tempId);
+        const isoNow = new Date(tempId).toISOString(); // Use tempId time for consistency
 
-      // Prepare data for the backend (without temporary fields)
-      const newTaskData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at"> = {
-        name,
-        total_time: 0,
-        start_time: null,
-        is_running: false,
-        is_completed: false,
-        current_day: getTodayDateString(),
-        postponed_to: null,
-      };
+        // Create optimistic task object
+        optimisticTasks.push({
+          id: tempId,
+          user_id: userId,
+          name: trimmedName,
+          total_time: 0,
+          start_time: null,
+          is_running: false,
+          is_completed: false,
+          current_day: getTodayDateString(),
+          postponed_to: null,
+          created_at: isoNow,
+          updated_at: isoNow,
+        });
 
-      // Call the backend function without awaiting here
-      addTask(newTaskData, userId)
-        .then(addedTask => {
-          // Replace the temporary task with the real one from the backend
-          setTasks(prevTasks =>
-            prevTasks.map(task => (task.id === tempId ? addedTask : task))
-          );
+        // Prepare data for the backend
+        newTasksData.push({
+          name: trimmedName,
+          total_time: 0,
+          start_time: null,
+          is_running: false,
+          is_completed: false,
+          current_day: getTodayDateString(),
+          postponed_to: null,
+        });
+      });
+
+      if (optimisticTasks.length === 0) {
+        console.warn("handleAddTask: No valid task names provided after trimming.");
+        return; // Don't proceed if all names were empty
+      }
+
+      // Optimistically update the UI with all new tasks
+      setTasks(prevTasks => [...prevTasks, ...optimisticTasks]);
+
+      // Call the backend function with the array of tasks
+      addTask(newTasksData, userId)
+        .then(addedTasks => {
+          // Replace the temporary tasks with the real ones from the backend
+          setTasks(prevTasks => {
+            // Filter out old temp tasks and add the new real tasks
+            const nonTempTasks = prevTasks.filter(task => !tempIds.includes(task.id));
+            return [...nonTempTasks, ...addedTasks];
+          });
         })
         .catch(error => {
-          console.error("Failed to add task:", error);
-          // Revert the optimistic update on failure
-          setTasks(prevTasks => prevTasks.filter(task => task.id !== tempId));
+          console.error("Failed to add tasks:", error);
+          // Revert the optimistic update on failure by removing all temporary tasks
+          setTasks(prevTasks => prevTasks.filter(task => !tempIds.includes(task.id)));
           // Handle error (e.g., show notification)
         });
     },
@@ -486,7 +510,6 @@ const MainContent: React.FC = () => {
 
   const handlePostponeTask = useCallback(
     async (id: number) => {
-      // ID is now number
       if (!session?.user?.id) {
         console.error("Cannot postpone task: User not logged in.");
         return;
@@ -496,43 +519,85 @@ const MainContent: React.FC = () => {
       if (!taskToCopy) return;
 
       const today = getTodayDateString();
+      const originalTasks = [...tasks]; // Store original state for revert
 
-      // 1. Prepare update for the original task using snake_case
-      const originalTaskUpdate: Partial<
+      // 1. Prepare update for the original task
+      const updatesForOriginal: Partial<
         Omit<Task, "id" | "user_id" | "created_at" | "updated_at">
       > = {
         postponed_to: today,
-        // Optionally stop timer if it was running? Depends on desired behavior.
-        // is_running: false,
-        // start_time: null,
-        // total_time: calculate final time if needed
+        is_running: false, // Ensure it's stopped
+        start_time: null, // Reset start time
+        // Keep total_time as is, unless it was running, then calculate final time?
+        // For simplicity, we'll just mark as postponed and stop timer.
       };
 
-      // 2. Prepare data for the new task using snake_case
+      // 2. Prepare data for the new task
       const newTaskData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at"> = {
-        name: taskToCopy.name, // Copy name
-        total_time: 0, // Reset time, use snake_case
-        start_time: null, // Use snake_case
-        is_running: false, // Use snake_case
-        is_completed: false, // Use snake_case
-        current_day: today, // Use snake_case
-        postponed_to: null, // Use snake_case
+        name: taskToCopy.name,
+        total_time: 0, // Reset time
+        start_time: null,
+        is_running: false,
+        is_completed: false,
+        current_day: today, // Set to today
+        postponed_to: null, // Not postponed initially
       };
+
+      // --- Optimistic UI Update ---
+      // Find the optimistic state of the original task after update
+      const updatedOriginalTaskOptimistic: Task = {
+        ...taskToCopy,
+        ...updatesForOriginal, // Apply updates
+        postponed_to: today, // Ensure postponed_to is set
+        updated_at: new Date().toISOString(), // Optimistic timestamp
+      };
+      // Create optimistic state for the new task (needs a temporary ID)
+      const tempNewTaskId = Date.now() + 1; // Simple temp ID
+      const newOptimisticTask: Task = {
+        id: tempNewTaskId,
+        user_id: userId,
+        ...newTaskData,
+        // Convert start_time back for Task type if needed (it's null here)
+        start_time: newTaskData.start_time, // Already null
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      // Apply optimistic state update
+      setTasks(prevTasks => [
+        ...prevTasks.map(task => (task.id === id ? updatedOriginalTaskOptimistic : task)),
+        newOptimisticTask,
+      ]);
+      // --- End Optimistic UI Update ---
 
       try {
-        // Update original task first (expects snake_case)
-        const updatedOriginalTask = await updateTask(id, originalTaskUpdate);
-        // Then add the new task (expects snake_case)
-        const addedNewTask = await addTask(newTaskData, userId);
+        // Perform backend operations
+        const updatedOriginalTask = await updateTask(id, updatesForOriginal);
+        // Pass newTaskData as an array to the bulk-ready addTask
+        const addedTasks = await addTask([newTaskData], userId);
 
-        // Update state with both results
+        if (addedTasks.length === 0) {
+          throw new Error("Postpone failed: Could not create the new task entry.");
+        }
+        const addedNewTask = addedTasks[0]; // Get the single added task
+
+        // Update state with confirmed data, replacing optimistic states
         setTasks(prevTasks => [
-          ...prevTasks.map(task => (task.id === id ? updatedOriginalTask : task)),
-          addedNewTask,
+          // Map over previous state, replacing the original and the temp new task
+          ...prevTasks
+            .map(task => {
+              if (task.id === id) return updatedOriginalTask; // Replace original
+              if (task.id === tempNewTaskId) return null; // Mark temp for removal
+              return task; // Keep others
+            })
+            .filter((task): task is Task => task !== null), // Remove the marked temp task
+          addedNewTask, // Add the confirmed new task
         ]);
       } catch (error) {
         console.error("Failed to postpone task:", error);
-        // Handle error (potentially revert state if needed, though complex)
+        // Revert UI to original state on failure
+        setTasks(originalTasks);
+        // Handle error (e.g., show notification)
       }
     },
     [tasks, session]
@@ -646,6 +711,7 @@ const MainContent: React.FC = () => {
           Effortless daily task tracking with focus and fun.
         </p>
         <div className="input-container">
+          {/* Pass handleAddTask directly as it now accepts string[] */}
           <TaskInput onAddTask={handleAddTask} />
           <DateFilter selected={dateFilter} onSelect={setDateFilter} tasks={tasks} />
         </div>
