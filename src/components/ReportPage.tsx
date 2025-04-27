@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router"; // <-- Import useNavigate from react-router
 import {
   Bar,
   BarChart, // Keep for the first chart
@@ -46,6 +47,7 @@ interface FetchedTask {
 }
 
 const ReportPage: React.FC = () => {
+  const navigate = useNavigate(); // <-- Get navigate function
   const { session, isLoading: authLoading } = useAuth();
   const [timeSpentData, setTimeSpentData] = useState<TimeSpentData[]>([]);
   // State for the selected date, initialized to today
@@ -161,7 +163,8 @@ const ReportPage: React.FC = () => {
   }, [authLoading, session?.user.id, selectedDate]); // Re-run if session, auth loading state, or selectedDate changes
 
   if (loading || authLoading) {
-    return <div>Loading reports...</div>;
+    // Added class for styling
+    return <div className="loading-message">Loading reports...</div>;
   }
 
   if (error) {
@@ -173,16 +176,27 @@ const ReportPage: React.FC = () => {
   // We can add a formatter to the Tooltip later if needed.
 
   return (
-    <div className="report-page">
-      <h1>Reports</h1>
+    // Use app-container styles for consistency, or a new specific container
+    <div className="report-page-container">
+      <div className="report-header">
+        <h1>Reports</h1>
+        {/* Back to Home Button */}
+        <button onClick={() => navigate("/")} className="button home-button">
+          Back to Home
+        </button>
+      </div>
+
+      {/* Date Filter Section */}
       <section className="report-section date-filter-section">
-        <label htmlFor="report-date">Select Date: </label>
+        <label htmlFor="report-date" className="input-label">
+          Select Date:{" "}
+        </label>
         <input
           type="date"
           id="report-date"
           value={selectedDate}
           onChange={e => setSelectedDate(e.target.value)}
-          className="date-input" // Added class for potential styling
+          className="input theme-input" // Use theme input class
         />
       </section>
 
@@ -190,9 +204,10 @@ const ReportPage: React.FC = () => {
         {" "}
         {/* Added class */}
         <h2>Time Spent Per Task on {selectedDate} (Hours)</h2>
-        <div style={{ width: "100%", height: 300 }}>
+        {/* Chart Container with theme styles */}
+        <div className="report-chart-container">
           {timeSpentData.length === 0 ? (
-            <p>No task data available for {selectedDate}.</p>
+            <p className="no-data-message">No task data available for {selectedDate}.</p>
           ) : (
             <ResponsiveContainer>
               <BarChart
@@ -239,9 +254,10 @@ const ReportPage: React.FC = () => {
       {/* Historical Daily Totals Chart */}
       <section className="report-section">
         <h2>Total Time Spent Per Day (Hours)</h2>
-        <div style={{ width: "100%", height: 300 }}>
+        {/* Chart Container with theme styles */}
+        <div className="report-chart-container">
           {dailyTotalsData.length === 0 ? (
-            <p>No historical data available.</p>
+            <p className="no-data-message">No historical data available.</p>
           ) : (
             <ResponsiveContainer>
               {/* Changed to LineChart */}
@@ -279,9 +295,10 @@ const ReportPage: React.FC = () => {
       {/* Daily Task Count Chart */}
       <section className="report-section">
         <h2>Tasks Recorded Per Day</h2>
-        <div style={{ width: "100%", height: 300 }}>
+        {/* Chart Container with theme styles */}
+        <div className="report-chart-container">
           {dailyTaskCountData.length === 0 ? (
-            <p>No task count data available.</p>
+            <p className="no-data-message">No task count data available.</p>
           ) : (
             <ResponsiveContainer>
               <LineChart
