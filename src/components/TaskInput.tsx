@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 
 interface TaskInputProps {
-  onAddTask: (name: string) => void;
+  onAddTask: (names: string[]) => void; // Accept an array of names
 }
 
 const TaskInput: React.FC<TaskInputProps> = ({ onAddTask }) => {
@@ -14,10 +14,7 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask }) => {
       .split("\n")
       .map(task => task.trim())
       .filter(task => task);
-    console.log("Tasks to add:", tasks); // Debugging line
-    tasks.forEach(task => {
-      onAddTask(task);
-    });
+    onAddTask(tasks); // Pass the entire array
     setTaskName(""); // Clear input after adding
   };
 

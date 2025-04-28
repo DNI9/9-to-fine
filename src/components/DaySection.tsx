@@ -6,10 +6,10 @@ import TaskItem from "./TaskItem"; // Assuming TaskItem is in the same directory
 interface DaySectionProps {
   date: string; // 'YYYY-MM-DD' format
   tasks: Task[];
-  onStartPause: (id: string) => void;
-  onComplete: (id: string) => void;
-  onDelete: (id: string) => void;
-  onPostpone?: (id: string) => void;
+  onStartPause: (id: number) => void; // Changed id type to number
+  onComplete: (id: number) => void; // Changed id type to number
+  onDelete: (id: number) => void; // Changed id type to number
+  onPostpone?: (id: number) => void; // Changed id type to number
 }
 
 const DaySection: React.FC<DaySectionProps> = ({
@@ -20,14 +20,18 @@ const DaySection: React.FC<DaySectionProps> = ({
   onDelete,
   onPostpone,
 }) => {
-  // Calculate total time for the day
-  const getTotalTime = () => {
-    return tasks.reduce((total, task) => {
-      let taskTime = task.totalTime;
-      if (task.isRunning && task.startTime) {
-        taskTime += Date.now() - task.startTime;
+  // Calculate total time for the day (in milliseconds)
+  const getTotalTimeInMillis = () => {
+    return tasks.reduce((totalMillis, task) => {
+      // Start with stored time (total_time is already in seconds)
+      let taskMillis = task.total_time * 1000;
+      // Use snake_case properties, convert start_time string to number
+      const startTimeNumber = task.start_time ? Number(task.start_time) : null;
+      if (task.is_running && startTimeNumber) {
+        // Add currently running elapsed time (in milliseconds)
+        taskMillis += Date.now() - startTimeNumber;
       }
-      return total + taskTime;
+      return totalMillis + taskMillis;
     }, 0);
   };
 
@@ -49,10 +53,10 @@ const DaySection: React.FC<DaySectionProps> = ({
   // Check if the section's date is today
   const isToday = date === todayDateString;
 
-  // Sort tasks with completed ones at the bottom
+  // Sort tasks with completed ones at the bottom using snake_case
   const sortedTasks = [...tasks].sort((a, b) => {
-    if (a.isCompleted === b.isCompleted) return 0;
-    return a.isCompleted ? 1 : -1;
+    if (a.is_completed === b.is_completed) return 0;
+    return a.is_completed ? 1 : -1;
   });
 
   return (
@@ -61,7 +65,8 @@ const DaySection: React.FC<DaySectionProps> = ({
       <div className="day-header">
         <h2>{isToday ? "Today's Tasks" : displayDate}</h2>
         <span className="day-total-time">
-          {new Date(getTotalTime()).toISOString().substring(11, 19)}
+          {/* Format total time from milliseconds */}
+          {new Date(getTotalTimeInMillis()).toISOString().substring(11, 19)}
         </span>
       </div>
       <Droppable droppableId={date}>

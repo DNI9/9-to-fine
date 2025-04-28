@@ -17,8 +17,8 @@ const DateFilter: React.FC<DateFilterProps> = ({ selected, onSelect, tasks }) =>
 
   // Create a map of dates with incomplete tasks (excluding postponed tasks)
   const datesWithIncompleteTasks = tasks.reduce((acc, task) => {
-    if (!task.isCompleted && !task.postponedTo) {
-      acc[task.currentDay] = true;
+    if (!task.is_completed && !task.postponed_to) {
+      acc[task.current_day] = true;
     }
     return acc;
   }, {} as Record<string, boolean>);

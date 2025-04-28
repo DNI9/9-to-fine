@@ -14,10 +14,10 @@ import { formatTime } from "../utils/timeUtils";
 interface TaskItemProps {
   task: Task;
   index: number;
-  onStartPause: (id: string) => void;
-  onComplete: (id: string) => void;
-  onDelete: (id: string) => void;
-  onPostpone?: (id: string) => void;
+  onStartPause: (id: number) => void; // Changed id type to number
+  onComplete: (id: number) => void; // Changed id type to number
+  onDelete: (id: number) => void; // Changed id type to number
+  onPostpone?: (id: number) => void; // Changed id type to number
   isOldTask?: boolean;
 }
 
@@ -32,30 +32,39 @@ const TaskItem: React.FC<TaskItemProps> = ({
   onPostpone,
   isOldTask,
 }) => {
-  const [displayTime, setDisplayTime] = useState<number>(task.totalTime);
+  // Display time state now stores milliseconds
+  const [displayTimeMillis, setDisplayTimeMillis] = useState<number>(
+    task.total_time * 1000 // Initialize with total_time (seconds) converted to ms
+  );
 
   useEffect(() => {
     let intervalId: number | null = null;
 
-    if (task.isRunning && task.startTime) {
+    // Use snake_case properties
+    const startTimeNumber = task.start_time ? Number(task.start_time) : null;
+    if (task.is_running && startTimeNumber) {
       const updateTime = () => {
-        const elapsed = Date.now() - task.startTime!;
-        setDisplayTime(task.totalTime + elapsed);
+        const elapsedMillis = Date.now() - startTimeNumber;
+        // Calculate total milliseconds: initial total_time (seconds) converted + elapsed ms
+        setDisplayTimeMillis(task.total_time * 1000 + elapsedMillis);
       };
 
-      updateTime();
-      intervalId = window.setInterval(updateTime, 1000);
+      updateTime(); // Initial update
+      intervalId = window.setInterval(updateTime, 1000); // Update every second
     } else {
-      setDisplayTime(task.totalTime);
+      // If not running, display the stored total time (total_time in seconds, converted to ms)
+      setDisplayTimeMillis(task.total_time * 1000);
     }
 
     return () => {
       if (intervalId) window.clearInterval(intervalId);
     };
-  }, [task.isRunning, task.startTime, task.totalTime]);
+    // Depend on snake_case properties now
+  }, [task.is_running, task.start_time, task.total_time]);
 
   const handleCompleteClick = () => {
-    if (!task.isCompleted) onComplete(task.id);
+    // Use snake_case property
+    if (!task.is_completed) onComplete(task.id);
   };
 
   const handleDelete = () => {
@@ -72,18 +81,20 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
   return (
     <Draggable
-      draggableId={task.id}
+      draggableId={String(task.id)} // Convert number id to string for draggableId
       index={index}
-      isDragDisabled={task.isCompleted || task.postponedTo !== undefined}
+      // Use snake_case properties
+      isDragDisabled={task.is_completed || task.postponed_to !== undefined}
     >
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
+          // Use snake_case properties for class names
           className={`
             task-item
-            ${task.isCompleted ? "completed" : ""}
-            ${task.isRunning ? "task-item--running" : ""}
+            ${task.is_completed ? "completed" : ""}
+            ${task.is_running ? "task-item--running" : ""}
             ${snapshot.isDragging ? "dragging" : ""}
           `}
           style={provided.draggableProps.style}
@@ -91,9 +102,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
           {/* Drag Handle */}
           <div
             {...provided.dragHandleProps}
+            // Use snake_case property for class name
             className={`
               drag-handle
-              ${task.isCompleted ? "drag-handle--completed" : ""}
+              ${task.is_completed ? "drag-handle--completed" : ""}
             `}
           >
             <FaGripVertical />
@@ -102,21 +114,24 @@ const TaskItem: React.FC<TaskItemProps> = ({
           {/* Task Name */}
           <span className="task-name">{task.name}</span>
 
-          {/* Time Display */}
-          <span className="time-display">{formatTime(displayTime)}</span>
+          {/* Time Display - format from milliseconds */}
+          <span className="time-display">{formatTime(displayTimeMillis)}</span>
 
           {/* Controls */}
           <div className="controls">
-            {task.postponedTo ? (
+            {/* Use snake_case property */}
+            {task.postponed_to ? (
               <span
                 className="postponed-badge"
+                // Use snake_case property
                 title={`Postponed to ${new Date(
-                  task.postponedTo + "T00:00:00"
+                  task.postponed_to + "T00:00:00"
                 ).toLocaleDateString()}`}
               >
                 Postponed
               </span>
-            ) : task.isCompleted ? (
+            ) : // Use snake_case property
+            task.is_completed ? (
               <span className="completed-badge">Completed</span>
             ) : (
               <>
@@ -132,11 +147,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 ) : (
                   <button
                     onClick={() => onStartPause(task.id)}
-                    className={task.isRunning ? "button-pause" : "button-play"}
-                    aria-label={task.isRunning ? "Pause task" : "Start task"}
-                    title={task.isRunning ? "Pause task" : "Start task"}
+                    // Use snake_case property for class and labels/titles
+                    className={task.is_running ? "button-pause" : "button-play"}
+                    aria-label={task.is_running ? "Pause task" : "Start task"}
+                    title={task.is_running ? "Pause task" : "Start task"}
                   >
-                    {task.isRunning ? (
+                    {/* Use snake_case property */}
+                    {task.is_running ? (
                       <IoIosPause size={ICON_SIZE} />
                     ) : (
                       <IoIosPlayCircle size={ICON_SIZE} />
