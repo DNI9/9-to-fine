@@ -1,28 +1,55 @@
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
+import { format } from "date-fns";
+import { DateRange } from "react-day-picker"; // Import DateRange
 import { Task } from "../types";
 import { supabase } from "./supabase";
 
-// REMOVED: SupabaseTask interface definition
-// REMOVED: mapSupabaseTaskToLocal helper function
-// REMOVED: mapLocalTaskToSupabase helper function
+// Helper to format date for Supabase (YYYY-MM-DD)
+const formatDateForSupabase = (date: Date): string => {
+  return format(date, "yyyy-MM-dd");
+};
 
 /**
- * Fetches all tasks for a given user from the Supabase 'tasks' table.
+ * Fetches tasks for a given user from the Supabase 'tasks' table,
+ * optionally filtering by a date range or defaulting to today.
  * Returns tasks directly matching the unified Task type.
  * @param userId - The UUID of the user whose tasks are to be fetched.
+ * @param dateRange - Optional date range to filter tasks by 'current_day'. If undefined, fetches tasks for today.
  * @returns A promise that resolves to an array of Task objects.
  */
-export const getTasks = async (userId: string): Promise<Task[]> => {
+export const getTasks = async (
+  userId: string,
+  dateRange?: DateRange // Add optional dateRange parameter
+): Promise<Task[]> => {
   if (!userId) {
     console.error("getTasks: userId is required");
     return [];
   }
-  // Fetch data, assuming it matches the unified Task type directly
-  const { data, error }: PostgrestSingleResponse<Task[]> = await supabase
+
+  let query = supabase
     .from("tasks")
     .select("*") // Select all columns matching the Task type
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true }); // Or order as needed
+    .eq("user_id", userId);
+
+  // Apply date filtering
+  if (dateRange?.from && dateRange?.to) {
+    // Filter by range
+    query = query
+      .gte("current_day", formatDateForSupabase(dateRange.from))
+      .lte("current_day", formatDateForSupabase(dateRange.to));
+  } else if (dateRange?.from) {
+    // Filter by single date
+    query = query.eq("current_day", formatDateForSupabase(dateRange.from));
+  } else {
+    // Default to today if no range is provided
+    query = query.eq("current_day", formatDateForSupabase(new Date()));
+  }
+
+  // Add ordering
+  query = query.order("created_at", { ascending: true }); // Or order as needed
+
+  // Execute the query
+  const { data, error }: PostgrestSingleResponse<Task[]> = await query;
 
   if (error) {
     console.error("Error fetching tasks:", error);

@@ -67,13 +67,14 @@ const MainContent: React.FC = () => {
     }
   };
 
-  // Fetch tasks from Supabase when component mounts and user is logged in
+  // Fetch tasks from Supabase when component mounts, user logs in, or date filter changes
   useEffect(() => {
     const fetchTasks = async () => {
       if (session?.user?.id) {
         setIsLoadingTasks(true);
         try {
-          const fetchedTasks = await getTasks(session.user.id);
+          // Pass the dateFilter state to getTasks
+          const fetchedTasks = await getTasks(session.user.id, dateFilter);
           setTasks(fetchedTasks);
         } catch (error) {
           console.error("Failed to fetch tasks:", error);
@@ -88,8 +89,8 @@ const MainContent: React.FC = () => {
     };
 
     fetchTasks();
-    // Depend on user ID instead of the whole session object
-  }, [session?.user?.id]); // Re-fetch only if user ID changes
+    // Depend on user ID and dateFilter
+  }, [session?.user?.id, dateFilter]); // Re-fetch if user ID or dateFilter changes
 
   // Set theme on body when dark mode changes
   useEffect(() => {
