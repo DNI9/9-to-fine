@@ -4,7 +4,13 @@ import { format } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { Task } from "../types";
-import { addTask, deleteTask, getTasks, updateTask } from "../utils/taskUtils";
+import {
+  addTask,
+  deleteTask,
+  getTasks,
+  updatePositions,
+  updateTask,
+} from "../utils/taskUtils";
 
 export const getTodayDateString = (): string => {
   // Use date-fns for consistent date formatting
@@ -360,7 +366,7 @@ export const useTasks = (
         removed.current_day = destination.droppableId;
       }
 
-      // Calculate the insertion index in the full tasks array
+      // Calculate the insertion index
       const destinationDayStartIndex = newTasks.findIndex(
         task => task.current_day === destination.droppableId
       );
@@ -374,7 +380,7 @@ export const useTasks = (
 
       // Calculate new positions for affected tasks
       const positionUpdates: { id: number; position: number }[] = [];
-      const basePosition = 1000; // Use increments of 1000 to allow for future insertions
+      const basePosition = 1000;
       const increment = 1000;
 
       // Get all tasks in the affected days
@@ -395,22 +401,23 @@ export const useTasks = (
       // Update the state optimistically
       setTasks(newTasks);
 
-      // Update the backend
-      const updates: Promise<Task>[] = [
-        ...positionUpdates.map(update =>
-          updateTask(update.id, { position: update.position })
-        ),
-      ];
+      // Use a single transaction for all updates
+      const updateBackend = async () => {
+        try {
+          // First update all positions in bulk
+          await updatePositions(positionUpdates);
 
-      // If the day changed, update that separately
-      if (source.droppableId !== destination.droppableId) {
-        updates.push(updateTask(taskId, { current_day: destination.droppableId }));
-      }
+          // Then update the day if needed (single update)
+          if (source.droppableId !== destination.droppableId) {
+            await updateTask(taskId, { current_day: destination.droppableId });
+          }
+        } catch (error) {
+          console.error("Failed to update task order:", error);
+          setTasks(tasks); // Revert on error
+        }
+      };
 
-      Promise.all(updates).catch((error: Error) => {
-        console.error("Failed to update task order:", error);
-        setTasks(tasks); // Revert on error
-      });
+      updateBackend();
     },
     [tasks]
   );
