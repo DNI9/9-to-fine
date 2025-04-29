@@ -3,7 +3,7 @@ import confetti from "canvas-confetti";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
-import { IoBarChart, IoLogOut } from "react-icons/io5";
+import { IoBarChart, IoLogOut, IoSettingsOutline } from "react-icons/io5"; // Added IoSettingsOutline
 import { Navigate, Route, Routes, useNavigate } from "react-router"; // Add useNavigate
 import "./App.css";
 import DateFilter from "./components/DateFilter";
@@ -66,6 +66,32 @@ const MainContent: React.FC = () => {
     "9-to-Fine - Because tracking time is totally fine... right? 😅"
   );
   const taskNotificationsRef = useRef<Record<string, number>>({});
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false); // State for settings modal
+  const settingsDialogRef = useRef<HTMLDialogElement>(null); // Ref for the dialog element
+
+  // Effect to open/close the dialog programmatically
+  useEffect(() => {
+    const dialog = settingsDialogRef.current;
+    if (!dialog) return;
+
+    if (isSettingsModalOpen) {
+      // Check if the dialog is already open before calling showModal
+      if (!dialog.open) {
+        dialog.showModal();
+      }
+    } else {
+      // Check if the dialog is open before trying to close it
+      if (dialog.open) {
+        dialog.close();
+      }
+    }
+    // Add cleanup to handle component unmount while modal is open
+    return () => {
+      if (dialog && dialog.open) {
+        dialog.close();
+      }
+    };
+  }, [isSettingsModalOpen]);
 
   const handleLogout = async () => {
     if (!confirm("Are you sure you want to log out?")) return;
@@ -729,16 +755,8 @@ const MainContent: React.FC = () => {
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="app-container">
         <div className="top-controls">
-          <ThemeToggle
-            isDark={isDarkMode}
-            onToggle={() => setIsDarkMode(prev => !prev)}
-          />
-          <NotificationToggle
-            isEnabled={isNotificationsEnabled}
-            onToggle={handleNotificationToggle}
-          />
-          <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
-          {/* Add Report Button */}
+          {/* Toggles moved to settings modal */}
+          {/* Report Button */}
           <button
             onClick={() => navigate("/reports")}
             className="report-button"
@@ -746,10 +764,15 @@ const MainContent: React.FC = () => {
           >
             <IoBarChart size={20} />
           </button>
-          {/* Add Logout Button */}
-          <button onClick={handleLogout} className="logout-button" title="Logout">
-            <IoLogOut size={20} />
+          {/* Add Settings Button */}
+          <button
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="settings-button"
+            title="Settings"
+          >
+            <IoSettingsOutline size={20} />
           </button>
+          {/* Logout Button Moved to Modal */}
         </div>
         <h1 className="app-title">Track. Focus. Celebrate.</h1>
         <p className="app-description">
@@ -790,6 +813,64 @@ const MainContent: React.FC = () => {
             </p>
           )}
         </div>
+
+        {/* Settings Modal */}
+        <dialog
+          ref={settingsDialogRef}
+          className="settings-modal"
+          onClose={() => setIsSettingsModalOpen(false)}
+        >
+          <div className="settings-modal-content">
+            <h2>Settings</h2>
+            <div className="setting-item">
+              <span>Theme</span>
+              <ThemeToggle
+                isDark={isDarkMode}
+                onToggle={() => setIsDarkMode(prev => !prev)}
+              />
+            </div>
+            <div className="setting-item setting-item-column">
+              <div className="setting-item-row">
+                <span>Notifications</span>
+                <NotificationToggle
+                  isEnabled={isNotificationsEnabled}
+                  onToggle={handleNotificationToggle}
+                />
+              </div>
+              <p className="setting-description">
+                Reminds you every 30 minutes if a task is running.
+              </p>
+            </div>
+            <div className="setting-item setting-item-column">
+              <div className="setting-item-row">
+                <span>Lofi Player</span>
+                <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
+              </div>
+              <p className="setting-description">
+                Plays random lofi beats when you start a task.
+              </p>
+            </div>
+            {/* Buttons Container */}
+            <div className="settings-modal-buttons">
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="settings-modal-logout" /* Removed button-danger */
+                title="Logout"
+              >
+                <IoLogOut size={18} /> Logout
+              </button>
+              {/* Close Button */}
+              <button
+                onClick={() => setIsSettingsModalOpen(false)}
+                className="settings-modal-close"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </dialog>
+        {/* End Settings Modal */}
       </div>
     </DragDropContext>
   );

@@ -1293,3 +1293,246 @@ h1 {
   stroke: var(--border-color) !important;
   opacity: 0.5;
 }
+
+/* Settings Modal Styles */
+.settings-modal {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg); /* Use theme radius */
+  padding: 0; /* Remove default padding */
+  background-color: var(--background-card); /* Use card background for opacity */
+  color: var(--text-primary); /* Use primary text color */
+  box-shadow: var(--shadow-lg); /* Use theme shadow */
+  min-width: 350px; /* Slightly wider */
+  max-width: 90vw;
+}
+
+.settings-modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.settings-modal-content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Reduced gap */
+}
+
+.settings-modal-content h2 {
+  margin: 0 0 1.5rem 0; /* Increased bottom margin */
+  text-align: center;
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0; /* Increased padding */
+  border-bottom: 1px solid var(--border-color); /* Use standard border color */
+}
+
+/* Remove border from the item before the buttons */
+.setting-item:nth-last-of-type(3) {
+  /* Adjust if more items are added before buttons */
+  border-bottom: none;
+}
+
+.setting-item span {
+  font-weight: 500;
+  color: var(--text-secondary); /* Use secondary text color */
+}
+
+/* Style toggle buttons inside modal like header buttons */
+.setting-item .theme-toggle-button,
+.setting-item .notification-toggle-button,
+.setting-item .lofi-toggle-button {
+  padding: var(--space-2);
+  border-radius: 50%;
+  border: none;
+  background: var(--gray-100); /* Default background */
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  outline: none;
+}
+.setting-item .theme-toggle-button:hover,
+.setting-item .notification-toggle-button:hover,
+.setting-item .lofi-toggle-button:hover {
+  background-color: var(--gray-200);
+}
+
+/* Enabled state for notification/lofi toggles */
+.setting-item .notification-toggle-button.enabled,
+.setting-item .lofi-toggle-button.enabled {
+  background-color: var(--primary-color);
+  color: var(--white); /* Light theme */
+}
+.setting-item .notification-toggle-button.enabled:hover,
+.setting-item .lofi-toggle-button.enabled:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Dark theme adjustments for modal toggles */
+[data-theme="dark"] .setting-item .theme-toggle-button,
+[data-theme="dark"] .setting-item .notification-toggle-button,
+[data-theme="dark"] .setting-item .lofi-toggle-button {
+  background-color: var(--gray-200);
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .setting-item .theme-toggle-button:hover,
+[data-theme="dark"] .setting-item .notification-toggle-button:hover,
+[data-theme="dark"] .setting-item .lofi-toggle-button:hover {
+  background-color: var(--gray-300);
+}
+[data-theme="dark"] .setting-item .notification-toggle-button.enabled,
+[data-theme="dark"] .setting-item .lofi-toggle-button.enabled {
+  background-color: var(--primary-color);
+  color: var(--gray-900); /* Dark theme */
+}
+[data-theme="dark"] .setting-item .notification-toggle-button.enabled:hover,
+[data-theme="dark"] .setting-item .lofi-toggle-button.enabled:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Modal Buttons Container */
+.settings-modal-buttons {
+  display: flex;
+  justify-content: space-between; /* Space out buttons */
+  align-items: center;
+  margin-top: 1.5rem; /* Space above buttons */
+  padding-top: 1rem; /* Space above buttons */
+  border-top: 1px solid var(--border-color); /* Separator line */
+}
+
+/* Base style for modal buttons */
+.settings-modal-logout,
+.settings-modal-close {
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Close Button (Primary Style) */
+.settings-modal-close {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--white); /* Light theme text */
+}
+.settings-modal-close:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); /* Use primary color shadow */
+}
+[data-theme="dark"] .settings-modal-close {
+  color: var(--gray-900); /* Dark theme text */
+}
+
+/* Logout Button (Danger Style) */
+.settings-modal-logout {
+  background-color: transparent;
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+}
+.settings-modal-logout:hover {
+  background-color: var(--danger-color);
+  color: var(--white);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); /* Use danger color shadow */
+}
+[data-theme="dark"] .settings-modal-logout {
+  color: var(--danger-color); /* Ensure correct danger color in dark mode */
+  border-color: var(--danger-color);
+}
+[data-theme="dark"] .settings-modal-logout:hover {
+  background-color: var(--danger-color);
+  color: var(--gray-900); /* Dark text on danger background */
+}
+
+/* Adjust top controls button spacing if needed */
+.top-controls {
+  display: flex;
+  gap: var(--space-2); /* Adjusted gap */
+  align-items: center;
+}
+
+/* Style for the new settings button (similar to others) */
+.settings-button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary); /* Use secondary text color */
+  cursor: pointer;
+  padding: var(--space-2); /* Use theme variable */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color var(--transition-fast), color var(--transition-fast); /* Use theme variable */
+  width: 36px; /* Explicit size */
+  height: 36px;
+  outline: none;
+}
+
+.settings-button:hover {
+  background-color: var(--gray-100); /* Subtle background on hover */
+}
+
+/* Dark theme adjustments for settings button */
+[data-theme="dark"] .settings-button {
+  background-color: var(--gray-200); /* Use dark theme neutral */
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .settings-button:hover {
+  background-color: var(--gray-300);
+}
+
+/* Focus styles */
+.settings-button:focus-visible {
+  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
+  opacity: 0.8; /* Slight opacity for focus ring */
+}
+
+/* Styles for setting item descriptions */
+.setting-item-column {
+  flex-direction: column;
+  align-items: stretch; /* Make items take full width */
+  padding-bottom: 0.75rem; /* Adjust padding */
+}
+
+.setting-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* Ensure row takes full width */
+}
+
+.setting-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0.3rem 0 0 0; /* Small top margin */
+  padding-left: 0; /* Align with the start of the item */
+  text-align: left;
+  max-width: 100%; /* Prevent overflow */
+}
+
+/* Adjust border logic for column layout */
+.setting-item-column {
+  border-bottom: 1px solid var(--border-color);
+}
+/* Remove border from the item before the buttons container */
+.setting-item-column:has(+ .settings-modal-buttons) {
+  border-bottom: none;
+}
