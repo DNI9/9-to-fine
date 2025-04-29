@@ -65,7 +65,12 @@ export const getTasks = async (
   userId: string,
   dateFilter?: DateRange
 ): Promise<Task[]> => {
-  let query = supabase.from("tasks").select("*").eq("user_id", userId);
+  let query = supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", userId)
+    .order("current_day", { ascending: true })
+    .order("position", { ascending: true });
 
   if (dateFilter?.from) {
     const start = dateFilter.from.toISOString().split("T")[0];
@@ -131,6 +136,24 @@ export const deleteTask = async (taskId: number): Promise<void> => {
 
   if (error) {
     console.error("Error deleting task:", error);
+    throw error;
+  }
+};
+
+interface PositionUpdate {
+  id: number;
+  position: number;
+}
+
+export const updatePositions = async (updates: PositionUpdate[]): Promise<void> => {
+  if (updates.length === 0) return;
+
+  const { error } = await supabase.rpc("update_task_positions", {
+    position_updates: updates,
+  });
+
+  if (error) {
+    console.error("Error updating positions:", error);
     throw error;
   }
 };

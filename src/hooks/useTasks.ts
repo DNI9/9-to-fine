@@ -55,6 +55,7 @@ export const useTasks = (
       const newTasksData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at">[] =
         [];
       const tempIds: number[] = [];
+      const maxPosition = Math.max(...tasks.map(t => t.position), 0);
 
       names.forEach((name, index) => {
         const trimmedName = name.trim();
@@ -62,6 +63,7 @@ export const useTasks = (
 
         const tempId = now.getTime() + index;
         tempIds.push(tempId);
+        const position = maxPosition + (index + 1) * 1000;
 
         // Use consistent date format
         const todayString = getTodayDateString();
@@ -76,6 +78,7 @@ export const useTasks = (
           is_completed: false,
           current_day: todayString,
           postponed_to: null,
+          position,
           created_at: now.toISOString(),
           updated_at: now.toISOString(),
         });
@@ -88,6 +91,7 @@ export const useTasks = (
           is_completed: false,
           current_day: todayString,
           postponed_to: null,
+          position,
         });
       });
 
@@ -107,7 +111,7 @@ export const useTasks = (
           setTasks(prevTasks => prevTasks.filter(task => !tempIds.includes(task.id)));
         });
     },
-    [userId]
+    [userId, tasks]
   );
 
   const handleStartPause = useCallback(
@@ -265,6 +269,10 @@ export const useTasks = (
 
       const today = getTodayDateString();
       const originalTasks = [...tasks];
+      const maxPosition = Math.max(
+        ...tasks.filter(t => t.current_day === today).map(t => t.position),
+        0
+      );
 
       const updatesForOriginal: Partial<
         Omit<Task, "id" | "user_id" | "created_at" | "updated_at">
@@ -282,6 +290,7 @@ export const useTasks = (
         is_completed: false,
         current_day: today,
         postponed_to: null,
+        position: maxPosition + 1000,
       };
 
       const updatedOriginalTaskOptimistic: Task = {
@@ -336,27 +345,72 @@ export const useTasks = (
       const { source, destination, draggableId } = result;
 
       if (!destination) return;
-      if (
-        destination.droppableId === source.droppableId &&
-        destination.index === source.index
-      )
-        return;
 
       const taskId = parseInt(draggableId, 10);
       const taskToMove = tasks.find(task => task.id === taskId);
       if (!taskToMove) return;
 
-      setTasks(prevTasks =>
-        prevTasks.map(task =>
-          task.id === taskId ? { ...task, current_day: destination.droppableId } : task
-        )
+      // Create a new array of tasks
+      const newTasks = Array.from(tasks);
+      const taskToMoveIndex = newTasks.findIndex(task => task.id === taskId);
+      const [removed] = newTasks.splice(taskToMoveIndex, 1);
+
+      // If moving between days, update the day
+      if (source.droppableId !== destination.droppableId) {
+        removed.current_day = destination.droppableId;
+      }
+
+      // Calculate the insertion index in the full tasks array
+      const destinationDayStartIndex = newTasks.findIndex(
+        task => task.current_day === destination.droppableId
+      );
+      const insertIndex =
+        destinationDayStartIndex === -1
+          ? newTasks.length
+          : destinationDayStartIndex + destination.index;
+
+      // Insert the task at the new position
+      newTasks.splice(insertIndex, 0, removed);
+
+      // Calculate new positions for affected tasks
+      const positionUpdates: { id: number; position: number }[] = [];
+      const basePosition = 1000; // Use increments of 1000 to allow for future insertions
+      const increment = 1000;
+
+      // Get all tasks in the affected days
+      const affectedTasks = newTasks.filter(
+        task =>
+          task.current_day === destination.droppableId ||
+          (source.droppableId !== destination.droppableId &&
+            task.current_day === source.droppableId)
       );
 
-      updateTask(taskId, { current_day: destination.droppableId }).catch(
-        (error: Error) => {
-          console.error("Failed to update task day after drag:", error);
-        }
-      );
+      // Update positions for affected tasks
+      affectedTasks.forEach((task, index) => {
+        const newPosition = basePosition + index * increment;
+        task.position = newPosition;
+        positionUpdates.push({ id: task.id, position: newPosition });
+      });
+
+      // Update the state optimistically
+      setTasks(newTasks);
+
+      // Update the backend
+      const updates: Promise<Task>[] = [
+        ...positionUpdates.map(update =>
+          updateTask(update.id, { position: update.position })
+        ),
+      ];
+
+      // If the day changed, update that separately
+      if (source.droppableId !== destination.droppableId) {
+        updates.push(updateTask(taskId, { current_day: destination.droppableId }));
+      }
+
+      Promise.all(updates).catch((error: Error) => {
+        console.error("Failed to update task order:", error);
+        setTasks(tasks); // Revert on error
+      });
     },
     [tasks]
   );
