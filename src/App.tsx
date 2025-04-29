@@ -1,16 +1,14 @@
 import { DragDropContext } from "@hello-pangea/dnd";
 import React from "react";
-import { IoBarChart, IoLogOut, IoSettingsOutline } from "react-icons/io5";
+import { IoBarChart, IoSettingsOutline } from "react-icons/io5";
 import { Navigate, Route, Routes, useNavigate } from "react-router";
 import "./App.css";
 import DateFilter from "./components/DateFilter";
 import DaySection from "./components/DaySection";
-import LofiToggle from "./components/LofiToggle";
 import Login from "./components/Login";
-import NotificationToggle from "./components/NotificationToggle";
 import ReportPage from "./components/ReportPage";
+import SettingsModal from "./components/SettingsModal";
 import TaskInput from "./components/TaskInput";
-import ThemeToggle from "./components/ThemeToggle";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { useAuthActions } from "./hooks/useAuthActions";
 import { useCalendar } from "./hooks/useCalendar";
@@ -57,38 +55,38 @@ const MainContent: React.FC = () => {
   const sortedDays = getSortedDays(tasksByDay);
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="app-container">
-        <div className="top-controls">
-          <button
-            onClick={() => navigate("/reports")}
-            className="report-button"
-            title="Reports"
-          >
-            <IoBarChart size={20} />
-          </button>
-          <button
-            onClick={() => setIsSettingsModalOpen(true)}
-            className="settings-button"
-            title="Settings"
-          >
-            <IoSettingsOutline size={20} />
-          </button>
-        </div>
-        <h1 className="app-title">Track. Focus. Celebrate.</h1>
-        <p className="app-description">
-          Effortless daily task tracking with focus and fun.
-        </p>
-        <div className="input-container">
-          <TaskInput onAddTask={handleAddTask} />
-          <DateFilter
-            selected={dateFilter}
-            onSelect={setDateFilter}
-            incompleteDates={incompleteDates}
-            onMonthChange={setCalendarMonth}
-          />
-        </div>
+    <div className="app-container">
+      <div className="top-controls">
+        <button
+          onClick={() => navigate("/reports")}
+          className="report-button"
+          title="Reports"
+        >
+          <IoBarChart size={20} />
+        </button>
+        <button
+          onClick={() => setIsSettingsModalOpen(true)}
+          className="settings-button"
+          title="Settings"
+        >
+          <IoSettingsOutline size={20} />
+        </button>
+      </div>
+      <h1 className="app-title">Track. Focus. Celebrate.</h1>
+      <p className="app-description">
+        Effortless daily task tracking with focus and fun.
+      </p>
+      <div className="input-container">
+        <TaskInput onAddTask={handleAddTask} />
+        <DateFilter
+          selected={dateFilter}
+          onSelect={setDateFilter}
+          incompleteDates={incompleteDates}
+          onMonthChange={setCalendarMonth}
+        />
+      </div>
 
+      <DragDropContext onDragEnd={handleDragEnd}>
         <div className="days-container">
           {isLoadingTasks ? (
             <div className="loading">Loading tasks...</div>
@@ -112,71 +110,19 @@ const MainContent: React.FC = () => {
             </p>
           )}
         </div>
-
-        {/* Settings Modal */}
-        <dialog
-          ref={settingsDialogRef}
-          className="settings-modal"
-          onClose={() => setIsSettingsModalOpen(false)}
-        >
-          <div className="settings-modal-content">
-            <h2>Settings</h2>
-
-            <div className="setting-item">
-              <div className="setting-item-info">
-                <div className="setting-item-title">Theme</div>
-                <p className="setting-description">
-                  Switch between light and dark mode for your preferred viewing
-                  experience.
-                </p>
-              </div>
-              <ThemeToggle isDark={isDarkMode} onToggle={toggleTheme} />
-            </div>
-
-            <div className="setting-item">
-              <div className="setting-item-info">
-                <div className="setting-item-title">Notifications</div>
-                <p className="setting-description">
-                  Get reminded every 30 minutes when a task is running to help you stay on
-                  track.
-                </p>
-              </div>
-              <NotificationToggle
-                isEnabled={isNotificationsEnabled}
-                onToggle={toggleNotifications}
-              />
-            </div>
-
-            <div className="setting-item">
-              <div className="setting-item-info">
-                <div className="setting-item-title">Lofi Player</div>
-                <p className="setting-description">
-                  Play calming lofi beats automatically when you start a task to enhance
-                  focus.
-                </p>
-              </div>
-              <LofiToggle isEnabled={isLofiEnabled} onToggle={toggleLofi} />
-            </div>
-
-            <div className="settings-modal-buttons">
-              <button
-                onClick={handleLogout}
-                className="settings-modal-logout"
-                title="Logout"
-              >
-                <IoLogOut size={18} /> Logout
-              </button>
-              <button
-                onClick={() => setIsSettingsModalOpen(false)}
-                className="settings-modal-close"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </dialog>
-      </div>
-    </DragDropContext>
+      </DragDropContext>
+      <SettingsModal
+        settingsDialogRef={settingsDialogRef}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+        isNotificationsEnabled={isNotificationsEnabled}
+        toggleNotifications={toggleNotifications}
+        isLofiEnabled={isLofiEnabled}
+        toggleLofi={toggleLofi}
+        handleLogout={handleLogout}
+        setIsSettingsModalOpen={setIsSettingsModalOpen}
+      />
+    </div>
   );
 };
 

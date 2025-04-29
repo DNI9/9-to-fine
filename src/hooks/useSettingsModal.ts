@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 export const useSettingsModal = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const settingsDialogRef = useRef<HTMLDialogElement>(null);
+  const settingsDialogRef = useRef<HTMLDialogElement>(
+    null
+  ) as React.RefObject<HTMLDialogElement>;
 
   useEffect(() => {
     const dialog = settingsDialogRef.current;
