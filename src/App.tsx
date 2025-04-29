@@ -822,45 +822,54 @@ const MainContent: React.FC = () => {
         >
           <div className="settings-modal-content">
             <h2>Settings</h2>
+
             <div className="setting-item">
-              <span>Theme</span>
+              <div className="setting-item-info">
+                <div className="setting-item-title">Theme</div>
+                <p className="setting-description">
+                  Switch between light and dark mode for your preferred viewing
+                  experience.
+                </p>
+              </div>
               <ThemeToggle
                 isDark={isDarkMode}
                 onToggle={() => setIsDarkMode(prev => !prev)}
               />
             </div>
-            <div className="setting-item setting-item-column">
-              <div className="setting-item-row">
-                <span>Notifications</span>
-                <NotificationToggle
-                  isEnabled={isNotificationsEnabled}
-                  onToggle={handleNotificationToggle}
-                />
+
+            <div className="setting-item">
+              <div className="setting-item-info">
+                <div className="setting-item-title">Notifications</div>
+                <p className="setting-description">
+                  Get reminded every 30 minutes when a task is running to help you stay on
+                  track.
+                </p>
               </div>
-              <p className="setting-description">
-                Reminds you every 30 minutes if a task is running.
-              </p>
+              <NotificationToggle
+                isEnabled={isNotificationsEnabled}
+                onToggle={handleNotificationToggle}
+              />
             </div>
-            <div className="setting-item setting-item-column">
-              <div className="setting-item-row">
-                <span>Lofi Player</span>
-                <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
+
+            <div className="setting-item">
+              <div className="setting-item-info">
+                <div className="setting-item-title">Lofi Player</div>
+                <p className="setting-description">
+                  Play calming lofi beats automatically when you start a task to enhance
+                  focus.
+                </p>
               </div>
-              <p className="setting-description">
-                Plays random lofi beats when you start a task.
-              </p>
+              <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
             </div>
-            {/* Buttons Container */}
+
             <div className="settings-modal-buttons">
-              {/* Logout Button */}
               <button
                 onClick={handleLogout}
-                className="settings-modal-logout" /* Removed button-danger */
+                className="settings-modal-logout"
                 title="Logout"
               >
                 <IoLogOut size={18} /> Logout
               </button>
-              {/* Close Button */}
               <button
                 onClick={() => setIsSettingsModalOpen(false)}
                 className="settings-modal-close"
