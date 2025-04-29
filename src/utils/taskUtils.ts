@@ -42,11 +42,12 @@ export const getIncompleteTaskDatesForMonth = async (
 
   const { data: tasks, error } = await supabase
     .from("tasks")
-    .select("current_day, is_completed")
+    .select("current_day, is_completed, postponed_to")
     .eq("user_id", userId)
     .gte("current_day", startDate)
     .lte("current_day", endDate)
-    .eq("is_completed", false);
+    .eq("is_completed", false)
+    .is("postponed_to", null); // Only include tasks that are not postponed
 
   if (error) {
     console.error("Error fetching incomplete task dates:", error);

@@ -2,6 +2,7 @@ import { Droppable } from "@hello-pangea/dnd";
 import { format, parseISO } from "date-fns";
 import React from "react";
 import { Task } from "../types";
+import { formatTime } from "../utils/timeUtils";
 import TaskItem from "./TaskItem";
 
 interface DaySectionProps {
@@ -23,11 +24,21 @@ const DaySection: React.FC<DaySectionProps> = ({
 }) => {
   const getTotalTimeInMillis = () => {
     return tasks.reduce((totalMillis, task) => {
-      let taskMillis = task.total_time * 1000;
-      const startTimeNumber = task.start_time ? Number(task.start_time) : null;
-      if (task.is_running && startTimeNumber) {
-        taskMillis += Date.now() - startTimeNumber;
+      // Only count time if the task has accumulated time or is currently running
+      if (task.total_time === 0 && !task.is_running) {
+        return totalMillis;
       }
+
+      // Convert seconds to milliseconds
+      let taskMillis = task.total_time * 1000;
+
+      // Add elapsed time only for running tasks with a start time
+      if (task.is_running && task.start_time) {
+        const startTimeNumber = Number(task.start_time);
+        const elapsedMillis = Date.now() - startTimeNumber;
+        taskMillis += elapsedMillis;
+      }
+
       return totalMillis + taskMillis;
     }, 0);
   };
@@ -48,13 +59,10 @@ const DaySection: React.FC<DaySectionProps> = ({
   });
 
   return (
-    // Apply the day-section class here
     <div className="day-section">
       <div className="day-header">
         <h2>{isToday ? "Today's Tasks" : displayDate}</h2>
-        <span className="day-total-time">
-          {format(new Date(getTotalTimeInMillis()), "HH:mm:ss")}
-        </span>
+        <span className="day-total-time">{formatTime(getTotalTimeInMillis())}</span>
       </div>
       <Droppable droppableId={date}>
         {(provided, snapshot) => (
