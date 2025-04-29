@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import React, { useEffect, useRef, useState } from "react";
 import { DateRange, DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
@@ -6,31 +7,27 @@ import { FaCalendar } from "react-icons/fa";
 interface DateFilterProps {
   selected: DateRange | undefined;
   onSelect: (range: DateRange | undefined) => void;
-  incompleteDates: string[]; // Use the new prop for incomplete dates
-  onMonthChange: (month: Date) => void; // Add prop for month change callback
+  incompleteDates: string[];
+  onMonthChange: (month: Date) => void;
 }
 
 const DateFilter: React.FC<DateFilterProps> = ({
   selected,
   onSelect,
-  incompleteDates, // Destructure the new prop
-  onMonthChange, // Destructure the new prop
+  incompleteDates,
+  onMonthChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  // Create a Set for efficient lookup of incomplete dates
   const incompleteDatesSet = new Set(incompleteDates);
 
-  // Custom modifier for days with incomplete tasks
   const modifiers = {
     withTasks: (date: Date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-      const day = String(date.getDate()).padStart(2, "0");
-      const dateString = `${year}-${month}-${day}`;
-      return incompleteDatesSet.has(dateString); // Check against the Set
+      // Format date to match our YYYY-MM-DD format using date-fns
+      const dateString = format(date, "yyyy-MM-dd");
+      return incompleteDatesSet.has(dateString);
     },
   };
 
@@ -48,6 +45,18 @@ const DateFilter: React.FC<DateFilterProps> = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Handle date selection with timezone consideration
+  const handleSelect = (range: DateRange | undefined) => {
+    if (range?.from) {
+      // Set the time to noon to avoid any timezone issues
+      range.from.setHours(12, 0, 0, 0);
+      if (range.to) {
+        range.to.setHours(12, 0, 0, 0);
+      }
+    }
+    onSelect(range);
+  };
 
   return (
     <div className="date-filter-container">
@@ -67,9 +76,9 @@ const DateFilter: React.FC<DateFilterProps> = ({
             mode="range"
             defaultMonth={selected?.from}
             selected={selected}
-            onSelect={onSelect}
+            onSelect={handleSelect}
             numberOfMonths={1}
-            onMonthChange={onMonthChange} // Call the handler when month changes
+            onMonthChange={onMonthChange}
             modifiers={modifiers}
             modifiersClassNames={{
               withTasks: "rdp-day_withTasks",

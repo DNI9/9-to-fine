@@ -1,762 +1,65 @@
-import { DragDropContext, DropResult } from "@hello-pangea/dnd";
-import confetti from "canvas-confetti";
-import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { DateRange } from "react-day-picker";
-import { IoBarChart, IoLogOut, IoSettingsOutline } from "react-icons/io5"; // Added IoSettingsOutline
-import { Navigate, Route, Routes, useNavigate } from "react-router"; // Add useNavigate
+import { DragDropContext } from "@hello-pangea/dnd";
+import React from "react";
+import { IoBarChart, IoLogOut, IoSettingsOutline } from "react-icons/io5";
+import { Navigate, Route, Routes, useNavigate } from "react-router";
 import "./App.css";
 import DateFilter from "./components/DateFilter";
 import DaySection from "./components/DaySection";
 import LofiToggle from "./components/LofiToggle";
 import Login from "./components/Login";
 import NotificationToggle from "./components/NotificationToggle";
+import ReportPage from "./components/ReportPage";
 import TaskInput from "./components/TaskInput";
 import ThemeToggle from "./components/ThemeToggle";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { Task } from "./types";
-// Removed loadTasks, saveTasks imports
-import ReportPage from "./components/ReportPage";
-import { supabase } from "./utils/supabase"; // Import supabase client
-import {
-  addTask,
-  deleteTask,
-  getIncompleteTaskDatesForMonth,
-  getTasks,
-  updateTask,
-} from "./utils/taskUtils"; // Import Supabase task functions
-import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer";
-
-// Helper to get today's date in YYYY-MM-DD format based on local time
-const getTodayDateString = (): string => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-  const day = String(today.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-// Add this constant at the top with other constants
-const NOTIFICATION_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+import { useAuthActions } from "./hooks/useAuthActions";
+import { useCalendar } from "./hooks/useCalendar";
+import { useDocumentTitle } from "./hooks/useDocumentTitle";
+import { useIncompleteDates } from "./hooks/useIncompleteDates";
+import { useLofi } from "./hooks/useLofi";
+import { useNotifications } from "./hooks/useNotifications";
+import { useSettingsModal } from "./hooks/useSettingsModal";
+import { useTasks } from "./hooks/useTasks";
+import { useTheme } from "./hooks/useTheme";
+import { getSortedDays, groupTasksByDay } from "./utils/taskUtils";
 
 const MainContent: React.FC = () => {
-  const { session } = useAuth(); // Get session which contains user info
-  const navigate = useNavigate(); // Get navigate function
-  const [tasks, setTasks] = useState<Task[]>([]); // Initialize with empty array
-  const [isLoadingTasks, setIsLoadingTasks] = useState(true); // Add loading state
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme === "dark";
-  });
-  const [isLofiEnabled, setIsLofiEnabled] = useState(() => {
-    const savedLofiPref = localStorage.getItem("lofiEnabled");
-    return savedLofiPref !== null ? JSON.parse(savedLofiPref) : false;
-  });
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(() => {
-    const savedPref = localStorage.getItem("notificationsEnabled");
-    return savedPref !== null ? JSON.parse(savedPref) : false;
-  });
-  const [dateFilter, setDateFilter] = useState<DateRange | undefined>(undefined);
-  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date()); // State for calendar's current month
-  const [incompleteDates, setIncompleteDates] = useState<string[]>([]); // State for dates with incomplete tasks
-  // State to track if lofi is *currently* playing (internal state)
-  const [isLofiPlaying, setIsLofiPlaying] = useState(false);
-  // Ref to store the original title, avoiding potential stale closures
-  const originalTitleRef = useRef(
-    "9-to-Fine - Because tracking time is totally fine... right? 😅"
-  );
-  const taskNotificationsRef = useRef<Record<string, number>>({});
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false); // State for settings modal
-  const settingsDialogRef = useRef<HTMLDialogElement>(null); // Ref for the dialog element
-
-  // Effect to open/close the dialog programmatically
-  useEffect(() => {
-    const dialog = settingsDialogRef.current;
-    if (!dialog) return;
-
-    if (isSettingsModalOpen) {
-      // Check if the dialog is already open before calling showModal
-      if (!dialog.open) {
-        dialog.showModal();
-      }
-    } else {
-      // Check if the dialog is open before trying to close it
-      if (dialog.open) {
-        dialog.close();
-      }
-    }
-    // Add cleanup to handle component unmount while modal is open
-    return () => {
-      if (dialog && dialog.open) {
-        dialog.close();
-      }
-    };
-  }, [isSettingsModalOpen]);
-
-  const handleLogout = async () => {
-    if (!confirm("Are you sure you want to log out?")) return;
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error logging out:", error);
-    }
-  };
-
-  // Fetch tasks from Supabase when component mounts, user logs in, or date filter changes
-  useEffect(() => {
-    const fetchTasks = async () => {
-      if (session?.user?.id) {
-        setIsLoadingTasks(true);
-        try {
-          // Pass the dateFilter state to getTasks
-          const fetchedTasks = await getTasks(session.user.id, dateFilter);
-          setTasks(fetchedTasks);
-        } catch (error) {
-          console.error("Failed to fetch tasks:", error);
-          // Handle error appropriately, maybe show a message to the user
-        } finally {
-          setIsLoadingTasks(false);
-        }
-      } else {
-        setTasks([]); // Clear tasks if no user
-        setIsLoadingTasks(false);
-      }
-    };
-
-    fetchTasks();
-    // Depend on user ID and dateFilter
-  }, [session?.user?.id, dateFilter]); // Re-fetch if user ID or dateFilter changes
-
-  // Fetch incomplete task dates when the calendar month or user changes
-  useEffect(() => {
-    const fetchIncompleteDates = async () => {
-      if (session?.user?.id) {
-        try {
-          const year = calendarMonth.getFullYear();
-          const month = calendarMonth.getMonth() + 1; // getMonth is 0-indexed
-          const dates = await getIncompleteTaskDatesForMonth(
-            session.user.id,
-            year,
-            month
-          );
-          setIncompleteDates(dates);
-        } catch (error) {
-          console.error("Failed to fetch incomplete task dates:", error);
-          setIncompleteDates([]); // Reset on error
-        }
-      } else {
-        setIncompleteDates([]); // Clear if no user
-      }
-    };
-
-    fetchIncompleteDates();
-  }, [session?.user?.id, calendarMonth]); // Re-fetch if user or calendar month changes
-
-  // Set theme on body when dark mode changes
-  useEffect(() => {
-    document.body.dataset.theme = isDarkMode ? "dark" : "light";
-    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
-  }, [isDarkMode]);
-
-  // Update document title when tasks are running
-  useEffect(() => {
-    // Use snake_case property
-    const runningTask = tasks.find(task => task.is_running);
-    const originalTitle = originalTitleRef.current; // Capture ref value here
-
-    if (runningTask) {
-      const updateTitle = () => {
-        // Use snake_case property, convert string timestamp to number for calculation
-        const startTimeNumber = runningTask.start_time
-          ? Number(runningTask.start_time)
-          : null;
-        if (startTimeNumber) {
-          // Use total_time (already in seconds)
-          const elapsedMillis =
-            Date.now() - startTimeNumber + runningTask.total_time * 1000;
-          const timeStr = new Date(elapsedMillis).toISOString().substring(11, 19); // Format as HH:MM:SS
-          document.title = `${timeStr} - ${runningTask.name}`;
-        }
-      };
-
-      // Update immediately and then every second
-      updateTitle();
-      const intervalId = setInterval(updateTitle, 1000);
-
-      return () => {
-        clearInterval(intervalId);
-        document.title = originalTitle; // Use captured value in cleanup
-      };
-    } else {
-      document.title = originalTitle; // Use captured value outside effect too
-    }
-  }, [tasks]);
-
-  // Effect to control Lofi playback based on running tasks AND the toggle state
-  useEffect(() => {
-    // --- Lofi Logic ---
-    if (!isLofiEnabled) {
-      // If Lofi is disabled, ensure it's stopped and exit early
-      if (isLofiPlaying) {
-        console.log("Lofi disabled, stopping playback.");
-        stopLofi();
-        setIsLofiPlaying(false);
-      }
-      return; // Don't proceed with playback logic if disabled
-    }
-
-    // Lofi is enabled, proceed with play/pause logic
-    // Use snake_case property
-    const shouldPlay = tasks.some(task => task.is_running);
-
-    if (shouldPlay && !isLofiPlaying) {
-      // If any task is running and lofi isn't marked as playing
-      console.log("Attempting to resume or start Lofi (enabled)...");
-      resumeLofi().then(resumed => {
-        if (!resumed) {
-          console.log("Resume failed or not applicable, starting new Lofi video.");
-          playRandomLofi();
-        } else {
-          console.log("Lofi resumed successfully.");
-        }
-      });
-      setIsLofiPlaying(true);
-    } else if (!shouldPlay && isLofiPlaying) {
-      // If no tasks are running and lofi is marked as playing
-      console.log("Pausing Lofi (enabled)...");
-      pauseLofi();
-      setIsLofiPlaying(false);
-    }
-  }, [tasks, isLofiPlaying, isLofiEnabled]); // Add isLofiEnabled dependency
-
-  useEffect(() => {
-    const checkLongRunningTasks = () => {
-      if (!isNotificationsEnabled) return; // Skip if notifications are disabled
-
-      tasks.forEach(task => {
-        const taskIdStr = String(task.id); // Use string for ref key
-        const startTimeNumber = task.start_time ? Number(task.start_time) : null;
-        if (task.is_running && startTimeNumber) {
-          const runningMillis = Date.now() - startTimeNumber + task.total_time * 1000;
-          const notificationCount = Math.floor(runningMillis / NOTIFICATION_INTERVAL);
-          const lastNotified = taskNotificationsRef.current[taskIdStr] || 0;
-
-          if (notificationCount > lastNotified && Notification.permission === "granted") {
-            new Notification(
-              `Task "${task.name}" has been running for ${
-                notificationCount * 30
-              } minutes`,
-              {
-                body: "Take a moment to check your progress!",
-                icon: "/favicon.ico",
-              }
-            );
-            taskNotificationsRef.current[taskIdStr] = notificationCount;
-          }
-        } else {
-          delete taskNotificationsRef.current[taskIdStr];
-        }
-      });
-    };
-
-    const intervalId = setInterval(checkLongRunningTasks, 60000); // Check every minute
-    return () => clearInterval(intervalId);
-  }, [tasks, isNotificationsEnabled]);
-
-  // Handler for the Lofi toggle switch
-  const handleLofiToggle = useCallback(() => {
-    setIsLofiEnabled((prevEnabled: boolean) => {
-      const newState = !prevEnabled;
-      localStorage.setItem("lofiEnabled", JSON.stringify(newState));
-      // If turning Lofi off while it's playing, stop it immediately
-      if (!newState && isLofiPlaying) {
-        console.log("Toggled Lofi off, stopping playback.");
-        stopLofi();
-        setIsLofiPlaying(false); // Update internal playing state too
-      }
-      return newState;
-    });
-  }, [isLofiPlaying]); // Depend on isLofiPlaying to stop correctly
-
-  const handleNotificationToggle = useCallback(() => {
-    setIsNotificationsEnabled((prevEnabled: boolean) => {
-      const newState = !prevEnabled;
-
-      if (newState) {
-        // When enabling notifications, check/request permission
-        if (Notification.permission === "granted") {
-          localStorage.setItem("notificationsEnabled", JSON.stringify(true));
-          return true;
-        } else if (Notification.permission === "denied") {
-          alert(
-            "Notification permission was denied. Please enable notifications in your browser settings to use this feature."
-          );
-          localStorage.setItem("notificationsEnabled", JSON.stringify(false));
-          return false;
-        } else {
-          // Permission is "default", need to request it
-          Notification.requestPermission().then(permission => {
-            const isGranted = permission === "granted";
-            localStorage.setItem("notificationsEnabled", JSON.stringify(isGranted));
-            setIsNotificationsEnabled(isGranted);
-          });
-          return false; // Initially set to false until permission is granted
-        }
-      }
-
-      // When disabling notifications
-      localStorage.setItem("notificationsEnabled", JSON.stringify(false));
-      return false;
-    });
-  }, []);
-
-  const handleAddTask = useCallback(
-    (names: string[]) => {
-      // Now accepts an array of names
-      if (!session?.user?.id) {
-        console.error("Cannot add tasks: User not logged in.");
-        return;
-      }
-      if (!names || names.length === 0) {
-        console.warn("handleAddTask: No task names provided.");
-        return;
-      }
-
-      const userId = session.user.id;
-      const now = new Date();
-      const optimisticTasks: Task[] = [];
-      const newTasksData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at">[] =
-        [];
-      const tempIds: number[] = []; // Keep track of temporary IDs
-
-      names.forEach((name, index) => {
-        const trimmedName = name.trim();
-        if (!trimmedName) return; // Skip empty/whitespace-only names
-
-        const tempId = now.getTime() + index; // Generate unique temporary IDs
-        tempIds.push(tempId);
-        const isoNow = new Date(tempId).toISOString(); // Use tempId time for consistency
-
-        // Create optimistic task object
-        optimisticTasks.push({
-          id: tempId,
-          user_id: userId,
-          name: trimmedName,
-          total_time: 0,
-          start_time: null,
-          is_running: false,
-          is_completed: false,
-          current_day: getTodayDateString(),
-          postponed_to: null,
-          created_at: isoNow,
-          updated_at: isoNow,
-        });
-
-        // Prepare data for the backend
-        newTasksData.push({
-          name: trimmedName,
-          total_time: 0,
-          start_time: null,
-          is_running: false,
-          is_completed: false,
-          current_day: getTodayDateString(),
-          postponed_to: null,
-        });
-      });
-
-      if (optimisticTasks.length === 0) {
-        console.warn("handleAddTask: No valid task names provided after trimming.");
-        return; // Don't proceed if all names were empty
-      }
-
-      // Optimistically update the UI with all new tasks
-      setTasks(prevTasks => [...prevTasks, ...optimisticTasks]);
-
-      // Call the backend function with the array of tasks
-      addTask(newTasksData, userId)
-        .then(addedTasks => {
-          // Replace the temporary tasks with the real ones from the backend
-          setTasks(prevTasks => {
-            // Filter out old temp tasks and add the new real tasks
-            const nonTempTasks = prevTasks.filter(task => !tempIds.includes(task.id));
-            return [...nonTempTasks, ...addedTasks];
-          });
-        })
-        .catch(error => {
-          console.error("Failed to add tasks:", error);
-          // Revert the optimistic update on failure by removing all temporary tasks
-          setTasks(prevTasks => prevTasks.filter(task => !tempIds.includes(task.id)));
-          // Handle error (e.g., show notification)
-        });
-    },
-    [session]
-  ); // Depend on session
-
-  const handleStartPause = useCallback(
-    (id: number) => {
-      // Removed async
-      const taskIndex = tasks.findIndex(task => task.id === id);
-      if (taskIndex === -1) return; // Task not found
-
-      const taskToUpdate = tasks[taskIndex];
-      if (taskToUpdate.is_completed) return; // Cannot start/pause completed task
-
-      const originalTasks = [...tasks]; // Store original state for potential revert
-      let optimisticTask: Task;
-      let updatesForBackend: Partial<
-        Omit<Task, "id" | "user_id" | "created_at" | "updated_at">
-      >;
-      const now = Date.now();
-      const startTimeNumber = taskToUpdate.start_time
-        ? Number(taskToUpdate.start_time)
-        : null;
-
-      if (taskToUpdate.is_running) {
-        // Pausing
-        const elapsedMillis = startTimeNumber ? now - startTimeNumber : 0;
-        const elapsedSeconds = Math.round(elapsedMillis / 1000);
-        const newTotalTime = taskToUpdate.total_time + elapsedSeconds;
-
-        optimisticTask = {
-          ...taskToUpdate,
-          is_running: false,
-          start_time: null,
-          total_time: newTotalTime,
-          updated_at: new Date(now).toISOString(), // Optimistically update timestamp
-        };
-        updatesForBackend = {
-          is_running: false,
-          start_time: null,
-          total_time: newTotalTime,
-        };
-      } else {
-        // Starting / Resuming
-        optimisticTask = {
-          ...taskToUpdate,
-          is_running: true,
-          start_time: String(now), // Store as string for consistency? Or keep as number? Let's use string like before.
-          updated_at: new Date(now).toISOString(), // Optimistically update timestamp
-        };
-        updatesForBackend = {
-          is_running: true,
-          start_time: String(now),
-        };
-      }
-
-      // Optimistically update UI
-      setTasks(prevTasks =>
-        prevTasks.map(task => (task.id === id ? optimisticTask : task))
-      );
-
-      // Call backend update
-      updateTask(id, updatesForBackend)
-        .then(updatedTaskResult => {
-          // Optional: Update state again with the exact result from backend
-          // This ensures consistency if backend modifies data (e.g., precise updated_at)
-          setTasks(prevTasks =>
-            prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
-          );
-        })
-        .catch(error => {
-          console.error("Failed to update task (start/pause):", error);
-          // Revert UI on failure
-          setTasks(originalTasks);
-          // Handle error (e.g., show notification)
-        });
-    },
-    [tasks]
-  ); // Depend on tasks
-
-  const handleComplete = useCallback(
-    (id: number) => {
-      // Removed async
-      const taskIndex = tasks.findIndex(task => task.id === id);
-      if (taskIndex === -1) return; // Task not found
-
-      const taskToComplete = tasks[taskIndex];
-      if (taskToComplete.is_completed) return; // Already completed
-
-      const originalTasks = [...tasks]; // Store original state for potential revert
-      const now = Date.now();
-      let finalTotalTimeSeconds = taskToComplete.total_time;
-      const startTimeNumber = taskToComplete.start_time
-        ? Number(taskToComplete.start_time)
-        : null;
-
-      // Calculate final time if task was running
-      if (taskToComplete.is_running && startTimeNumber) {
-        const elapsedMillis = now - startTimeNumber;
-        finalTotalTimeSeconds += Math.round(elapsedMillis / 1000);
-      }
-
-      // Create optimistic task state
-      const optimisticTask: Task = {
-        ...taskToComplete,
-        is_running: false,
-        is_completed: true,
-        start_time: null,
-        total_time: finalTotalTimeSeconds,
-        updated_at: new Date(now).toISOString(), // Optimistically update timestamp
-      };
-
-      // Prepare updates for the backend
-      const updatesForBackend: Partial<
-        Omit<Task, "id" | "user_id" | "created_at" | "updated_at">
-      > = {
-        is_running: false,
-        is_completed: true,
-        start_time: null,
-        total_time: finalTotalTimeSeconds,
-      };
-
-      // --- Optimistic UI Updates ---
-      // 1. Update tasks state
-      const optimisticTasks = originalTasks.map(task =>
-        task.id === id ? optimisticTask : task
-      );
-      setTasks(optimisticTasks);
-
-      // 3. Check Lofi state based on optimistic tasks
-      const anyOtherTaskRunning = optimisticTasks.some(
-        task => task.id !== id && task.is_running
-      );
-      if (!anyOtherTaskRunning && isLofiEnabled) {
-        console.log("Optimistic: Last task stopped, stopping Lofi completely (enabled).");
-        stopLofi();
-        setIsLofiPlaying(false);
-      } else if (!anyOtherTaskRunning && !isLofiEnabled) {
-        console.log("Optimistic: Last task stopped, Lofi already disabled.");
-        if (isLofiPlaying) setIsLofiPlaying(false); // Ensure internal state is correct
-      }
-      // --- End Optimistic UI Updates ---
-
-      confetti({
-        particleCount: 100,
-        spread: 80,
-        origin: { y: 0.8 },
-      });
-
-      // Call backend update
-      updateTask(id, updatesForBackend)
-        .then(updatedTaskResult => {
-          setTasks(prevTasks =>
-            prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
-          );
-        })
-        .catch(error => {
-          console.error("Failed to complete task:", error);
-          // Revert UI on failure (except confetti)
-          setTasks(originalTasks);
-          // Re-evaluate Lofi state based on original tasks if needed (complex, might skip for simplicity)
-          // Handle error (e.g., show notification)
-        });
-    },
-    [tasks, isLofiEnabled, isLofiPlaying] // Keep dependencies
-  );
-
-  const handleDelete = useCallback(
-    async (id: number) => {
-      // Optimistic UI update
-      const originalTasks = tasks;
-      setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
-
-      try {
-        await deleteTask(id);
-      } catch (error) {
-        console.error("Failed to delete task:", error);
-        // Revert UI update on failure
-        setTasks(originalTasks);
-        // Handle error (e.g., show notification)
-      }
-    },
-    [tasks]
-  ); // Depend on tasks for optimistic update
-
-  const handlePostponeTask = useCallback(
-    async (id: number) => {
-      if (!session?.user?.id) {
-        console.error("Cannot postpone task: User not logged in.");
-        return;
-      }
-      const userId = session.user.id;
-      const taskToCopy = tasks.find(task => task.id === id);
-      if (!taskToCopy) return;
-
-      const today = getTodayDateString();
-      const originalTasks = [...tasks]; // Store original state for revert
-
-      // 1. Prepare update for the original task
-      const updatesForOriginal: Partial<
-        Omit<Task, "id" | "user_id" | "created_at" | "updated_at">
-      > = {
-        postponed_to: today,
-        is_running: false, // Ensure it's stopped
-        start_time: null, // Reset start time
-        // Keep total_time as is, unless it was running, then calculate final time?
-        // For simplicity, we'll just mark as postponed and stop timer.
-      };
-
-      // 2. Prepare data for the new task
-      const newTaskData: Omit<Task, "id" | "user_id" | "created_at" | "updated_at"> = {
-        name: taskToCopy.name,
-        total_time: 0, // Reset time
-        start_time: null,
-        is_running: false,
-        is_completed: false,
-        current_day: today, // Set to today
-        postponed_to: null, // Not postponed initially
-      };
-
-      // --- Optimistic UI Update ---
-      // Find the optimistic state of the original task after update
-      const updatedOriginalTaskOptimistic: Task = {
-        ...taskToCopy,
-        ...updatesForOriginal, // Apply updates
-        postponed_to: today, // Ensure postponed_to is set
-        updated_at: new Date().toISOString(), // Optimistic timestamp
-      };
-      // Create optimistic state for the new task (needs a temporary ID)
-      const tempNewTaskId = Date.now() + 1; // Simple temp ID
-      const newOptimisticTask: Task = {
-        id: tempNewTaskId,
-        user_id: userId,
-        ...newTaskData,
-        // Convert start_time back for Task type if needed (it's null here)
-        start_time: newTaskData.start_time, // Already null
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      // Apply optimistic state update
-      setTasks(prevTasks => [
-        ...prevTasks.map(task => (task.id === id ? updatedOriginalTaskOptimistic : task)),
-        newOptimisticTask,
-      ]);
-      // --- End Optimistic UI Update ---
-
-      try {
-        // Perform backend operations
-        const updatedOriginalTask = await updateTask(id, updatesForOriginal);
-        // Pass newTaskData as an array to the bulk-ready addTask
-        const addedTasks = await addTask([newTaskData], userId);
-
-        if (addedTasks.length === 0) {
-          throw new Error("Postpone failed: Could not create the new task entry.");
-        }
-        const addedNewTask = addedTasks[0]; // Get the single added task
-
-        // Update state with confirmed data, replacing optimistic states
-        setTasks(prevTasks => [
-          // Map over previous state, replacing the original and the temp new task
-          ...prevTasks
-            .map(task => {
-              if (task.id === id) return updatedOriginalTask; // Replace original
-              if (task.id === tempNewTaskId) return null; // Mark temp for removal
-              return task; // Keep others
-            })
-            .filter((task): task is Task => task !== null), // Remove the marked temp task
-          addedNewTask, // Add the confirmed new task
-        ]);
-      } catch (error) {
-        console.error("Failed to postpone task:", error);
-        // Revert UI to original state on failure
-        setTasks(originalTasks);
-        // Handle error (e.g., show notification)
-      }
-    },
-    [tasks, session]
-  ); // Depend on tasks and session
-
-  const onDragEnd = useCallback(
-    (result: DropResult) => {
-      const { source, destination, draggableId } = result;
-
-      // Dropped outside a valid droppable area
-      if (!destination) {
-        return;
-      }
-
-      // Dropped in the same place
-      if (
-        destination.droppableId === source.droppableId &&
-        destination.index === source.index
-      ) {
-        return;
-      }
-
-      // Find the task being dragged (ID is now number)
-      const taskId = parseInt(draggableId, 10); // draggableId is string
-      const taskToMove = tasks.find(task => task.id === taskId);
-      if (!taskToMove) return;
-
-      // Update the task's day optimistically for smooth UI
-      // const updatedTask = { ...taskToMove, currentDay: destination.droppableId }; // Removed unused variable
-
-      // Reorder tasks in the state
-      // const reorderedTasks = [...tasks]; // Removed unused variable
-      // const [movedTask] = reorderedTasks.splice(source.index, 1); // Removed unused variable
-      // Find the correct index in the potentially filtered/sorted list for the destination
-      // This is tricky if the visual list doesn't match the raw `tasks` state order.
-      // A simpler optimistic update: just update the task's day in the main state.
-      // The grouping/sorting logic later will handle the visual placement.
-
-      setTasks(prevTasks =>
-        prevTasks.map(task =>
-          // Use snake_case property
-          task.id === taskId ? { ...task, current_day: destination.droppableId } : task
-        )
-      );
-
-      // Update the task in Supabase in the background (expects snake_case)
-      updateTask(taskId, { current_day: destination.droppableId }).catch(error => {
-        console.error("Failed to update task day after drag:", error);
-        // Optionally revert state or notify user on failure
-        // For simplicity, we won't revert here, but log the error.
-      });
-    },
-    [tasks] // Keep dependency
-  ); // Dependency on tasks is important here
-
-  // Filter tasks based on date range or show only today's tasks if no filter
-  const filterTasks = (tasks: Task[]) => {
-    if (dateFilter?.from) {
-      const start = startOfDay(dateFilter.from);
-      const end = dateFilter.to ? endOfDay(dateFilter.to) : endOfDay(dateFilter.from);
-
-      return tasks.filter(task => {
-        // Use snake_case property
-        const taskDate = parseISO(task.current_day);
-        return isWithinInterval(taskDate, { start, end });
-      });
-    } else {
-      // When no filter is active, only show today's tasks
-      // Use snake_case property
-      return tasks.filter(task => task.current_day === getTodayDateString());
-    }
-  };
-
-  // Filtered tasks before grouping by day
-  const filteredTasks = filterTasks(tasks);
-
-  // Group tasks by day (using filtered tasks)
-  const tasksByDay = filteredTasks.reduce((acc, task) => {
-    // Use snake_case property
-    const day = task.current_day;
-    if (!acc[day]) {
-      acc[day] = [];
-    }
-    acc[day].push(task);
-    return acc;
-  }, {} as Record<string, Task[]>);
-
-  // Sort days chronologically
-  const sortedDays = Object.keys(tasksByDay).sort();
+  const { session } = useAuth();
+  const navigate = useNavigate();
+  const originalTitle = "9-to-Fine - Because tracking time is totally fine... right? 😅";
+
+  // Use our custom hooks
+  const { isDarkMode, toggleTheme } = useTheme();
+  const { dateFilter, setDateFilter, calendarMonth, setCalendarMonth, filterTasks } =
+    useCalendar();
+  const {
+    tasks,
+    isLoadingTasks,
+    hasRunningTasks,
+    handleAddTask,
+    handleStartPause,
+    handleComplete,
+    handleDelete,
+    handlePostponeTask,
+    handleDragEnd,
+  } = useTasks(session?.user?.id, dateFilter);
+  const { isLofiEnabled, toggleLofi } = useLofi(hasRunningTasks);
+  const { isNotificationsEnabled, toggleNotifications } = useNotifications(tasks);
+  const { setIsSettingsModalOpen, settingsDialogRef } = useSettingsModal();
+  const incompleteDates = useIncompleteDates(session?.user?.id, calendarMonth);
+  const { handleLogout } = useAuthActions();
+
+  // Set up document title management
+  useDocumentTitle(tasks, originalTitle);
+
+  // Group and sort tasks
+  const tasksByDay = groupTasksByDay(filterTasks(tasks));
+  const sortedDays = getSortedDays(tasksByDay);
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragEnd={handleDragEnd}>
       <div className="app-container">
         <div className="top-controls">
-          {/* Toggles moved to settings modal */}
-          {/* Report Button */}
           <button
             onClick={() => navigate("/reports")}
             className="report-button"
@@ -764,7 +67,6 @@ const MainContent: React.FC = () => {
           >
             <IoBarChart size={20} />
           </button>
-          {/* Add Settings Button */}
           <button
             onClick={() => setIsSettingsModalOpen(true)}
             className="settings-button"
@@ -772,20 +74,18 @@ const MainContent: React.FC = () => {
           >
             <IoSettingsOutline size={20} />
           </button>
-          {/* Logout Button Moved to Modal */}
         </div>
         <h1 className="app-title">Track. Focus. Celebrate.</h1>
         <p className="app-description">
           Effortless daily task tracking with focus and fun.
         </p>
         <div className="input-container">
-          {/* Pass handleAddTask directly as it now accepts string[] */}
           <TaskInput onAddTask={handleAddTask} />
           <DateFilter
             selected={dateFilter}
             onSelect={setDateFilter}
-            incompleteDates={incompleteDates} // Pass the fetched dates
-            onMonthChange={setCalendarMonth} // Pass handler for month change
+            incompleteDates={incompleteDates}
+            onMonthChange={setCalendarMonth}
           />
         </div>
 
@@ -805,7 +105,6 @@ const MainContent: React.FC = () => {
               />
             ))
           ) : (
-            // Show message if not loading and no tasks match filter/day
             <p className="no-tasks-message">
               {dateFilter?.from
                 ? "No tasks found for the selected date range"
@@ -831,10 +130,7 @@ const MainContent: React.FC = () => {
                   experience.
                 </p>
               </div>
-              <ThemeToggle
-                isDark={isDarkMode}
-                onToggle={() => setIsDarkMode(prev => !prev)}
-              />
+              <ThemeToggle isDark={isDarkMode} onToggle={toggleTheme} />
             </div>
 
             <div className="setting-item">
@@ -847,7 +143,7 @@ const MainContent: React.FC = () => {
               </div>
               <NotificationToggle
                 isEnabled={isNotificationsEnabled}
-                onToggle={handleNotificationToggle}
+                onToggle={toggleNotifications}
               />
             </div>
 
@@ -859,7 +155,7 @@ const MainContent: React.FC = () => {
                   focus.
                 </p>
               </div>
-              <LofiToggle isEnabled={isLofiEnabled} onToggle={handleLofiToggle} />
+              <LofiToggle isEnabled={isLofiEnabled} onToggle={toggleLofi} />
             </div>
 
             <div className="settings-modal-buttons">
@@ -879,7 +175,6 @@ const MainContent: React.FC = () => {
             </div>
           </div>
         </dialog>
-        {/* End Settings Modal */}
       </div>
     </DragDropContext>
   );

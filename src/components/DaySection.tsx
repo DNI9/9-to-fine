@@ -1,15 +1,16 @@
 import { Droppable } from "@hello-pangea/dnd";
+import { format, parseISO } from "date-fns";
 import React from "react";
 import { Task } from "../types";
-import TaskItem from "./TaskItem"; // Assuming TaskItem is in the same directory
+import TaskItem from "./TaskItem";
 
 interface DaySectionProps {
   date: string; // 'YYYY-MM-DD' format
   tasks: Task[];
-  onStartPause: (id: number) => void; // Changed id type to number
-  onComplete: (id: number) => void; // Changed id type to number
-  onDelete: (id: number) => void; // Changed id type to number
-  onPostpone?: (id: number) => void; // Changed id type to number
+  onStartPause: (id: number) => void;
+  onComplete: (id: number) => void;
+  onDelete: (id: number) => void;
+  onPostpone?: (id: number) => void;
 }
 
 const DaySection: React.FC<DaySectionProps> = ({
@@ -20,40 +21,27 @@ const DaySection: React.FC<DaySectionProps> = ({
   onDelete,
   onPostpone,
 }) => {
-  // Calculate total time for the day (in milliseconds)
   const getTotalTimeInMillis = () => {
     return tasks.reduce((totalMillis, task) => {
-      // Start with stored time (total_time is already in seconds)
       let taskMillis = task.total_time * 1000;
-      // Use snake_case properties, convert start_time string to number
       const startTimeNumber = task.start_time ? Number(task.start_time) : null;
       if (task.is_running && startTimeNumber) {
-        // Add currently running elapsed time (in milliseconds)
         taskMillis += Date.now() - startTimeNumber;
       }
       return totalMillis + taskMillis;
     }, 0);
   };
 
-  // Format date for display (e.g., "April 17, 2025")
-  const displayDate = new Date(date + "T00:00:00").toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    // Removed timeZone: "UTC" to use local timezone for display
-  });
+  // Parse the date string using date-fns and format it consistently
+  const displayDate = format(parseISO(date), "MMMM d, yyyy");
 
-  // Get today's date in YYYY-MM-DD format (Local)
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
-  const day = String(today.getDate()).padStart(2, "0");
-  const todayDateString = `${year}-${month}-${day}`;
+  // Get today's date in YYYY-MM-DD format using date-fns
+  const todayDateString = format(new Date(), "yyyy-MM-dd");
 
   // Check if the section's date is today
   const isToday = date === todayDateString;
 
-  // Sort tasks with completed ones at the bottom using snake_case
+  // Sort tasks with completed ones at the bottom
   const sortedTasks = [...tasks].sort((a, b) => {
     if (a.is_completed === b.is_completed) return 0;
     return a.is_completed ? 1 : -1;
@@ -65,8 +53,7 @@ const DaySection: React.FC<DaySectionProps> = ({
       <div className="day-header">
         <h2>{isToday ? "Today's Tasks" : displayDate}</h2>
         <span className="day-total-time">
-          {/* Format total time from milliseconds */}
-          {new Date(getTotalTimeInMillis()).toISOString().substring(11, 19)}
+          {format(new Date(getTotalTimeInMillis()), "HH:mm:ss")}
         </span>
       </div>
       <Droppable droppableId={date}>

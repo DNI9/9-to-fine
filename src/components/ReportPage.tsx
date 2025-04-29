@@ -1,13 +1,15 @@
+import { endOfMonth, format, startOfMonth } from "date-fns";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router"; // <-- Import useNavigate from react-router
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router";
 import {
   Bar,
-  BarChart, // Keep for the first chart
+  BarChart,
   CartesianGrid,
-  Cell, // <-- Import Cell
+  Cell,
   Legend,
-  Line, // <-- Import Line
-  LineChart, // <-- Import LineChart
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -47,34 +49,33 @@ interface FetchedTask {
 }
 
 const ReportPage: React.FC = () => {
-  const navigate = useNavigate(); // <-- Get navigate function
-  const { session, isLoading: authLoading } = useAuth();
+  const { session } = useAuth();
+  const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [timeSpentData, setTimeSpentData] = useState<TimeSpentData[]>([]);
-  // State for the selected date, initialized to today
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
-  const [dailyTotalsData, setDailyTotalsData] = useState<DailyTotalData[]>([]); // State for historical daily totals
-  const [dailyTaskCountData, setDailyTaskCountData] = useState<DailyTaskCountData[]>([]); // State for daily task counts
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [dailyTotalsData, setDailyTotalsData] = useState<DailyTotalData[]>([]);
+  const [dailyTaskCountData, setDailyTaskCountData] = useState<DailyTaskCountData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!session?.user.id) {
-        setError("Please log in to view reports.");
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
+    const fetchTaskData = async () => {
+      if (!session?.user?.id) return;
 
       try {
+        setIsLoading(true);
+
+        // Get the current month's date range
+        const today = new Date();
+        today.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
+        const monthStart = startOfMonth(today);
+        const monthEnd = endOfMonth(today);
+
         const { data: tasks, error: fetchError } = await supabase
           .from("tasks")
-          .select("name, total_time, is_completed, current_day") // Fetch necessary fields
-          .eq("user_id", session.user.id);
+          .select("name, total_time, is_completed, current_day")
+          .eq("user_id", session.user.id)
+          .gte("current_day", format(monthStart, "yyyy-MM-dd"))
+          .lte("current_day", format(monthEnd, "yyyy-MM-dd"));
 
         if (fetchError) throw fetchError;
         if (!tasks) throw new Error("No tasks data returned.");
@@ -120,7 +121,6 @@ const ReportPage: React.FC = () => {
           [key: string]: { totalSeconds: number; incomplete: boolean };
         } = {};
         filteredTasks.forEach((task: FetchedTask) => {
-          // Use FetchedTask type
           if (task.total_time > 0) {
             const current = timePerTask[task.name] || {
               totalSeconds: 0,
@@ -128,7 +128,6 @@ const ReportPage: React.FC = () => {
             };
             timePerTask[task.name] = {
               totalSeconds: current.totalSeconds + task.total_time,
-              // If the task is not completed OR if any previous task with this name was incomplete
               incomplete: current.incomplete || !task.is_completed,
             };
           }
@@ -138,51 +137,32 @@ const ReportPage: React.FC = () => {
         const formattedTimeSpentData: TimeSpentData[] = Object.entries(timePerTask).map(
           ([name, data]) => ({
             name,
-            time: parseFloat((data.totalSeconds / 3600).toFixed(2)), // Convert seconds to hours (2 decimal places)
+            time: parseFloat((data.totalSeconds / 3600).toFixed(2)),
             incomplete: data.incomplete,
           })
         );
         setTimeSpentData(formattedTimeSpentData);
-      } catch (err: unknown) {
-        console.error("Error fetching or processing report data:", err);
-        let errorMessage = "Failed to load report data.";
-        if (err instanceof Error) {
-          errorMessage = err.message;
-        } else if (typeof err === "string") {
-          errorMessage = err;
-        }
-        setError(errorMessage);
+      } catch (error) {
+        console.error("Error fetching task data:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    if (!authLoading) {
-      fetchData();
-    }
-  }, [authLoading, session?.user.id, selectedDate]); // Re-run if session, auth loading state, or selectedDate changes
+    fetchTaskData();
+  }, [session?.user?.id, selectedDate]); // Added selectedDate to dependency array
 
-  if (loading || authLoading) {
-    // Added class for styling
+  if (isLoading) {
     return <div className="loading-message">Loading reports...</div>;
   }
 
-  if (error) {
-    return <div className="error-message">Error: {error}</div>; // Added class
-  }
-
-  // Convert minutes to hours for display in the BarChart tooltip/axis if desired
-  // For simplicity, let's keep the Y-axis as minutes for now.
-  // We can add a formatter to the Tooltip later if needed.
-
   return (
-    // Use app-container styles for consistency, or a new specific container
     <div className="report-page-container">
       <div className="report-header">
         <h1>Reports</h1>
         {/* Back to Home Button */}
         <button onClick={() => navigate("/")} className="button home-button">
-          Back to Home
+          <IoArrowBack /> Back to Home
         </button>
       </div>
 
@@ -201,8 +181,6 @@ const ReportPage: React.FC = () => {
       </section>
 
       <section className="report-section">
-        {" "}
-        {/* Added class */}
         <h2>Time Spent Per Task on {selectedDate} (Hours)</h2>
         {/* Chart Container with theme styles */}
         <div className="report-chart-container">
