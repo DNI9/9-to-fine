@@ -470,17 +470,18 @@ const MainContent: React.FC = () => {
       }
       // --- End Optimistic UI Updates ---
 
+      confetti({
+        particleCount: 100,
+        spread: 80,
+        origin: { y: 0.8 },
+      });
+
       // Call backend update
       updateTask(id, updatesForBackend)
         .then(updatedTaskResult => {
           setTasks(prevTasks =>
             prevTasks.map(task => (task.id === id ? updatedTaskResult : task))
           );
-          confetti({
-            particleCount: 100,
-            spread: 80,
-            origin: { y: 0.8 },
-          });
         })
         .catch(error => {
           console.error("Failed to complete task:", error);
