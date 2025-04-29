@@ -18,7 +18,13 @@ import { Task } from "./types";
 // Removed loadTasks, saveTasks imports
 import ReportPage from "./components/ReportPage";
 import { supabase } from "./utils/supabase"; // Import supabase client
-import { addTask, deleteTask, getTasks, updateTask } from "./utils/taskUtils"; // Import Supabase task functions
+import {
+  addTask,
+  deleteTask,
+  getIncompleteTaskDatesForMonth,
+  getTasks,
+  updateTask,
+} from "./utils/taskUtils"; // Import Supabase task functions
 import { pauseLofi, playRandomLofi, resumeLofi, stopLofi } from "./utils/youtubePlayer";
 
 // Helper to get today's date in YYYY-MM-DD format based on local time
@@ -51,6 +57,8 @@ const MainContent: React.FC = () => {
     return savedPref !== null ? JSON.parse(savedPref) : false;
   });
   const [dateFilter, setDateFilter] = useState<DateRange | undefined>(undefined);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date()); // State for calendar's current month
+  const [incompleteDates, setIncompleteDates] = useState<string[]>([]); // State for dates with incomplete tasks
   // State to track if lofi is *currently* playing (internal state)
   const [isLofiPlaying, setIsLofiPlaying] = useState(false);
   // Ref to store the original title, avoiding potential stale closures
@@ -91,6 +99,31 @@ const MainContent: React.FC = () => {
     fetchTasks();
     // Depend on user ID and dateFilter
   }, [session?.user?.id, dateFilter]); // Re-fetch if user ID or dateFilter changes
+
+  // Fetch incomplete task dates when the calendar month or user changes
+  useEffect(() => {
+    const fetchIncompleteDates = async () => {
+      if (session?.user?.id) {
+        try {
+          const year = calendarMonth.getFullYear();
+          const month = calendarMonth.getMonth() + 1; // getMonth is 0-indexed
+          const dates = await getIncompleteTaskDatesForMonth(
+            session.user.id,
+            year,
+            month
+          );
+          setIncompleteDates(dates);
+        } catch (error) {
+          console.error("Failed to fetch incomplete task dates:", error);
+          setIncompleteDates([]); // Reset on error
+        }
+      } else {
+        setIncompleteDates([]); // Clear if no user
+      }
+    };
+
+    fetchIncompleteDates();
+  }, [session?.user?.id, calendarMonth]); // Re-fetch if user or calendar month changes
 
   // Set theme on body when dark mode changes
   useEffect(() => {
@@ -725,7 +758,12 @@ const MainContent: React.FC = () => {
         <div className="input-container">
           {/* Pass handleAddTask directly as it now accepts string[] */}
           <TaskInput onAddTask={handleAddTask} />
-          <DateFilter selected={dateFilter} onSelect={setDateFilter} tasks={tasks} />
+          <DateFilter
+            selected={dateFilter}
+            onSelect={setDateFilter}
+            incompleteDates={incompleteDates} // Pass the fetched dates
+            onMonthChange={setCalendarMonth} // Pass handler for month change
+          />
         </div>
 
         <div className="days-container">

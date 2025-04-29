@@ -1,5 +1,5 @@
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
-import { format } from "date-fns";
+import { endOfMonth, format, startOfMonth } from "date-fns"; // Import startOfMonth and endOfMonth
 import { DateRange } from "react-day-picker"; // Import DateRange
 import { Task } from "../types";
 import { supabase } from "./supabase";
@@ -197,4 +197,51 @@ export const deleteTask = async (taskId: number): Promise<void> => {
     console.error("Error deleting task:", error);
     throw error;
   }
+};
+
+/**
+ * Fetches the distinct dates within a given month and year that have incomplete tasks.
+ * @param userId - The UUID of the user.
+ * @param year - The full year (e.g., 2024).
+ * @param month - The month (1-12).
+ * @returns A promise that resolves to an array of date strings (YYYY-MM-DD).
+ */
+export const getIncompleteTaskDatesForMonth = async (
+  userId: string,
+  year: number,
+  month: number // Month is 1-based
+): Promise<string[]> => {
+  if (!userId) {
+    console.error("getIncompleteTaskDatesForMonth: userId is required");
+    return [];
+  }
+
+  // Create Date objects for the start and end of the month
+  const monthDate = new Date(year, month - 1, 1); // Month is 0-indexed for Date constructor
+  const startDate = startOfMonth(monthDate);
+  const endDate = endOfMonth(monthDate);
+
+  // Format dates for Supabase query
+  const startDayString = formatDateForSupabase(startDate);
+  const endDayString = formatDateForSupabase(endDate);
+
+  // Query for distinct dates with incomplete, non-postponed tasks within the month
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("current_day") // Select only the date column
+    .eq("user_id", userId)
+    .eq("is_completed", false) // Task is incomplete
+    .is("postponed_to", null) // Task is not postponed
+    .gte("current_day", startDayString) // Within the start date
+    .lte("current_day", endDayString); // Within the end date
+
+  if (error) {
+    console.error("Error fetching incomplete task dates:", error);
+    throw error;
+  }
+
+  // Extract unique dates from the result
+  const uniqueDates = [...new Set(data?.map(item => item.current_day) ?? [])];
+
+  return uniqueDates;
 };
