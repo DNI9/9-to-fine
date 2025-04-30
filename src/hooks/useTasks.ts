@@ -409,6 +409,35 @@ export const useTasks = (
     [tasks]
   );
 
+  const handleUpdate = useCallback(
+    async (id: number, updates: Partial<Task>) => {
+      const taskToUpdate = tasks.find(task => task.id === id);
+      if (!taskToUpdate) return;
+
+      const originalTasks = [...tasks];
+      const optimisticTask = {
+        ...taskToUpdate,
+        ...updates,
+        updated_at: new Date().toISOString(),
+      };
+
+      setTasks(prevTasks =>
+        prevTasks.map(task => (task.id === id ? optimisticTask : task))
+      );
+
+      try {
+        const updatedTask = await updateTask(id, updates);
+        setTasks(prevTasks =>
+          prevTasks.map(task => (task.id === id ? updatedTask : task))
+        );
+      } catch (error) {
+        console.error("Failed to update task:", error);
+        setTasks(originalTasks);
+      }
+    },
+    [tasks]
+  );
+
   const hasRunningTasks = tasks.some(task => task.is_running);
 
   return {
@@ -421,5 +450,6 @@ export const useTasks = (
     handleDelete,
     handlePostponeTask,
     handleDragEnd,
+    handleUpdate,
   };
 };

@@ -39,6 +39,7 @@ const MainContent: React.FC = () => {
     handleDelete,
     handlePostponeTask,
     handleDragEnd,
+    handleUpdate,
   } = useTasks(session?.user?.id, dateFilter);
   const { isLofiEnabled, toggleLofi } = useLofi(hasRunningTasks);
   const { isNotificationsEnabled, toggleNotifications } = useNotifications(tasks);
@@ -97,6 +98,7 @@ const MainContent: React.FC = () => {
                 onComplete={handleComplete}
                 onDelete={handleDelete}
                 onPostpone={handlePostponeTask}
+                onUpdate={handleUpdate}
               />
             ))
           ) : (

@@ -656,6 +656,17 @@ h1 {
   margin-right: var(--space-3);
 }
 
+.task-item .task-name-input {
+  flex-grow: 1;
+  margin-right: var(--space-3);
+  border: 0px solid var(--gray-300);
+  font-size: inherit;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--background);
+  outline: none;
+}
+
 .task-item .time-display {
   font-family: "SF Mono", "Roboto Mono", monospace;
   color: var(--text-secondary);

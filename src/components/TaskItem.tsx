@@ -20,6 +20,7 @@ interface TaskItemProps {
   onDelete: (id: number) => void;
   onPostpone?: (id: number) => void;
   isOldTask?: boolean;
+  onUpdate?: (id: number, updates: Partial<Task>) => void;
 }
 
 const ICON_SIZE = 18;
@@ -32,10 +33,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
   onDelete,
   onPostpone,
   isOldTask,
+  onUpdate,
 }) => {
   const [displayTimeMillis, setDisplayTimeMillis] = useState<number>(
     task.total_time * 1000
   );
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(task.name);
 
   useEffect(() => {
     let intervalId: number | null = null;
@@ -74,6 +78,28 @@ const TaskItem: React.FC<TaskItemProps> = ({
     }
   };
 
+  const handleNameClick = () => {
+    if (!task.is_completed && !task.postponed_to) {
+      setIsEditing(true);
+    }
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleNameSave();
+    } else if (e.key === "Escape") {
+      setIsEditing(false);
+      setEditedName(task.name);
+    }
+  };
+
+  const handleNameSave = () => {
+    if (editedName.trim() && editedName !== task.name && onUpdate) {
+      onUpdate(task.id, { name: editedName.trim() });
+    }
+    setIsEditing(false);
+  };
+
   const postponedDateDisplay = task.postponed_to
     ? format(parseISO(task.postponed_to), "MMMM d, yyyy")
     : null;
@@ -106,7 +132,29 @@ const TaskItem: React.FC<TaskItemProps> = ({
             <FaGripVertical />
           </div>
 
-          <span className="task-name">{task.name}</span>
+          {isEditing ? (
+            <input
+              type="text"
+              value={editedName}
+              onChange={e => setEditedName(e.target.value)}
+              onBlur={handleNameSave}
+              onKeyDown={handleNameKeyDown}
+              className="task-name-input"
+              autoFocus
+            />
+          ) : (
+            <span
+              className="task-name"
+              title="Click to edit task name"
+              onClick={handleNameClick}
+              style={{
+                cursor: !task.is_completed && !task.postponed_to ? "pointer" : "default",
+              }}
+            >
+              {task.name}
+            </span>
+          )}
+
           <span className="time-display">{formatTime(displayTimeMillis)}</span>
 
           <div className="controls">

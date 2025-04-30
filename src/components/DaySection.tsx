@@ -12,6 +12,7 @@ interface DaySectionProps {
   onComplete: (id: number) => void;
   onDelete: (id: number) => void;
   onPostpone?: (id: number) => void;
+  onUpdate: (id: number, updates: Partial<Task>) => void;
 }
 
 const DaySection: React.FC<DaySectionProps> = ({
@@ -21,6 +22,7 @@ const DaySection: React.FC<DaySectionProps> = ({
   onComplete,
   onDelete,
   onPostpone,
+  onUpdate,
 }) => {
   const getTotalTimeInMillis = () => {
     return tasks.reduce((totalMillis, task) => {
@@ -79,6 +81,7 @@ const DaySection: React.FC<DaySectionProps> = ({
                   onDelete={onDelete}
                   onPostpone={onPostpone}
                   isOldTask={!isToday}
+                  onUpdate={onUpdate}
                 />
               ))
             ) : (
