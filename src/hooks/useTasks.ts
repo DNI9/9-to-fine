@@ -13,7 +13,6 @@ import {
 } from "../utils/taskUtils";
 
 export const getTodayDateString = (): string => {
-  // Use date-fns for consistent date formatting
   return format(new Date(), "yyyy-MM-dd");
 };
 
@@ -71,7 +70,6 @@ export const useTasks = (
         tempIds.push(tempId);
         const position = maxPosition + (index + 1) * 1000;
 
-        // Use consistent date format
         const todayString = getTodayDateString();
 
         optimisticTasks.push({
@@ -356,17 +354,14 @@ export const useTasks = (
       const taskToMove = tasks.find(task => task.id === taskId);
       if (!taskToMove) return;
 
-      // Create a new array of tasks
       const newTasks = Array.from(tasks);
       const taskToMoveIndex = newTasks.findIndex(task => task.id === taskId);
       const [removed] = newTasks.splice(taskToMoveIndex, 1);
 
-      // If moving between days, update the day
       if (source.droppableId !== destination.droppableId) {
         removed.current_day = destination.droppableId;
       }
 
-      // Calculate the insertion index
       const destinationDayStartIndex = newTasks.findIndex(
         task => task.current_day === destination.droppableId
       );
@@ -375,15 +370,12 @@ export const useTasks = (
           ? newTasks.length
           : destinationDayStartIndex + destination.index;
 
-      // Insert the task at the new position
       newTasks.splice(insertIndex, 0, removed);
 
-      // Calculate new positions for affected tasks
       const positionUpdates: { id: number; position: number }[] = [];
       const basePosition = 1000;
       const increment = 1000;
 
-      // Get all tasks in the affected days
       const affectedTasks = newTasks.filter(
         task =>
           task.current_day === destination.droppableId ||
@@ -391,29 +383,24 @@ export const useTasks = (
             task.current_day === source.droppableId)
       );
 
-      // Update positions for affected tasks
       affectedTasks.forEach((task, index) => {
         const newPosition = basePosition + index * increment;
         task.position = newPosition;
         positionUpdates.push({ id: task.id, position: newPosition });
       });
 
-      // Update the state optimistically
       setTasks(newTasks);
 
-      // Use a single transaction for all updates
       const updateBackend = async () => {
         try {
-          // First update all positions in bulk
           await updatePositions(positionUpdates);
 
-          // Then update the day if needed (single update)
           if (source.droppableId !== destination.droppableId) {
             await updateTask(taskId, { current_day: destination.droppableId });
           }
         } catch (error) {
           console.error("Failed to update task order:", error);
-          setTasks(tasks); // Revert on error
+          setTasks(tasks);
         }
       };
 

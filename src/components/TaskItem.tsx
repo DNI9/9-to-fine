@@ -74,7 +74,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
     }
   };
 
-  // Format postponed date in a consistent way using date-fns
   const postponedDateDisplay = task.postponed_to
     ? format(parseISO(task.postponed_to), "MMMM d, yyyy")
     : null;

@@ -6,7 +6,7 @@ import { formatTime } from "../utils/timeUtils";
 import TaskItem from "./TaskItem";
 
 interface DaySectionProps {
-  date: string; // 'YYYY-MM-DD' format
+  date: string;
   tasks: Task[];
   onStartPause: (id: number) => void;
   onComplete: (id: number) => void;
@@ -24,15 +24,12 @@ const DaySection: React.FC<DaySectionProps> = ({
 }) => {
   const getTotalTimeInMillis = () => {
     return tasks.reduce((totalMillis, task) => {
-      // Only count time if the task has accumulated time or is currently running
       if (task.total_time === 0 && !task.is_running) {
         return totalMillis;
       }
 
-      // Convert seconds to milliseconds
       let taskMillis = task.total_time * 1000;
 
-      // Add elapsed time only for running tasks with a start time
       if (task.is_running && task.start_time) {
         const startTimeNumber = Number(task.start_time);
         const elapsedMillis = Date.now() - startTimeNumber;
@@ -43,16 +40,12 @@ const DaySection: React.FC<DaySectionProps> = ({
     }, 0);
   };
 
-  // Parse the date string using date-fns and format it consistently
   const displayDate = format(parseISO(date), "MMMM d, yyyy");
 
-  // Get today's date in YYYY-MM-DD format using date-fns
   const todayDateString = format(new Date(), "yyyy-MM-dd");
 
-  // Check if the section's date is today
   const isToday = date === todayDateString;
 
-  // Sort tasks with completed ones at the bottom
   const sortedTasks = [...tasks].sort((a, b) => {
     if (a.is_completed === b.is_completed) return 0;
     return a.is_completed ? 1 : -1;
@@ -70,10 +63,9 @@ const DaySection: React.FC<DaySectionProps> = ({
             ref={provided.innerRef}
             {...provided.droppableProps}
             style={{
-              // Optional: visual feedback when dragging over
               backgroundColor: snapshot.isDraggingOver ? "#e0f7fa" : "transparent",
               transition: "background-color 0.2s ease",
-              paddingBottom: "1px", // Prevent margin collapse
+              paddingBottom: "1px",
             }}
           >
             {sortedTasks.length > 0 ? (
@@ -92,7 +84,7 @@ const DaySection: React.FC<DaySectionProps> = ({
             ) : (
               <p>No tasks for this day. Start by adding new task.</p>
             )}
-            {provided.placeholder} {/* Placeholder for dragging items */}
+            {provided.placeholder}
           </div>
         )}
       </Droppable>

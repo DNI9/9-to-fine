@@ -25,7 +25,6 @@ const DateFilter: React.FC<DateFilterProps> = ({
 
   const modifiers = {
     withTasks: (date: Date) => {
-      // Format date to match our YYYY-MM-DD format using date-fns
       const dateString = format(date, "yyyy-MM-dd");
       return incompleteDatesSet.has(dateString);
     },
@@ -46,10 +45,8 @@ const DateFilter: React.FC<DateFilterProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle date selection with timezone consideration
   const handleSelect = (range: DateRange | undefined) => {
     if (range?.from) {
-      // Set the time to noon to avoid any timezone issues
       range.from.setHours(12, 0, 0, 0);
       if (range.to) {
         range.to.setHours(12, 0, 0, 0);

@@ -3,9 +3,6 @@ import { DateRange } from "react-day-picker";
 import { Task } from "../types";
 import { supabase } from "./supabase";
 
-// Groups tasks by the 'current_day' field.
-// @param tasks - Array of tasks to be grouped.
-// @returns An object where each key is a date string and the value is an array of tasks for that date.
 export const groupTasksByDay = (tasks: Task[]): Record<string, Task[]> => {
   const tasksByDay = tasks.reduce((acc, task) => {
     const day = task.current_day;
@@ -19,20 +16,15 @@ export const groupTasksByDay = (tasks: Task[]): Record<string, Task[]> => {
   return tasksByDay;
 };
 
-// Returns the sorted list of days from the grouped tasks.
-// @param tasksByDay - The object returned from groupTasksByDay function.
-// @returns An array of date strings sorted in ascending order.
 export const getSortedDays = (tasksByDay: Record<string, Task[]>): string[] => {
   return Object.keys(tasksByDay).sort();
 };
 
-// Fetches dates that have incomplete tasks for a specific month
 export const getIncompleteTaskDatesForMonth = async (
   userId: string,
   year: number,
   month: number
 ): Promise<string[]> => {
-  // Create dates at noon in local time to avoid timezone issues
   const monthDate = new Date(year, month - 1, 1, 12, 0, 0, 0);
   const start = startOfMonth(monthDate);
   const end = endOfMonth(monthDate);
@@ -47,7 +39,7 @@ export const getIncompleteTaskDatesForMonth = async (
     .gte("current_day", startDate)
     .lte("current_day", endDate)
     .eq("is_completed", false)
-    .is("postponed_to", null); // Only include tasks that are not postponed
+    .is("postponed_to", null);
 
   if (error) {
     console.error("Error fetching incomplete task dates:", error);
@@ -56,7 +48,6 @@ export const getIncompleteTaskDatesForMonth = async (
 
   if (!tasks) return [];
 
-  // Get unique dates that have incomplete tasks and sort them
   const uniqueDates = new Set(tasks.map(task => task.current_day));
   return Array.from(uniqueDates).sort();
 };

@@ -1,44 +1,38 @@
 :root {
-  /* Core colors - Updated with more vibrant colors */
-  --primary-color: #7c3aed; /* Vivid purple */
-  --primary-hover: #6d28d9; /* Darker purple */
-  --success-color: #10b981; /* Vibrant green */
-  --danger-color: #ef4444; /* Bright red */
-  --warning-color: #f59e0b; /* Bright amber */
+  --primary-color: #7c3aed;
+  --primary-hover: #6d28d9;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
   --white: #ffffff;
 
-  /* Updated task item button colors */
-  --button-play: #10b981; /* Vibrant green for play */
-  --button-pause: #f59e0b; /* Bright amber for pause */
-  --button-delete: #ef4444; /* Bright red for delete */
-  --button-complete: #7c3aed; /* Purple for complete */
+  --button-play: #10b981;
+  --button-pause: #f59e0b;
+  --button-delete: #ef4444;
+  --button-complete: #7c3aed;
 
-  /* Neutrals - Light Theme (Slightly warmer/softer) */
-  --gray-50: #fdf8fd; /* Surface */
-  --gray-100: #f3edf7; /* Surface Variant */
-  --gray-200: #eaddff; /* Outline Variant */
-  --gray-300: #cac4d0; /* Outline */
+  --gray-50: #fdf8fd;
+  --gray-100: #f3edf7;
+  --gray-200: #eaddff;
+  --gray-300: #cac4d0;
   --gray-400: #a9a2b0;
   --gray-500: #8e8599;
   --gray-600: #746b80;
   --gray-700: #5b5366;
   --gray-800: #433c4f;
-  --gray-900: #1d192b; /* On Surface */
+  --gray-900: #1d192b;
 
-  /* Semantic colors - Light Theme */
-  --background-body: #f3ecff; /* M3 Background */
-  --background-card: var(--gray-50); /* M3 Surface */
-  --text-primary: var(--gray-900); /* M3 On Surface */
-  --text-secondary: var(--gray-700); /* M3 On Surface Variant (approx) */
+  --background-body: #f3ecff;
+  --background-card: var(--gray-50);
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-700);
   --text-muted: var(--gray-600);
-  --border-color: var(--gray-300); /* M3 Outline */
+  --border-color: var(--gray-300);
 
-  /* Effects - Softer Shadows (M3 Elevation Levels 1, 2, 3 approx) */
-  --shadow-sm: 0px 1px 2px 0px rgba(0, 0, 0, 0.15); /* Level 1 */
-  --shadow-md: 0px 2px 4px 0px rgba(0, 0, 0, 0.15); /* Level 2 */
-  --shadow-lg: 0px 4px 8px 0px rgba(0, 0, 0, 0.15); /* Level 3 */
+  --shadow-sm: 0px 1px 2px 0px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0px 4px 8px 0px rgba(0, 0, 0, 0.15);
 
-  /* Spacing - Keep existing, seems reasonable */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -46,55 +40,42 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  /* Border radius */
-  --radius-sm: 8px; /* Increased rounding */
-  --radius-md: 12px; /* Increased rounding */
-  --radius-lg: 16px; /* Increased rounding */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 
-  /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
 }
 
-/* Dark theme variables - Material You Inspired */
 [data-theme="dark"] {
-  /* Core colors remain the same, semantic colors change */
-  --primary-color: #d0bcff; /* M3 Primary Dark */
-  --primary-hover: #b9a2e8; /* Lighter shade for hover */
-  --success-color: #b3e0a0; /* M3 Success-like Green Dark */
-  --danger-color: #f2b8b5; /* M3 Error Dark */
-  --warning-color: #ffdda6; /* M3 Warning-like Yellow Dark */
-  --white: #ffffff; /* White remains white */
+  --primary-color: #d0bcff;
+  --primary-hover: #b9a2e8;
+  --success-color: #b3e0a0;
+  --danger-color: #f2b8b5;
+  --warning-color: #ffdda6;
+  --white: #ffffff;
 
-  /* Neutrals - Dark Theme */
-  --gray-50: #4a4458; /* Surface */
-  --gray-100: #4a4458; /* Surface Variant (can be same as surface) */
-  --gray-200: #49454f; /* Outline Variant */
-  --gray-300: #938f99; /* Outline */
+  --gray-50: #4a4458;
+  --gray-100: #4a4458;
+  --gray-200: #49454f;
+  --gray-300: #938f99;
   --gray-400: #aeaaae;
   --gray-500: #cac4cf;
   --gray-600: #e6e0e9;
   --gray-700: #f5eff7;
   --gray-800: #fefbff;
-  --gray-900: #e6e1e5; /* On Surface */
+  --gray-900: #e6e1e5;
 
-  /* Semantic colors - Dark Theme */
-  --background-body: #1c1b1f; /* M3 Background Dark */
-  --background-card: var(--gray-50); /* M3 Surface Dark */
-  --text-primary: var(--gray-900); /* M3 On Surface Dark */
-  --text-secondary: var(--gray-500); /* M3 On Surface Variant Dark (approx) */
+  --background-body: #1c1b1f;
+  --background-card: var(--gray-50);
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-500);
   --text-muted: var(--gray-400);
-  --border-color: var(--gray-300); /* M3 Outline Dark */
-
-  /* Override specific component colors if needed, but try to rely on semantic */
-  /* --gray-50, --gray-100, --gray-200 overrides removed, use semantic */
-
-  /* Button colors already adjusted via core color redefinition */
+  --border-color: var(--gray-300);
 }
 
-/* Base styles */
 body {
-  /* Prioritize Roboto, include fallbacks */
   font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   margin: 0;
   padding: var(--space-4);
@@ -108,45 +89,42 @@ body {
   margin: var(--space-5) auto;
   background: linear-gradient(to bottom right, var(--background-card), var(--gray-100));
   padding: var(--space-5) var(--space-6);
-  border-radius: var(--radius-lg); /* Already updated via variable */
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  position: relative; /* Needed for absolute positioning of controls */
+  position: relative;
 }
 
-/* Container for top-right controls */
 .top-controls {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
   display: flex;
-  gap: var(--space-1); /* Space between buttons */
-  align-items: center; /* Align items vertically */
+  gap: var(--space-1);
+  align-items: center;
 }
 
-/* Style for ThemeToggle button */
 .top-controls .theme-toggle-button {
-  padding: var(--space-2); /* Match theme toggle padding */
-  border-radius: 50%; /* Circular */
+  padding: var(--space-2);
+  border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--text-secondary); /* Default icon color */
+  color: var(--text-secondary);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-  display: flex; /* Ensure icon is centered */
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px; /* Explicit size */
+  width: 36px;
   height: 36px;
   outline: none;
 }
 
 .top-controls .theme-toggle-button:hover {
-  background-color: var(--gray-100); /* Subtle background on hover */
+  background-color: var(--gray-100);
 }
 
-/* Dark theme adjustments for lofi toggle */
 [data-theme="dark"] .top-controls .theme-toggle-button {
-  background-color: var(--gray-200); /* Use dark theme neutral */
+  background-color: var(--gray-200);
   color: var(--text-secondary);
 }
 
@@ -154,50 +132,46 @@ body {
   background-color: var(--gray-300);
 }
 
-/* Focus styles */
 .top-controls .theme-toggle-button:focus-visible {
-  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
-  opacity: 0.8; /* Slight opacity for focus ring */
+  box-shadow: 0 0 0 3px var(--primary-color);
+  opacity: 0.8;
 }
 
-/* Ensure SVG scales well */
 .top-controls .theme-toggle-button svg {
-  display: block; /* Remove extra space below SVG */
+  display: block;
 }
 
-/* Style for LofiToggle button */
 .top-controls .lofi-toggle-button {
-  padding: var(--space-2); /* Match theme toggle padding */
-  border-radius: 50%; /* Circular */
+  padding: var(--space-2);
+  border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--text-secondary); /* Default icon color */
+  color: var(--text-secondary);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-  display: flex; /* Ensure icon is centered */
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px; /* Explicit size */
+  width: 36px;
   height: 36px;
   outline: none;
 }
 
 .top-controls .lofi-toggle-button:hover {
-  background-color: var(--gray-100); /* Subtle background on hover */
+  background-color: var(--gray-100);
 }
 
 .top-controls .lofi-toggle-button.enabled {
-  background-color: var(--primary-color); /* Use primary color when enabled */
-  color: var(--white); /* White icon when enabled */
+  background-color: var(--primary-color);
+  color: var(--white);
 }
 
 .top-controls .lofi-toggle-button.enabled:hover {
-  background-color: var(--primary-hover); /* Darker primary on hover */
+  background-color: var(--primary-hover);
 }
 
-/* Dark theme adjustments for lofi toggle */
 [data-theme="dark"] .top-controls .lofi-toggle-button {
-  background-color: var(--gray-200); /* Use dark theme neutral */
+  background-color: var(--gray-200);
   color: var(--text-secondary);
 }
 
@@ -206,58 +180,54 @@ body {
 }
 
 [data-theme="dark"] .top-controls .lofi-toggle-button.enabled {
-  background-color: var(--primary-color); /* Use dark theme primary */
-  color: var(--gray-900); /* Dark icon on light primary */
+  background-color: var(--primary-color);
+  color: var(--gray-900);
 }
 
 [data-theme="dark"] .top-controls .lofi-toggle-button.enabled:hover {
   background-color: var(--primary-hover);
 }
 
-/* Focus styles */
 .top-controls .lofi-toggle-button:focus-visible {
-  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
-  opacity: 0.8; /* Slight opacity for focus ring */
+  box-shadow: 0 0 0 3px var(--primary-color);
+  opacity: 0.8;
 }
 
-/* Ensure SVG scales well */
 .top-controls .lofi-toggle-button svg {
-  display: block; /* Remove extra space below SVG */
+  display: block;
 }
 
-/* Style for NotificationToggle button */
 .top-controls .notification-toggle-button {
-  padding: var(--space-2); /* Match theme toggle padding */
-  border-radius: 50%; /* Circular */
+  padding: var(--space-2);
+  border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--text-secondary); /* Default icon color */
+  color: var(--text-secondary);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-  display: flex; /* Ensure icon is centered */
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px; /* Explicit size */
+  width: 36px;
   height: 36px;
   outline: none;
 }
 
 .top-controls .notification-toggle-button:hover {
-  background-color: var(--gray-100); /* Subtle background on hover */
+  background-color: var(--gray-100);
 }
 
 .top-controls .notification-toggle-button.enabled {
-  background-color: var(--primary-color); /* Use primary color when enabled */
-  color: var(--white); /* White icon when enabled */
+  background-color: var(--primary-color);
+  color: var(--white);
 }
 
 .top-controls .notification-toggle-button.enabled:hover {
-  background-color: var(--primary-hover); /* Darker primary on hover */
+  background-color: var(--primary-hover);
 }
 
-/* Dark theme adjustments for lofi toggle */
 [data-theme="dark"] .top-controls .notification-toggle-button {
-  background-color: var(--gray-200); /* Use dark theme neutral */
+  background-color: var(--gray-200);
   color: var(--text-secondary);
 }
 
@@ -266,110 +236,100 @@ body {
 }
 
 [data-theme="dark"] .top-controls .notification-toggle-button.enabled {
-  background-color: var(--primary-color); /* Use dark theme primary */
-  color: var(--gray-900); /* Dark icon on light primary */
+  background-color: var(--primary-color);
+  color: var(--gray-900);
 }
 
 [data-theme="dark"] .top-controls .notification-toggle-button.enabled:hover {
   background-color: var(--primary-hover);
 }
 
-/* Focus styles */
 .top-controls .notification-toggle-button:focus-visible {
-  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
-  opacity: 0.8; /* Slight opacity for focus ring */
+  box-shadow: 0 0 0 3px var(--primary-color);
+  opacity: 0.8;
 }
 
-/* Ensure SVG scales well */
 .top-controls .notification-toggle-button svg {
-  display: block; /* Remove extra space below SVG */
+  display: block;
 }
 
-/* Style for Logout button */
 .top-controls .logout-button {
-  padding: var(--space-2); /* Match other toggle padding */
-  border-radius: 50%; /* Circular */
+  padding: var(--space-2);
+  border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--text-secondary); /* Default icon color */
+  color: var(--text-secondary);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-  display: flex; /* Ensure icon is centered */
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px; /* Explicit size */
+  width: 36px;
   height: 36px;
   outline: none;
 }
 
 .top-controls .logout-button:hover {
-  background-color: var(--gray-100); /* Subtle background on hover */
-  color: var(--danger-color); /* Change icon color to danger on hover */
+  background-color: var(--gray-100);
+  color: var(--danger-color);
 }
 
-/* Dark theme adjustments for logout button */
 [data-theme="dark"] .top-controls .logout-button {
-  background-color: var(--gray-200); /* Use dark theme neutral */
+  background-color: var(--gray-200);
   color: var(--text-secondary);
 }
 
 [data-theme="dark"] .top-controls .logout-button:hover {
   background-color: var(--gray-300);
-  color: var(--danger-color); /* Use dark theme danger color on hover */
+  color: var(--danger-color);
 }
 
-/* Focus styles */
 .top-controls .logout-button:focus-visible {
-  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
-  opacity: 0.8; /* Slight opacity for focus ring */
+  box-shadow: 0 0 0 3px var(--primary-color);
+  opacity: 0.8;
 }
 
-/* Ensure SVG scales well */
 .top-controls .logout-button svg {
-  display: block; /* Remove extra space below SVG */
+  display: block;
 }
-/* Style for Report button */
 .top-controls .report-button {
-  padding: var(--space-2); /* Match other toggle padding */
-  border-radius: 50%; /* Circular */
+  padding: var(--space-2);
+  border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--text-secondary); /* Default icon color */
+  color: var(--text-secondary);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-  display: flex; /* Ensure icon is centered */
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px; /* Explicit size */
+  width: 36px;
   height: 36px;
   outline: none;
 }
 
 .top-controls .report-button:hover {
-  background-color: var(--gray-100); /* Subtle background on hover */
-  color: var(--primary-color); /* Change icon color to primary on hover */
+  background-color: var(--gray-100);
+  color: var(--primary-color);
 }
 
-/* Dark theme adjustments for report button */
 [data-theme="dark"] .top-controls .report-button {
-  background-color: var(--gray-200); /* Use dark theme neutral */
+  background-color: var(--gray-200);
   color: var(--text-secondary);
 }
 
 [data-theme="dark"] .top-controls .report-button:hover {
   background-color: var(--gray-300);
-  color: var(--primary-color); /* Use dark theme primary color on hover */
+  color: var(--primary-color);
 }
 
-/* Focus styles */
 .top-controls .report-button:focus-visible {
-  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring using primary color */
-  opacity: 0.8; /* Slight opacity for focus ring */
+  box-shadow: 0 0 0 3px var(--primary-color);
+  opacity: 0.8;
 }
 
-/* Ensure SVG scales well */
 .top-controls .report-button svg {
-  display: block; /* Remove extra space below SVG */
+  display: block;
 }
 
 h1 {
@@ -389,7 +349,6 @@ h1 {
   margin-bottom: var(--space-5);
 }
 
-/* Input container for task input and date filter */
 .input-container {
   display: flex;
   gap: var(--space-3);
@@ -401,7 +360,6 @@ h1 {
   margin-bottom: 0;
 }
 
-/* TaskInput styles */
 .task-input-container {
   margin-bottom: var(--space-5);
 }
@@ -414,7 +372,7 @@ h1 {
 .task-input-container textarea {
   flex-grow: 1;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--border-color); /* M3 uses 1px border */
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 1rem;
   transition: var(--transition-fast);
@@ -438,7 +396,7 @@ h1 {
 .task-input-container button {
   padding: var(--space-3) var(--space-5);
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  color: var(--white); /* Use variable for light text */
+  color: var(--white);
   border: none;
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -452,23 +410,21 @@ h1 {
 }
 
 .task-input-container button:disabled {
-  background-color: var(--gray-600); /* Use a lighter gray for disabled */
-  color: var(--gray-100); /* Muted text for disabled */
+  background-color: var(--gray-600);
+  color: var(--gray-100);
   cursor: not-allowed;
-  opacity: 0.5; /* Add opacity for disabled state */
+  opacity: 0.5;
 }
 
-/* Specific dark mode adjustment for button text */
 [data-theme="dark"] .task-input-container button {
-  color: var(--gray-900); /* Dark text on light primary button */
+  color: var(--gray-900);
 }
 
 [data-theme="dark"] .task-input-container button:disabled {
-  background-color: var(--gray-200); /* Use dark theme neutral */
-  color: var(--gray-600); /* Muted text for dark disabled */
+  background-color: var(--gray-200);
+  color: var(--gray-600);
 }
 
-/* Date Filter Styles */
 .date-filter-container {
   position: relative;
 }
@@ -504,7 +460,6 @@ h1 {
   padding: var(--space-3);
 }
 
-/* DayPicker custom styles */
 .date-filter-popover .rdp {
   --rdp-cell-size: 40px;
   --rdp-accent-color: var(--primary-color);
@@ -512,7 +467,6 @@ h1 {
   margin: 0;
 }
 
-/* Task dot indicator styles */
 .rdp-day_withTasks {
   position: relative;
 }
@@ -571,7 +525,6 @@ h1 {
   background-color: var(--gray-300);
 }
 
-/* Dark theme adjustments */
 [data-theme="dark"] .date-filter-button {
   color: var(--gray-900);
 }
@@ -580,7 +533,6 @@ h1 {
   --rdp-background-color: var(--gray-200);
 }
 
-/* Days container */
 .days-container {
   display: flex;
   flex-direction: column;
@@ -603,20 +555,17 @@ h1 {
   border-radius: var(--radius-sm);
 }
 
-/* Day section */
 .day-section {
-  background-color: var(--background-card); /* Use card background */
+  background-color: var(--background-card);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   border: 1px solid var(--primary-color);
   box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.1);
-  max-height: 400px; /* Limit height for overflow */
-  overflow-y: auto; /* Enable scrolling if content overflows */
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .day-section h2 {
-  /* This style seems redundant if day-header h2 is styled */
-  /* Consider removing or merging if only used in header */
   color: var(--text-primary);
   font-size: 1.25rem;
   margin: 0 0 var(--space-4) 0;
@@ -625,50 +574,46 @@ h1 {
 }
 
 .day-section p {
-  /* Style for "No tasks" message */
   color: var(--text-muted);
   text-align: center;
   padding: var(--space-4);
-  background: transparent; /* Remove background */
+  background: transparent;
   border-radius: var(--radius-md);
   margin: var(--space-3) 0;
   font-style: italic;
 }
 
-/* Day header */
 .day-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-4);
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--border-color); /* Thinner border */
+  border-bottom: 1px solid var(--border-color);
 }
 
 .day-header h2 {
   margin: 0;
   padding: 0;
   color: var(--text-primary);
-  font-size: 1.1rem; /* Slightly smaller header */
-  font-weight: 500; /* Medium weight */
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .day-total-time {
-  font-family: "Roboto Mono", monospace; /* Use Roboto Mono */
+  font-family: "Roboto Mono", monospace;
   color: var(--text-secondary);
-  font-size: 0.9rem; /* Slightly smaller */
-  padding: var(--space-1) var(--space-2); /* Adjust padding */
-  background: var(--gray-100); /* Use surface variant */
+  font-size: 0.9rem;
+  padding: var(--space-1) var(--space-2);
+  background: var(--gray-100);
   border-radius: var(--radius-sm);
 }
 
-/* Dark theme adjustments for day total time */
 [data-theme="dark"] .day-total-time {
-  background: var(--gray-200); /* Use darker surface variant */
+  background: var(--gray-200);
   color: var(--text-secondary);
 }
 
-/* Task items */
 .task-item {
   background: var(--background-card);
   border-radius: var(--radius-md);
@@ -677,26 +622,23 @@ h1 {
   border: 1px solid var(--border-color);
   transition: background-color var(--transition-fast), box-shadow var(--transition-fast),
     transform var(--transition-fast);
-  display: flex; /* Use flexbox for alignment */
-  align-items: center; /* Align items vertically */
-  gap: var(--space-3); /* Add gap between elements */
-  overflow: hidden; /* Ensure sliding content stays within bounds */
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  overflow: hidden;
 }
 
 .task-item:hover {
-  /* transform removed */
   box-shadow: var(--shadow-sm);
-  /* Optional: Add a subtle background change on hover */
-  /* background-color: var(--gray-100); */
 }
 
 .task-item.completed {
-  background-color: var(--gray-100); /* Use a slightly different surface for completed */
-  opacity: 0.7; /* Slightly more muted */
+  background-color: var(--gray-100);
+  opacity: 0.7;
 }
 
 .task-item.completed .task-name {
-  text-decoration: line-through; /* Add line-through for completed */
+  text-decoration: line-through;
   color: var(--text-muted);
 }
 
@@ -710,9 +652,8 @@ h1 {
 .task-item .task-name {
   color: var(--text-primary);
   font-weight: 500;
-  /* margin-right: auto; Removed */
-  flex-grow: 1; /* Allow name to take available space */
-  margin-right: var(--space-3); /* Add some space before time */
+  flex-grow: 1;
+  margin-right: var(--space-3);
 }
 
 .task-item .time-display {
@@ -724,12 +665,12 @@ h1 {
 }
 
 .task-item .controls {
-  position: relative; /* For absolute positioning of buttons */
-  min-width: 108px; /* Preserve space for all buttons */
-  overflow: hidden; /* Hide buttons when they slide out */
+  position: relative;
+  min-width: 108px;
+  overflow: hidden;
   display: flex;
   gap: var(--space-2);
-  flex-shrink: 0; /* Prevent controls from shrinking */
+  flex-shrink: 0;
 }
 
 .task-item.task-item--running {
@@ -745,7 +686,6 @@ h1 {
   color: var(--white);
 }
 
-/* Dark theme adjustments for running task */
 [data-theme="dark"] .task-item.task-item--running {
   background-color: var(--primary-color);
   color: var(--gray-900);
@@ -758,30 +698,30 @@ h1 {
 }
 
 .task-item.task-item--running .time-display {
-  transform: translateX(72px); /* Slide right by the width of hidden buttons */
+  transform: translateX(72px);
 }
 
 .task-item.task-item--running .button-play,
 .task-item.task-item--running .button-pause {
-  transform: translateX(72px); /* Match the time display slide */
+  transform: translateX(72px);
 }
 
 .task-item.task-item--running .drag-handle {
-  color: var(--white); /* White drag handle when running */
+  color: var(--white);
 }
 
 .task-item .controls button {
   border: none;
   border-radius: var(--radius-sm);
-  padding: var(--space-2); /* Adjust padding for small buttons */
+  padding: var(--space-2);
   cursor: pointer;
   transition: opacity var(--transition-fast), visibility var(--transition-fast),
     transform var(--transition-fast), background-color var(--transition-fast);
-  color: var(--white); /* Default text color for buttons */
-  line-height: 0; /* Helps center icons if used */
+  color: var(--white);
+  line-height: 0;
   opacity: 1;
   visibility: visible;
-  position: relative; /* For transform */
+  position: relative;
   transform: translateX(0);
 }
 
@@ -814,7 +754,6 @@ h1 {
   opacity: 0.9;
 }
 
-/* Dark theme adjustments for complete button */
 [data-theme="dark"] .task-item .button-complete {
   background-color: var(--success-color);
   color: var(--gray-900);
@@ -826,28 +765,25 @@ h1 {
 }
 .task-item .button-delete:hover {
   background-color: var(--button-delete);
-  color: var(--white); /* White icon on hover */
-  opacity: 1; /* Ensure full opacity on hover */
+  color: var(--white);
+  opacity: 1;
 }
 
-/* Adjust button text color for dark theme */
 [data-theme="dark"] .task-item .controls button {
-  color: var(--gray-900); /* Dark text on light buttons in dark mode */
+  color: var(--gray-900);
 }
-/* Ensure dark theme stop button also uses danger color */
 [data-theme="dark"] .task-item .button-complete {
-  background-color: var(--success-color); /* Use dark theme success color */
-  color: var(--gray-900); /* Keep dark text */
+  background-color: var(--success-color);
+  color: var(--gray-900);
 }
 
-/* Dark theme delete button */
 [data-theme="dark"] .task-item .button-delete {
-  background-color: transparent; /* Muted background */
-  color: var(--gray-400); /* Muted icon color for dark */
+  background-color: transparent;
+  color: var(--gray-400);
 }
 [data-theme="dark"] .task-item .button-delete:hover {
-  background-color: var(--danger-color); /* Use dark theme danger color */
-  color: var(--gray-900); /* Dark text on hover */
+  background-color: var(--danger-color);
+  color: var(--gray-900);
 }
 
 .task-item .button-postpone {
@@ -877,12 +813,11 @@ h1 {
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
   font-weight: 500;
-  margin-left: auto; /* Push badge to the right if controls aren't present */
+  margin-left: auto;
 }
 
-/* Adjust badge text color for dark theme */
 [data-theme="dark"] .task-item .completed-badge {
-  color: var(--gray-900); /* Dark text on light badge in dark mode */
+  color: var(--gray-900);
 }
 
 .task-item .postponed-badge {
@@ -892,17 +827,15 @@ h1 {
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
   font-weight: 500;
-  margin-left: auto; /* Push badge to the right if controls aren't present */
-  cursor: help; /* Show pointer to indicate hover will show more info */
+  margin-left: auto;
+  cursor: help;
 }
 
-/* Adjust badge text color for dark theme */
 [data-theme="dark"] .task-item .postponed-badge {
   color: var(--gray-900);
   background-color: var(--gray-300);
 }
 
-/* Dragging states */
 .task-item.dragging {
   background: white;
   box-shadow: var(--shadow-lg);
@@ -913,7 +846,6 @@ h1 {
   border-color: var(--primary-color);
 }
 
-/* Total time display */
 .total-time {
   background-color: #f8f9fa;
   padding: 12px 20px;
@@ -929,138 +861,130 @@ h1 {
   color: var(--text-muted);
   text-align: center;
   padding: var(--space-4);
-  background: transparent; /* Remove background */
+  background: transparent;
   border-radius: var(--radius-md);
   margin: var(--space-3) 0;
   font-style: italic;
 }
 
-/* Login component styles - Material You Inspired */
 .login-container {
-  max-width: 450px; /* Slightly wider */
-  margin: var(--space-6) auto; /* Use theme spacing */
-  padding: var(--space-6); /* Use theme spacing */
-  border-radius: var(--radius-lg); /* Use theme radius */
-  box-shadow: var(--shadow-md); /* Use theme shadow */
-  background-color: var(--background-card); /* Use card background */
-  display: flex; /* Use flex for centering content */
+  max-width: 450px;
+  margin: var(--space-6) auto;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  background-color: var(--background-card);
+  display: flex;
   flex-direction: column;
-  align-items: center; /* Center form elements */
+  align-items: center;
 }
 
-/* New Login Heading Styles */
 .login-heading {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: var(--space-5); /* Use theme spacing */
-  line-height: 1.2; /* Adjust line height for stacked text */
+  margin-bottom: var(--space-5);
+  line-height: 1.2;
 }
 
 .login-heading-small {
-  font-size: 1rem; /* Smaller text */
-  color: var(--text-secondary); /* Secondary color */
-  font-weight: 400; /* Normal weight */
-  margin-bottom: var(--space-1); /* Small space between lines */
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-bottom: var(--space-1);
 }
 
 .login-heading-large {
-  font-size: 2.25rem; /* Larger text */
-  color: var(--primary-color); /* Use primary color */
-  font-weight: 700; /* Bold weight */
+  font-size: 2.25rem;
+  color: var(--primary-color);
+  font-weight: 700;
   letter-spacing: -0.5px;
 }
 
 .login-container form {
-  width: 100%; /* Ensure form takes full width */
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4); /* Space between form elements */
+  gap: var(--space-4);
 }
 
 .form-group {
-  margin-bottom: 0; /* Remove default margin, use gap in form */
-  width: 100%; /* Ensure group takes full width */
+  margin-bottom: 0;
+  width: 100%;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: var(--space-2); /* Use theme spacing */
-  color: var(--text-secondary); /* Use secondary text color */
-  font-weight: 500; /* Medium weight */
+  margin-bottom: var(--space-2);
+  color: var(--text-secondary);
+  font-weight: 500;
   font-size: 0.9rem;
 }
 
 .form-group input {
-  box-sizing: border-box; /* Include padding and border in element's total width and height */
+  box-sizing: border-box;
   width: 100%;
-  padding: var(--space-3) var(--space-4); /* Use theme spacing */
-  border: 1px solid var(--border-color); /* Use theme border color */
-  border-radius: var(--radius-md); /* Use theme radius */
-  background-color: var(--background-body); /* Use body background for slight contrast */
-  color: var(--text-primary); /* Use theme text color */
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--background-body);
+  color: var(--text-primary);
   font-size: 1rem;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .form-group input::placeholder {
-  color: var(--text-muted); /* Use muted text for placeholder */
+  color: var(--text-muted);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--primary-color); /* Highlight with primary color */
-  box-shadow: 0 0 0 2px var(--primary-color); /* Add focus ring */
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-color);
   opacity: 0.8;
 }
 
 .login-container button {
   width: 100%;
-  padding: var(--space-3) var(--space-4); /* Use theme spacing */
-  background: linear-gradient(
-    135deg,
-    var(--primary-color),
-    var(--primary-hover)
-  ); /* Gradient background */
-  color: var(--white); /* Use white text for light theme */
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--white);
   border: none;
-  border-radius: var(--radius-md); /* Use theme radius */
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 600; /* Bolder text */
+  font-weight: 600;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  margin-top: var(--space-3); /* Add some space above button */
+  margin-top: var(--space-3);
 }
 
 .login-container button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); /* Use primary color shadow */
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
 }
 
 .login-container button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--primary-color); /* Focus ring */
+  box-shadow: 0 0 0 3px var(--primary-color);
   opacity: 0.8;
 }
 
 .login-container button:disabled {
-  background: var(--gray-300); /* Use neutral for disabled */
+  background: var(--gray-300);
   color: var(--gray-600);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
-/* Dark theme adjustments for login button text */
 [data-theme="dark"] .login-container button {
-  color: var(--gray-900); /* Dark text on light primary button */
+  color: var(--gray-900);
 }
 
 [data-theme="dark"] .login-container button:disabled {
-  background: var(--gray-600); /* Darker neutral for disabled */
+  background: var(--gray-600);
   color: var(--gray-400);
 }
 
-/* Error message styling */
 .error-message {
   background-color: rgba(239, 68, 68, 0.1);
   color: var(--danger-color);
@@ -1076,7 +1000,6 @@ h1 {
   background-color: rgba(239, 68, 68, 0.2);
 }
 
-/* Info message styling */
 .info-message {
   color: var(--success-color);
   background-color: rgba(30, 239, 169, 0.1);
@@ -1092,7 +1015,6 @@ h1 {
   text-align: center;
 }
 
-/* Loading state */
 .loading {
   display: flex;
   justify-content: center;
@@ -1103,20 +1025,19 @@ h1 {
   background-color: var(--background-body);
 }
 
-/* Report Page Specific Styles */
 .report-page-container {
-  max-width: 900px; /* Slightly wider for reports */
+  max-width: 900px;
   margin: var(--space-5) auto;
   background: var(--background-card);
   padding: var(--space-5) var(--space-6);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  overflow: hidden; /* Prevent children from overflowing */
+  overflow: hidden;
 }
 
 .report-header {
   display: flex;
-  align-items: center; /* Vertically align items */
+  align-items: center;
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-5);
@@ -1125,11 +1046,10 @@ h1 {
 }
 
 .report-header h1 {
-  margin-bottom: 0; /* Remove default margin */
-  text-align: left; /* Align title left */
+  margin-bottom: 0;
+  text-align: left;
 }
 
-/* General Button Style (apply to home-button) */
 .button {
   padding: var(--space-3) var(--space-5);
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
@@ -1139,7 +1059,7 @@ h1 {
   font-weight: 600;
   transition: all 0.3s ease;
   cursor: pointer;
-  text-decoration: none; /* For potential Link usage */
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1147,7 +1067,7 @@ h1 {
 
 .button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); /* Use primary color alpha */
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
 }
 
 .button:disabled {
@@ -1157,20 +1077,13 @@ h1 {
   opacity: 0.5;
 }
 
-/* Specific dark mode adjustment for button text */
 [data-theme="dark"] .button {
-  color: var(--gray-900); /* Dark text on light primary button */
+  color: var(--gray-900);
 }
 
 [data-theme="dark"] .button:disabled {
   background-color: var(--gray-200);
   color: var(--gray-600);
-}
-
-/* Home button specific (if any needed beyond .button) */
-.home-button {
-  /* Inherits .button styles */
-  /* Add specific overrides if necessary */
 }
 
 .date-filter-section {
@@ -1185,7 +1098,6 @@ h1 {
   color: var(--text-secondary);
 }
 
-/* General Input Style (apply to theme-input) */
 .input {
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-color);
@@ -1194,7 +1106,7 @@ h1 {
   transition: var(--transition-fast);
   background-color: var(--background-card);
   color: var(--text-primary);
-  border-width: 2px; /* Match textarea */
+  border-width: 2px;
 }
 
 .input::placeholder {
@@ -1206,16 +1118,8 @@ h1 {
   border-color: var(--primary-color);
 }
 
-/* Theme input specific (if any needed beyond .input) */
-.theme-input {
-  /* Inherits .input styles */
-  /* Add specific overrides if necessary */
-}
-
 .report-section {
-  background-color: var(
-    --background-body
-  ); /* Slightly different background for sections */
+  background-color: var(--background-body);
   padding: var(--space-4);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-5);
@@ -1233,13 +1137,13 @@ h1 {
 
 .report-chart-container {
   width: 100%;
-  height: 350px; /* Slightly taller charts */
-  background-color: var(--background-card); /* Chart background */
+  height: 350px;
+  background-color: var(--background-card);
   padding: var(--space-4);
   border-radius: var(--radius-sm);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Inner shadow */
-  overflow: hidden; /* Prevent chart overflow */
-  box-sizing: border-box; /* Include padding in width calculation */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .no-data-message,
@@ -1256,9 +1160,8 @@ h1 {
   font-weight: bold;
 }
 
-/* Recharts specific overrides if needed */
 .recharts-wrapper {
-  font-size: 0.9rem; /* Adjust base font size for charts */
+  font-size: 0.9rem;
 }
 
 .recharts-tooltip-wrapper {
@@ -1278,23 +1181,19 @@ h1 {
   color: var(--text-secondary) !important;
 }
 
-/* Ensure X/Y axis labels are visible */
 .recharts-text.recharts-label {
   fill: var(--text-secondary) !important;
 }
 
-/* Ensure axis ticks are visible */
 .recharts-cartesian-axis-tick-value tspan {
   fill: var(--text-secondary) !important;
 }
 
-/* Ensure grid lines are subtle */
 .recharts-cartesian-grid-line line {
   stroke: var(--border-color) !important;
   opacity: 0.5;
 }
 
-/* Settings Modal Styles */
 .settings-modal {
   border: none;
   border-radius: var(--radius-lg);
@@ -1360,7 +1259,6 @@ h1 {
   margin: 0;
 }
 
-/* Toggle buttons in settings */
 .setting-item .theme-toggle-button,
 .setting-item .notification-toggle-button,
 .setting-item .lofi-toggle-button {
@@ -1386,7 +1284,6 @@ h1 {
   border-color: var(--primary-color);
 }
 
-/* Settings modal buttons */
 .settings-modal-buttons {
   margin-top: var(--space-5);
   padding-top: var(--space-4);
@@ -1445,7 +1342,6 @@ h1 {
   color: var(--gray-900);
 }
 
-/* Style for Settings button */
 .top-controls .settings-button {
   padding: var(--space-2);
   border-radius: 50%;
@@ -1467,7 +1363,6 @@ h1 {
   color: var(--primary-color);
 }
 
-/* Dark theme adjustments for settings button */
 [data-theme="dark"] .top-controls .settings-button {
   background-color: var(--gray-200);
   color: var(--text-secondary);
@@ -1478,13 +1373,11 @@ h1 {
   color: var(--primary-color);
 }
 
-/* Focus styles */
 .top-controls .settings-button:focus-visible {
   box-shadow: 0 0 0 3px var(--primary-color);
   opacity: 0.8;
 }
 
-/* Ensure SVG scales well */
 .top-controls .settings-button svg {
   display: block;
 }

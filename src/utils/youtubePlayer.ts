@@ -1,37 +1,26 @@
-// src/utils/youtubePlayer.ts
-
 import { LOFI_VIDEOS } from "./lofiVideos";
-
-// Add reference to the YouTube types
-/// <reference types="@types/youtube" />
 
 let player: YT.Player | null = null;
 let playerReady = false;
 
-// Extend the global Window interface to include the YouTube API ready function
 declare global {
   interface Window {
     onYouTubeIframeAPIReady?: () => void;
-    YT?: typeof YT; // Add YT namespace to window type
+    YT?: typeof YT;
   }
 }
 
 const youtubeApiReady = new Promise<void>(resolve => {
-  // Check if the API script is already added
   if (document.getElementById("youtube-iframe-api")) {
-    // If the API is already loaded (e.g., via index.html), wait for onYouTubeIframeAPIReady
     window.onYouTubeIframeAPIReady = () => {
       console.log("YouTube IFrame API ready (already loaded).");
       resolve();
     };
-    // If window.YT is already available, resolve immediately
-    // Check YT and YT.Player exist before resolving
     if (window.YT && window.YT.Player) {
       console.log("YouTube IFrame API ready (window.YT exists).");
       resolve();
     }
   } else {
-    // Load the IFrame Player API code asynchronously.
     const tag = document.createElement("script");
     tag.id = "youtube-iframe-api";
     tag.src = "https://www.youtube.com/iframe_api";
@@ -51,12 +40,10 @@ function createPlayer(): Promise<YT.Player> {
       return;
     }
 
-    // Ensure the container exists
     let playerContainer = document.getElementById("youtube-player-container");
     if (!playerContainer) {
       playerContainer = document.createElement("div");
       playerContainer.id = "youtube-player-container";
-      // Hide the player visually but keep it accessible
       playerContainer.style.position = "absolute";
       playerContainer.style.top = "-9999px";
       playerContainer.style.left = "-9999px";
@@ -69,10 +56,10 @@ function createPlayer(): Promise<YT.Player> {
       .then(() => {
         console.log("Creating new YouTube player instance.");
         player = new YT.Player("youtube-player-container", {
-          height: "1", // Minimal size
+          height: "1",
           width: "1",
           playerVars: {
-            playsinline: 1, // Important for mobile playback
+            playsinline: 1,
           },
           events: {
             onReady: () => {
@@ -80,19 +67,14 @@ function createPlayer(): Promise<YT.Player> {
               playerReady = true;
               resolve(player!);
             },
-            // Use the correct event type from @types/youtube
             onError: (event: YT.OnErrorEvent) => {
               console.error("YouTube Player Error:", event.data);
-              // Handle errors, maybe try recreating the player or logging
-              playerReady = false; // Reset ready state on error
+              playerReady = false;
             },
             onStateChange: (event: YT.OnStateChangeEvent) => {
-              // Optional: Handle state changes (playing, paused, ended, etc.)
               console.log("Player state changed:", event.data);
-              // If video ends, maybe play another random one? For now, just log.
               if (event.data === YT.PlayerState.ENDED) {
                 console.log("Lofi video ended.");
-                // Optionally, automatically play another random video
                 playRandomLofi();
               }
             },
@@ -116,11 +98,8 @@ export async function playRandomLofi() {
     const videoId = LOFI_VIDEOS[randomIndex];
     console.log(`Loading and playing video: ${videoId}`);
 
-    // Check if loadVideoById is available (it should be after onReady)
     if (typeof currentInstance.loadVideoById === "function") {
       currentInstance.loadVideoById(videoId);
-      // Play might need to be called explicitly after load or rely on autoplay
-      // Let's try calling playVideo after a short delay to ensure loading starts
       setTimeout(() => {
         if (playerReady && typeof currentInstance.playVideo === "function") {
           currentInstance.playVideo();
@@ -130,7 +109,7 @@ export async function playRandomLofi() {
             "Player not ready or playVideo not available when attempting to play."
           );
         }
-      }, 500); // Small delay
+      }, 500);
     } else {
       console.error("loadVideoById function not available on player instance.");
     }
@@ -141,7 +120,6 @@ export async function playRandomLofi() {
 
 export async function pauseLofi() {
   try {
-    // Check player state before pausing: Only pause if actually playing
     if (
       player &&
       playerReady &&
@@ -162,7 +140,6 @@ export async function pauseLofi() {
 
 export async function resumeLofi(): Promise<boolean> {
   try {
-    // Check player state before resuming: Only resume if paused
     if (
       player &&
       playerReady &&
@@ -171,16 +148,16 @@ export async function resumeLofi(): Promise<boolean> {
     ) {
       console.log("Resuming video.");
       player.playVideo();
-      return true; // Indicate success
+      return true;
     } else {
       console.log(
         "Player not ready, not paused, or playVideo not available, cannot resume."
       );
-      return false; // Indicate failure/no action
+      return false;
     }
   } catch (error) {
     console.error("Error resuming Lofi:", error);
-    return false; // Indicate failure
+    return false;
   }
 }
 
@@ -188,7 +165,7 @@ export async function stopLofi() {
   try {
     if (player && playerReady && typeof player.stopVideo === "function") {
       console.log("Stopping video.");
-      player.stopVideo(); // Stop completely resets the video
+      player.stopVideo();
     } else {
       console.log("Player not ready or stopVideo not available, cannot stop.");
     }

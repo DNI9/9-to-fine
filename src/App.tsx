@@ -26,7 +26,6 @@ const MainContent: React.FC = () => {
   const navigate = useNavigate();
   const originalTitle = "9-to-Fine - Because tracking time is totally fine... right? 😅";
 
-  // Use our custom hooks
   const { isDarkMode, toggleTheme } = useTheme();
   const { dateFilter, setDateFilter, calendarMonth, setCalendarMonth, filterTasks } =
     useCalendar();
@@ -47,10 +46,8 @@ const MainContent: React.FC = () => {
   const incompleteDates = useIncompleteDates(session?.user?.id, calendarMonth);
   const { handleLogout } = useAuthActions();
 
-  // Set up document title management
   useDocumentTitle(tasks, originalTitle);
 
-  // Group and sort tasks
   const tasksByDay = groupTasksByDay(filterTasks(tasks));
   const sortedDays = getSortedDays(tasksByDay);
 

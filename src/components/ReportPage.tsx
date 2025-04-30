@@ -18,34 +18,27 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../utils/supabase";
 
-// Define interfaces for processed data
 interface TimeSpentData {
   name: string;
-  time: number; // Store time in HOURS
-  incomplete: boolean; // Flag if any task instance was incomplete
+  time: number;
+  incomplete: boolean;
 }
 
-// Interface for daily total data
 interface DailyTotalData {
   date: string;
   totalHours: number;
 }
 
-// Interface for daily task count data
 interface DailyTaskCountData {
   date: string;
   count: number;
 }
 
-// Interface matching the relevant fields from fetched Supabase data
 interface FetchedTask {
   name: string;
-  total_time: number; // in seconds
+  total_time: number;
   is_completed: boolean;
-  current_day: string; // 'YYYY-MM-DD'
-  // start_time might be needed if we want to calculate based on start/end again,
-  // but total_time seems more direct if available and accurate.
-  // start_time: string | null;
+  current_day: string;
 }
 
 const ReportPage: React.FC = () => {
@@ -64,9 +57,8 @@ const ReportPage: React.FC = () => {
       try {
         setIsLoading(true);
 
-        // Get the current month's date range
         const today = new Date();
-        today.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
+        today.setHours(12, 0, 0, 0);
         const monthStart = startOfMonth(today);
         const monthEnd = endOfMonth(today);
 
@@ -80,23 +72,19 @@ const ReportPage: React.FC = () => {
         if (fetchError) throw fetchError;
         if (!tasks) throw new Error("No tasks data returned.");
 
-        // --- Process Data for Historical Daily Totals & Task Counts ---
-        const timePerDay: { [key: string]: number } = {}; // Store total seconds per day
-        const tasksPerDay: { [key: string]: number } = {}; // Store task count per day
+        const timePerDay: { [key: string]: number } = {};
+        const tasksPerDay: { [key: string]: number } = {};
 
         tasks.forEach((task: FetchedTask) => {
           if (task.current_day) {
             const dayKey = task.current_day;
-            // Aggregate total time
             if (task.total_time > 0) {
               timePerDay[dayKey] = (timePerDay[dayKey] || 0) + task.total_time;
             }
-            // Count tasks
             tasksPerDay[dayKey] = (tasksPerDay[dayKey] || 0) + 1;
           }
         });
 
-        // Format Daily Totals (Time)
         const formattedDailyTotals: DailyTotalData[] = Object.entries(timePerDay)
           .map(([date, totalSeconds]) => ({
             date,
@@ -105,7 +93,6 @@ const ReportPage: React.FC = () => {
           .sort((a, b) => a.date.localeCompare(b.date));
         setDailyTotalsData(formattedDailyTotals);
 
-        // Format Daily Task Counts
         const formattedTaskCounts: DailyTaskCountData[] = Object.entries(tasksPerDay)
           .map(([date, count]) => ({
             date,
@@ -114,8 +101,6 @@ const ReportPage: React.FC = () => {
           .sort((a, b) => a.date.localeCompare(b.date));
         setDailyTaskCountData(formattedTaskCounts);
 
-        // --- Process Data for Time Spent Per Task (for the selected date) ---
-        // Filter tasks by the selected date *after* processing daily totals
         const filteredTasks = tasks.filter(task => task.current_day === selectedDate);
         const timePerTask: {
           [key: string]: { totalSeconds: number; incomplete: boolean };
@@ -133,7 +118,6 @@ const ReportPage: React.FC = () => {
           }
         });
 
-        // Convert aggregated seconds to hours for the single-day chart
         const formattedTimeSpentData: TimeSpentData[] = Object.entries(timePerTask).map(
           ([name, data]) => ({
             name,
@@ -150,7 +134,7 @@ const ReportPage: React.FC = () => {
     };
 
     fetchTaskData();
-  }, [session?.user?.id, selectedDate]); // Added selectedDate to dependency array
+  }, [session?.user?.id, selectedDate]);
 
   if (isLoading) {
     return <div className="loading-message">Loading reports...</div>;
@@ -160,13 +144,11 @@ const ReportPage: React.FC = () => {
     <div className="report-page-container">
       <div className="report-header">
         <h1>Reports</h1>
-        {/* Back to Home Button */}
         <button onClick={() => navigate("/")} className="button home-button">
           <IoArrowBack /> Back to Home
         </button>
       </div>
 
-      {/* Date Filter Section */}
       <section className="report-section date-filter-section">
         <label htmlFor="report-date" className="input-label">
           Select Date:{" "}
@@ -176,13 +158,12 @@ const ReportPage: React.FC = () => {
           id="report-date"
           value={selectedDate}
           onChange={e => setSelectedDate(e.target.value)}
-          className="input theme-input" // Use theme input class
+          className="input theme-input"
         />
       </section>
 
       <section className="report-section">
         <h2>Time Spent Per Task on {selectedDate} (Hours)</h2>
-        {/* Chart Container with theme styles */}
         <div className="report-chart-container">
           {timeSpentData.length === 0 ? (
             <p className="no-data-message">No task data available for {selectedDate}.</p>
@@ -193,18 +174,16 @@ const ReportPage: React.FC = () => {
                 margin={{
                   top: 5,
                   right: 30,
-                  left: 30, // Adjusted left margin for wider label
+                  left: 30,
                   bottom: 5,
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
-                {/* Updated YAxis label */}
                 <YAxis
                   label={{ value: "Hours", angle: -90, position: "insideLeft" }}
-                  domain={[0, "auto"]} // Ensure Y axis starts at 0
+                  domain={[0, "auto"]}
                 />
-                {/* Updated Tooltip formatter */}
                 <Tooltip
                   formatter={(value: number, _name, props) => [
                     `${value.toFixed(2)} hr${value !== 1 ? "s" : ""}${
@@ -214,13 +193,12 @@ const ReportPage: React.FC = () => {
                   ]}
                 />
                 <Legend />
-                {/* Use Cell for individual bar colors */}
                 <Bar dataKey="time" name="Time Spent (hrs)">
                   {timeSpentData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={entry.incomplete ? "#ff7300" : "#8884d8"}
-                    /> // Orange for incomplete
+                    />
                   ))}
                 </Bar>
               </BarChart>
@@ -229,16 +207,13 @@ const ReportPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Historical Daily Totals Chart */}
       <section className="report-section">
         <h2>Total Time Spent Per Day (Hours)</h2>
-        {/* Chart Container with theme styles */}
         <div className="report-chart-container">
           {dailyTotalsData.length === 0 ? (
             <p className="no-data-message">No historical data available.</p>
           ) : (
             <ResponsiveContainer>
-              {/* Changed to LineChart */}
               <LineChart
                 data={dailyTotalsData}
                 margin={{ top: 5, right: 30, left: 30, bottom: 5 }}
@@ -256,13 +231,12 @@ const ReportPage: React.FC = () => {
                   ]}
                 />
                 <Legend />
-                {/* Changed Bar to Line */}
                 <Line
                   type="monotone"
                   dataKey="totalHours"
                   stroke="#82ca9d"
                   name="Total Time (hrs)"
-                  activeDot={{ r: 8 }} // Optional: highlight point on hover
+                  activeDot={{ r: 8 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -270,10 +244,8 @@ const ReportPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Daily Task Count Chart */}
       <section className="report-section">
         <h2>Tasks Recorded Per Day</h2>
-        {/* Chart Container with theme styles */}
         <div className="report-chart-container">
           {dailyTaskCountData.length === 0 ? (
             <p className="no-data-message">No task count data available.</p>
@@ -287,12 +259,12 @@ const ReportPage: React.FC = () => {
                 <XAxis dataKey="date" />
                 <YAxis
                   label={{ value: "Task Count", angle: -90, position: "insideLeft" }}
-                  allowDecimals={false} // Ensure Y-axis shows whole numbers
+                  allowDecimals={false}
                   domain={[0, "auto"]}
                 />
                 <Tooltip
                   formatter={(value: number) => [
-                    `${value} task${value !== 1 ? "s" : ""}`, // Format tooltip
+                    `${value} task${value !== 1 ? "s" : ""}`,
                     "Tasks Recorded",
                   ]}
                 />
@@ -300,7 +272,7 @@ const ReportPage: React.FC = () => {
                 <Line
                   type="monotone"
                   dataKey="count"
-                  stroke="#ff7300" // Different color for this chart
+                  stroke="#ff7300"
                   name="Tasks Recorded"
                   activeDot={{ r: 8 }}
                 />
