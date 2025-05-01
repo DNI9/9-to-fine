@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Task } from "../types";
+import { playNotificationSound } from "../utils/soundUtils";
 
 const NOTIFICATION_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
 
@@ -23,6 +24,7 @@ export const useNotifications = (tasks: Task[]) => {
           const lastNotified = taskNotificationsRef.current[taskIdStr] || 0;
 
           if (notificationCount > lastNotified && Notification.permission === "granted") {
+            playNotificationSound();
             new Notification(
               `Task "${task.name}" has been running for ${
                 notificationCount * 30
