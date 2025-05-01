@@ -292,6 +292,7 @@ body {
 .top-controls .logout-button svg {
   display: block;
 }
+
 .top-controls .report-button {
   padding: var(--space-2);
   border-radius: 50%;
@@ -1391,4 +1392,91 @@ h1 {
 
 .top-controls .settings-button svg {
   display: block;
+}
+
+.progress-container {
+  margin: var(--space-4) 0;
+  padding: 0 var(--space-2);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: var(--space-2);
+}
+
+.progress-bar {
+  width: 100%;
+  margin: var(--space-3) 0;
+}
+
+.progress-bar-background {
+  width: 100%;
+  height: 20px; /* Increased from 12px */
+  background-color: var(--background-card);
+  border-radius: 25px; /* Increased to match new height */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  transition: width 0.5s ease;
+  border-radius: 25px; /* Increased to match new height */
+  position: relative;
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
+}
+
+.progress-text {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--white);
+  font-size: 0.9rem; /* Increased from 0.8rem to match new height */
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .progress-bar-background {
+  background-color: var(--gray-200);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .progress-bar-fill {
+  box-shadow: 0 0 15px rgba(208, 188, 255, 0.2);
+}
+
+[data-theme="dark"] .progress-text {
+  color: var(--gray-900);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.target-hours-select {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--background-body);
+  color: var(--text-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  outline: none;
+  min-width: 120px;
+}
+
+.target-hours-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.1);
+}
+
+[data-theme="dark"] .target-hours-select {
+  background-color: var(--gray-50);
+}
+
+[data-theme="dark"] .target-hours-select option {
+  background-color: var(--background-card);
 }

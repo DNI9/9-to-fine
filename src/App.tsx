@@ -6,17 +6,19 @@ import "./App.css";
 import DateFilter from "./components/DateFilter";
 import DaySection from "./components/DaySection";
 import Login from "./components/Login";
+import ProgressBar from "./components/ProgressBar";
 import ReportPage from "./components/ReportPage";
 import SettingsModal from "./components/SettingsModal";
 import TaskInput from "./components/TaskInput";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { useAuthActions } from "./hooks/useAuthActions";
-import { useCalendar } from "./hooks/useCalendar";
+import { getTodayDateString, useCalendar } from "./hooks/useCalendar";
 import { useDocumentTitle } from "./hooks/useDocumentTitle";
 import { useIncompleteDates } from "./hooks/useIncompleteDates";
 import { useLofi } from "./hooks/useLofi";
 import { useNotifications } from "./hooks/useNotifications";
 import { useSettingsModal } from "./hooks/useSettingsModal";
+import { useTargetHours } from "./hooks/useTargetHours";
 import { useTasks } from "./hooks/useTasks";
 import { useTheme } from "./hooks/useTheme";
 import { getSortedDays, groupTasksByDay } from "./utils/taskUtils";
@@ -46,11 +48,25 @@ const MainContent: React.FC = () => {
   const { setIsSettingsModalOpen, settingsDialogRef } = useSettingsModal();
   const incompleteDates = useIncompleteDates(session?.user?.id, calendarMonth);
   const { handleLogout } = useAuthActions();
+  const { targetHours, setTargetHours } = useTargetHours();
 
   useDocumentTitle(tasks, originalTitle);
 
   const tasksByDay = groupTasksByDay(filterTasks(tasks));
   const sortedDays = getSortedDays(tasksByDay);
+
+  // Calculate total hours for today's tasks
+  const todayString = getTodayDateString();
+  const todaysTasks = tasksByDay[todayString] || [];
+  const totalHoursToday = todaysTasks.reduce((total, task) => {
+    let taskSeconds = task.total_time;
+    if (task.is_running && task.start_time) {
+      const startTimeNumber = Number(task.start_time);
+      const elapsedMillis = Date.now() - startTimeNumber;
+      taskSeconds += Math.floor(elapsedMillis / 1000);
+    }
+    return total + taskSeconds / 3600;
+  }, 0);
 
   return (
     <div className="app-container">
@@ -83,6 +99,12 @@ const MainContent: React.FC = () => {
           onMonthChange={setCalendarMonth}
         />
       </div>
+
+      {targetHours !== null &&
+        (!dateFilter ||
+          dateFilter?.from?.toISOString().split("T")[0] === todayString) && (
+          <ProgressBar currentHours={totalHoursToday} targetHours={targetHours} />
+        )}
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="days-container">
@@ -120,6 +142,8 @@ const MainContent: React.FC = () => {
         toggleLofi={toggleLofi}
         handleLogout={handleLogout}
         setIsSettingsModalOpen={setIsSettingsModalOpen}
+        targetHours={targetHours}
+        setTargetHours={setTargetHours}
       />
     </div>
   );

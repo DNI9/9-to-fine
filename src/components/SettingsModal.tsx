@@ -14,6 +14,8 @@ interface SettingsModalProps {
   toggleLofi: () => void;
   handleLogout: () => void;
   setIsSettingsModalOpen: (isOpen: boolean) => void;
+  targetHours: number | null;
+  setTargetHours: (hours: number | null) => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -26,6 +28,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   toggleLofi,
   handleLogout,
   setIsSettingsModalOpen,
+  targetHours,
+  setTargetHours,
 }) => {
   return (
     <dialog
@@ -35,6 +39,28 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     >
       <div className="settings-modal-content">
         <h2>Settings</h2>
+
+        <div className="setting-item">
+          <div className="setting-item-info">
+            <div className="setting-item-title">Target Hours</div>
+            <p className="setting-description">
+              Set your daily target hours. A progress bar will show your progress towards
+              this goal.
+            </p>
+          </div>
+          <select
+            value={targetHours || ""}
+            onChange={e => setTargetHours(e.target.value ? Number(e.target.value) : null)}
+            className="target-hours-select"
+          >
+            <option value="">No target</option>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map(hours => (
+              <option key={hours} value={hours}>
+                {hours} hour{hours !== 1 ? "s" : ""}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="setting-item">
           <div className="setting-item-info">
