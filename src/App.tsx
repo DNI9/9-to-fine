@@ -26,7 +26,7 @@ import { getSortedDays, groupTasksByDay } from "./utils/taskUtils";
 const MainContent: React.FC = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const originalTitle = "9-to-Fine - Because tracking time is totally fine... right? 😅";
+  const originalTitle = "9-to-Fine - Your Time, Your Tasks";
 
   const { isDarkMode, toggleTheme } = useTheme();
   const { dateFilter, setDateFilter, calendarMonth, setCalendarMonth, filterTasks } =
