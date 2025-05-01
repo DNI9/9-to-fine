@@ -1,6 +1,6 @@
-# ChronoTask
+# 9-to-Fine
 
-Welcome to **ChronoTask**, your ultimate productivity companion! This app is designed to help you manage your tasks, track your time, and stay focused with a touch of lofi vibes. Whether you're planning your day or reflecting on your progress, ChronoTask is here to make it seamless and enjoyable.
+Welcome to **9-to-Fine**, where productivity meets style! This isn't just another task management app—it's your personal assistant for conquering the day with flair. Organize your tasks, track your time, and vibe to some lofi beats while you're at it. Whether you're a night owl or an early bird, 9-to-Fine has got your back.
 
 ## Features
 
