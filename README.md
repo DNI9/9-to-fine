@@ -1,13 +1,6 @@
-<style>
-  .centered {
-    text-align: center;
-  }
-</style>
+# 9-to-Fine
 
-<div class="centered">
-  <h1>9-to-Fine</h1>
-  <p>Welcome to <strong>9-to-Fine</strong>, where productivity meets style! This isn't just another task management app—it's your personal assistant for conquering the day with flair. Organize your tasks, track your time, and vibe to some lofi beats while you're at it. Whether you're a night owl or an early bird, 9-to-Fine has got your back.</p>
-</div>
+Welcome to 9-to-Fine, where productivity meets style! This isn't just another task management app—it's your personal assistant for conquering the day with flair. Organize your tasks, track your time, and vibe to some lofi beats while you're at it. Whether you're a night owl or an early bird, 9-to-Fine has got your back.
 
 ![Home Page](resources/home-page.png)
 
