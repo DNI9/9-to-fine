@@ -1,43 +1,51 @@
-# 9-to-Fine
+# ChronoTask
 
-Welcome to **9-to-Fine**, where productivity meets style! This isn't just another task management app—it's your personal assistant for conquering the day with flair. Organize your tasks, track your time, and vibe to some lofi beats while you're at it. Whether you're a night owl or an early bird, 9-to-Fine has got your back.
+Welcome to **ChronoTask**, your ultimate productivity companion! This app is designed to help you manage your tasks, track your time, and stay focused with a touch of lofi vibes. Whether you're planning your day or reflecting on your progress, ChronoTask is here to make it seamless and enjoyable.
 
 ## Features
 
 ### Task Management
 
-- Create and organize daily tasks
-- Drag-and-drop interface for moving tasks between days
-- Mark tasks as complete
-- Automatic organization by date
-- Today's section always visible for quick access
+- Create, edit, and delete tasks effortlessly
+- Organize tasks by date with a clean and intuitive interface
+- Mark tasks as complete and track progress
+- "Today's Tasks" section for quick access to daily priorities
 
 ### Time Tracking
 
-- Start, pause, and stop time tracking for each task
-- Accurate time tracking persists across browser sessions
-- Real-time timer display in HH:MM:SS format
-- Total time automatically calculated and saved
+- Start, pause, and stop timers for individual tasks
+- Persistent time tracking across sessions
+- Real-time timer display with accurate calculations
+- Total time spent on tasks automatically updated
 
-### Data Persistence
+### Reports and Insights
 
-- Tasks automatically saved to localStorage
-- Maintains task state and timing data between sessions
-- Robust error handling for storage operations
+- Generate daily, weekly, and monthly task reports
+- Visualize task completion trends and time allocation
 
 ### User Experience
 
 - Toggle lofi background music for a focused work environment
 - Integrated YouTube player for seamless playback
 - Switch between light and dark themes
-- Persistent theme settings saved in localStorage
+- Persistent theme and music settings saved in localStorage
+
+### Notifications
+
+- Enable reminders for upcoming tasks
+- Customizable notification settings
+
+### Data Persistence
+
+- Tasks and settings saved securely using Supabase
 
 ## Technical Stack
 
 - **Frontend Framework**: React 19 with TypeScript
-- **State Management**: React Hooks (useState, useCallback, useEffect)
+- **State Management**: React Context and custom hooks
 - **Drag and Drop**: @hello-pangea/dnd
 - **Icons**: react-icons
+- **Backend**: Supabase for authentication and data storage
 - **Build Tool**: Vite
 - **Development Tools**: ESLint, TypeScript
 
@@ -46,32 +54,55 @@ Welcome to **9-to-Fine**, where productivity meets style! This isn't just anothe
 ```
 src/
 ├── components/
-│   ├── DaySection.tsx   # Day-wise task container
-│   ├── LofiToggle.tsx   # Lofi mode toggle component
-│   ├── TaskInput.tsx    # New task creation form
-│   ├── TaskItem.tsx     # Individual task component
-│   └── ThemeToggle.tsx  # Theme toggle component
+│   ├── DateFilter.tsx       # Filter tasks by date
+│   ├── DaySection.tsx       # Day-wise task container
+│   ├── LofiToggle.tsx       # Lofi mode toggle component
+│   ├── NotificationToggle.tsx # Notification settings toggle
+│   ├── ReportPage.tsx       # Task reports and insights
+│   ├── SettingsModal.tsx    # User settings modal
+│   ├── TaskInput.tsx        # New task creation form
+│   ├── TaskItem.tsx         # Individual task component
+│   └── ThemeToggle.tsx      # Theme toggle component
+├── contexts/
+│   └── AuthContext.tsx      # Authentication context
+├── hooks/
+│   ├── useAuthActions.ts    # Authentication-related hooks
+│   ├── useCalendar.ts       # Calendar utilities
+│   ├── useDocumentTitle.ts  # Dynamic document title updates
+│   ├── useIncompleteDates.ts # Fetch incomplete tasks by date
+│   ├── useLofi.ts           # Lofi music state management
+│   ├── useNotifications.ts  # Notification management
+│   ├── useSettingsModal.ts  # Settings modal state
+│   ├── useTasks.ts          # Task management hooks
+│   └── useTheme.ts          # Theme state management
 ├── types/
-│   └── index.ts         # TypeScript interfaces
+│   └── index.ts             # TypeScript interfaces
 ├── utils/
-│   ├── storageUtils.ts  # localStorage management
-│   ├── timeUtils.ts     # Time formatting utilities
-│   └── youtubePlayer.ts # YouTube player utilities
-├── App.tsx              # Main application component
-└── App.css             # Application styling
+│   ├── lofiVideos.ts        # Lofi video playlist
+│   ├── supabase.ts          # Supabase client setup
+│   ├── taskUtils.ts         # Task-related utilities
+│   ├── timeUtils.ts         # Time formatting utilities
+│   └── youtubePlayer.ts     # YouTube player utilities
+├── App.tsx                  # Main application component
+└── App.css                  # Application styling
 ```
 
 ## Task Model
 
 ```typescript
 interface Task {
-  id: string; // Unique identifier
+  id: number; // Unique identifier
+  user_id: string; // User ID associated with the task
   name: string; // Task name
-  totalTime: number; // Total time in milliseconds
-  startTime: number | null; // Timestamp when timer started
-  isRunning: boolean; // Current timer status
-  isCompleted: boolean; // Task completion status
-  currentDay: string; // Associated date (YYYY-MM-DD)
+  total_time: number; // Total time in milliseconds
+  start_time: string | null; // Timestamp when timer started
+  is_running: boolean; // Current timer status
+  is_completed: boolean; // Task completion status
+  current_day: string; // Associated date (YYYY-MM-DD)
+  postponed_to: string | null; // Postponed date (if any)
+  position: number; // Position in the task list
+  created_at: string; // Task creation timestamp
+  updated_at: string; // Task last updated timestamp
 }
 ```
 
