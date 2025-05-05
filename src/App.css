@@ -654,7 +654,8 @@ h1 {
   color: var(--text-primary);
   font-weight: 500;
   flex-grow: 1;
-  margin-right: var(--space-3);
+  margin-right: auto;
+  margin-bottom: var(--space-1);
 }
 
 .task-item .task-name-input {
@@ -826,6 +827,7 @@ h1 {
   font-size: 0.85rem;
   font-weight: 500;
   margin-left: auto;
+  border: 1px solid var(--success-color);
 }
 
 [data-theme="dark"] .task-item .completed-badge {
@@ -841,6 +843,7 @@ h1 {
   font-weight: 500;
   margin-left: auto;
   cursor: help;
+  border: 1px solid var(--gray-600);
 }
 
 [data-theme="dark"] .task-item .postponed-badge {
