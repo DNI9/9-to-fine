@@ -98,6 +98,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <div className="settings-modal-buttons">
+          <a
+            href="https://indradev.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              marginRight: "auto",
+              fontSize: "0.8em",
+              color: "inherit",
+              textDecoration: "none",
+              opacity: 0.7,
+            }}
+          >
+            Built with 💖 & AI by Indrajit
+          </a>
           <button onClick={handleLogout} className="settings-modal-logout" title="Logout">
             <IoLogOut size={18} /> Logout
           </button>
