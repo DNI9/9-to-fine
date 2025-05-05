@@ -1,5 +1,5 @@
 import { DragDropContext } from "@hello-pangea/dnd";
-import React from "react";
+import React, { useEffect } from "react";
 import { IoBarChart, IoSettingsOutline } from "react-icons/io5";
 import { Navigate, Route, Routes, useNavigate } from "react-router";
 import "./App.css";
@@ -67,6 +67,39 @@ const MainContent: React.FC = () => {
     }
     return total + taskSeconds / 3600;
   }, 0);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only handle spacebar press if not in an input or textarea
+      if (
+        event.code === "Space" &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
+        event.preventDefault();
+
+        // Find the currently running task
+        const runningTask = tasks.find(task => task.is_running);
+
+        if (runningTask) {
+          // Pause the running task
+          handleStartPause(runningTask.id);
+        } else {
+          // Find the most recent incomplete task and start it
+          const incompleteTasks = tasks
+            .filter(task => !task.is_completed && !task.postponed_to)
+            .sort((a, b) => b.position - a.position);
+
+          if (incompleteTasks.length > 0) {
+            handleStartPause(incompleteTasks[0].id);
+          }
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [tasks, handleStartPause]);
 
   return (
     <div className="app-container">

@@ -183,7 +183,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                     onClick={() => onStartPause(task.id)}
                     className={task.is_running ? "button-pause" : "button-play"}
                     aria-label={task.is_running ? "Pause task" : "Start task"}
-                    title={task.is_running ? "Pause task" : "Start task"}
+                    title={`Press space to ${task.is_running ? "pause" : "start"} task`}
                   >
                     {task.is_running ? (
                       <IoIosPause size={ICON_SIZE} />
