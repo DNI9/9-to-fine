@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 
 interface TaskInputProps {
@@ -7,6 +7,24 @@ interface TaskInputProps {
 
 const TaskInput: React.FC<TaskInputProps> = ({ onAddTask }) => {
   const [taskName, setTaskName] = useState("");
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only trigger if we're not already in an input/textarea
+      if (
+        event.key === "/" &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, []);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -29,10 +47,11 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask }) => {
     <div className="task-input-container">
       <form onSubmit={handleSubmit} style={{ display: "flex", flexGrow: 1, gap: "10px" }}>
         <textarea
+          ref={inputRef}
           value={taskName}
           onChange={e => setTaskName(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Enter task name(s) here... (Ctrl+Enter to submit)"
+          placeholder="Enter task name(s) here... (Press '/' to focus, Ctrl+Enter to submit)"
           rows={1}
           aria-label="Task input"
         />
